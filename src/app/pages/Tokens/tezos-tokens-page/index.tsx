@@ -53,7 +53,6 @@ const PageContent: FC = () => {
   return (
     <PageContentBase
       manageActive={false}
-      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
@@ -88,7 +87,6 @@ const PageContentWithManageActive: FC = () => {
     <PageContentBase
       allSlugsSorted={allSlugsSorted}
       allSlugsSortedGrouped={allSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
       manageActive={true}
     />
   );

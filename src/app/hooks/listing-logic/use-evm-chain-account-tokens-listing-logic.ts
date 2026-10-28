@@ -12,8 +12,6 @@ import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
 import { useGetEvmChainTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
-import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
-
 import { useIsEvmChainBigBalance } from './use-is-big-balance';
 import { useCommonAssetsListingLogic } from './utils';
 
@@ -52,8 +50,6 @@ export const useEvmChainAccountTokensListingLogic = (
   chainId: number,
   ignoreSearch = false
 ) => {
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
-
   const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
@@ -68,14 +64,13 @@ export const useEvmChainAccountTokensListingLogic = (
     () =>
       isInSearchMode && !ignoreSearch
         ? searchEvmChainTokensWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, slug => slug)
-        : paginatedSlugs,
-    [paginatedSlugs, allSlugsSorted, isInSearchMode, getMetadata, searchValueDebounced, ignoreSearch]
+        : allSlugsSorted,
+    [allSlugsSorted, isInSearchMode, getMetadata, searchValueDebounced, ignoreSearch]
   );
 
   return {
     isInSearchMode,
     displayedSlugs,
-    isSyncing,
-    loadNext
+    isSyncing
   };
 };

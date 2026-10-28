@@ -8,9 +8,10 @@ export const useGenericPaginationLogic = <T extends unknown[]>(
   minInitialItemsCount = 10,
   itemsPerPage = 30,
   slice: (items: T, end: number) => T,
-  len: (items: T) => number
+  len: (items: T) => number,
+  initialItemsCount = itemsPerPage
 ) => {
-  const [paginatedItems, setPaginatedItems] = useState(() => slice(items, itemsPerPage));
+  const [paginatedItems, setPaginatedItems] = useState(() => slice(items, initialItemsCount));
   const paginatedItemsLength = useMemo(() => len(paginatedItems), [len, paginatedItems]);
   const itemsLength = useMemo(() => len(items), [len, items]);
 

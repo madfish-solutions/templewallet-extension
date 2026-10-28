@@ -21,7 +21,7 @@ import { SwapSelectAssetModalSelectors } from './selectors';
 
 export type BridgeDirection = 'tezos-to-etherlink' | 'etherlink-to-tezos';
 
-export const BRIDGE_CARD_HEIGHT = 56;
+const BRIDGE_CARD_HEIGHT = 56;
 
 export const getBridgeDirection = (
   activeField: SwapFieldName,

@@ -10,8 +10,6 @@ import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting'
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
-import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
-
 import { useIsTezosChainBigBalance } from './use-is-big-balance';
 import { useCommonAssetsListingLogic } from './utils';
 
@@ -52,8 +50,6 @@ export const useTezosChainAccountTokensListingLogic = (
   chainId: string,
   ignoreSearch = false
 ) => {
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
-
   const assetsAreLoading = useAreAssetsLoading('tokens');
   const metadatasLoading = useTokensMetadataLoadingSelector();
 
@@ -67,15 +63,14 @@ export const useTezosChainAccountTokensListingLogic = (
     () =>
       isInSearchMode && !ignoreSearch
         ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getTokenMetadata, slug => slug)
-        : paginatedSlugs,
-    [isInSearchMode, paginatedSlugs, allSlugsSorted, getTokenMetadata, searchValueDebounced, ignoreSearch]
+        : allSlugsSorted,
+    [isInSearchMode, allSlugsSorted, getTokenMetadata, searchValueDebounced, ignoreSearch]
   );
 
   return {
     isInSearchMode,
     displayedSlugs,
     isSyncing,
-    loadNext,
     searchValue,
     setSearchValue
   };

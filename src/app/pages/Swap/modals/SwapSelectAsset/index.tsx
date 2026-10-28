@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, MouseEvent, Suspense, useMemo, FC } from 'react';
+import React, { memo, useCallback, useState, MouseEvent, Suspense, useMemo, useRef, FC } from 'react';
 
 import clsx from 'clsx';
 import { uniq } from 'lodash';
@@ -25,6 +25,7 @@ import { t } from 'lib/i18n';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 import { isFilterChain } from '../../form/utils';
 
@@ -178,8 +179,11 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       tezosNetwork
     ]);
 
+    const scrollerRef = useRef<HTMLDivElement>(null);
+
     const handleFilterOptionSelect = useCallback(
       (filterChain: FilterChain | string) => {
+        scrollerRef.current?.scrollTo({ top: 0 });
         setLocalFilterChain(filterChain);
 
         if (activeField === 'output') setOutputFilterChain(filterChain);
@@ -226,7 +230,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         </div>
 
-        <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+        <div
+          ref={scrollerRef}
+          className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto"
+          id={SWAP_SELECT_ASSET_SCROLLABLE_ID}
+        >
+          <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+        </div>
       </PageModal>
     );
   }
