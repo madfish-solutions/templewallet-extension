@@ -4,7 +4,7 @@ export { getMessage, getCurrentLocale, getNumberSymbols, formatDate } from './co
 
 export { updateLocale, onInited } from './loading';
 
-export { toLocalFixed, toLocalFormat, toShortened, getPluralKey } from './numbers';
+export { toLocalFixed, toLocalFormat, toShortened, getPluralKey, formatTinyAmount } from './numbers';
 
 export type { TProps } from './react';
 export { t, T } from './react';
