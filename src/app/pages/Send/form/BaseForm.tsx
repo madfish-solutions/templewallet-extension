@@ -219,7 +219,7 @@ export const BaseForm: FC<Props> = ({
                 underneathComponent={
                   shouldShowConvertedAmountBlock ? (
                     <div className="flex justify-between items-center mt-1 gap-2">
-                      {error ? (
+                      {formSubmitted && error ? (
                         <span className="flex-1 text-font-description text-error">{error.message}</span>
                       ) : (
                         <ConvertedInputAssetAmount

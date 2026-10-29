@@ -129,10 +129,10 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const maxAmountStr = maxAmount?.toString();
   useEffect(() => {
-    if (formState.dirtyFields.amount) {
+    if (formState.isSubmitted && formState.dirtyFields.amount) {
       trigger('amount');
     }
-  }, [formState.dirtyFields, trigger, maxAmountStr]);
+  }, [formState.isSubmitted, formState.dirtyFields, trigger, maxAmountStr]);
 
   const toAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value) =>
