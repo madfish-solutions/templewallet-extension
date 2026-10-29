@@ -1,11 +1,12 @@
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
-import { useExolixPairUnavailable } from 'app/hooks/use-exolix-pair-unavailable';
+import { toastError } from 'app/toaster';
 import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
 import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
 import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
 // Intentionally tiny: always falls below Exolix min so the API surfaces the real min in its response.
@@ -29,9 +30,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
     coinTo: to.exolixCoin,
     networkTo: to.exolixNetwork
   });
-  const isRouteUnavailable = useExolixPairUnavailable(pairKey);
-
-  const key = isRouteUnavailable ? null : ['cross-chain-rate', pairKey, probeKey];
+  const key = ['cross-chain-rate', pairKey, probeKey];
 
   const swr = useTypedSWR<GetRateResponse>(
     key,
@@ -47,10 +46,14 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
       refreshInterval: 10_000,
       revalidateOnFocus: false,
       dedupingInterval: 5_000,
-      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError)
+      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError),
+      onError: (error: unknown): void => {
+        if (error instanceof ExolixPairUnavailableError) toastError(t('pairNotAvailable'));
+      }
     }
   );
 
+  const isRouteUnavailable = swr.error instanceof ExolixPairUnavailableError;
   const normalized: NormalizedRateResult | undefined = isRouteUnavailable
     ? { kind: 'unsupported' }
     : swr.data

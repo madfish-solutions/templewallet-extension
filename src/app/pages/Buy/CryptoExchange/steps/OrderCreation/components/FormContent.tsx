@@ -7,7 +7,6 @@ import { useDebounce } from 'use-debounce';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { useExolixPairUnavailable } from 'app/hooks/use-exolix-pair-unavailable';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
@@ -34,7 +33,10 @@ const DEFAULT_SWR_CONFIG = {
   shouldRetryOnError: false,
   focusThrottleInterval: TEN_SECONDS_IN_MS,
   refreshInterval: TEN_SECONDS_IN_MS,
-  dedupingInterval: TEN_SECONDS_IN_MS
+  dedupingInterval: TEN_SECONDS_IN_MS,
+  onError: (error: unknown): void => {
+    if (error instanceof ExolixPairUnavailableError) toastError(t('pairNotAvailable'));
+  }
 };
 
 interface Props {
@@ -67,14 +69,12 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     coinTo: outputCurrency.code,
     networkTo: outputCurrency.network.code
   });
-  const isPairUnavailable = useExolixPairUnavailable(pairKey);
-
-  useEffect(() => {
-    if (isPairUnavailable) toastError(t('pairNotAvailable'));
-  }, [pairKey, isPairUnavailable]);
-
-  const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
-    isPairUnavailable ? null : ['exolix/api/min-max', pairKey],
+  const {
+    data: minMaxData,
+    error: minMaxError,
+    isValidating: isMinMaxLoading
+  } = useTypedSWR(
+    ['exolix/api/min-max', pairKey],
     () =>
       loadMinMaxExchangeValues(
         inputCurrency.code,
@@ -94,8 +94,12 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     }
   }, [inputValue, minMaxData, trigger]);
 
-  const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
-    isPairUnavailable || !minMaxData ? null : ['exolix/api/rate', pairKey, minMaxData, inputValueDebounced],
+  const {
+    data: ratesData,
+    error: ratesError,
+    isValidating: isRatesLoading
+  } = useTypedSWR(
+    minMaxError || !minMaxData ? null : ['exolix/api/rate', pairKey, minMaxData, inputValueDebounced],
     () => {
       const amount = getParsedAmount(inputValueDebounced);
 
@@ -114,12 +118,15 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     DEFAULT_SWR_CONFIG
   );
 
+  const isPairUnavailable =
+    minMaxError instanceof ExolixPairUnavailableError || ratesError instanceof ExolixPairUnavailableError;
+
   const { rate, toAmount } = useMemo(
     () =>
-      ratesData && 'rate' in ratesData
+      ratesData && !isPairUnavailable && 'rate' in ratesData
         ? { rate: ratesData.rate, toAmount: ratesData.toAmount }
         : { rate: null, toAmount: 0 },
-    [ratesData]
+    [ratesData, isPairUnavailable]
   );
 
   const withdrawalAddress = useMemo(() => {
@@ -180,7 +187,10 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
       } catch (e) {
         console.error(e);
         formAnalytics.trackSubmitFail();
-        if (e instanceof ExolixPairUnavailableError) return;
+        if (e instanceof ExolixPairUnavailableError) {
+          toastError(t('pairNotAvailable'));
+          return;
+        }
         if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');
       }

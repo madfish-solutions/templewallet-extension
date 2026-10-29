@@ -159,10 +159,10 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
       unsupportedPairToastRef.current = { pairKey, shown: false };
     }
 
-    if (!isUnsupportedPair) return;
+    if (!isUnsupportedPair || isRouteUnavailable) return;
 
     const hasMeaningfulAmount = fromAmountInTokens && new BigNumber(fromAmountInTokens).isGreaterThan(0);
-    if (!hasMeaningfulAmount && !isRouteUnavailable) return;
+    if (!hasMeaningfulAmount) return;
 
     if (unsupportedPairToastRef.current.shown) return;
     unsupportedPairToastRef.current.shown = true;
