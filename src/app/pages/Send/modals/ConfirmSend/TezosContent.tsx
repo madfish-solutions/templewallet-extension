@@ -131,8 +131,7 @@ export const TezosContent: FC<TezosContentProps> = ({
     estimationData,
     basicParams: basicSendParams,
     senderAccount: account,
-    network,
-    isEstimationError: Boolean(estimationError)
+    network
   });
   const { isSubmitting } = useFormState({ control: form.control });
 

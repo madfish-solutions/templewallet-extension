@@ -88,10 +88,12 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   useEffect(() => {
     if (error && error !== prevErrorRef.current) {
       setSelectedTab('error');
+    } else if (!error && prevErrorRef.current && selectedTab === 'error') {
+      setSelectedTab('details');
     }
 
     prevErrorRef.current = error;
-  }, [error, setSelectedTab]);
+  }, [error, selectedTab, setSelectedTab]);
 
   return (
     <>

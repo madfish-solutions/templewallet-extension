@@ -132,6 +132,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
     const {
       balancesChanges: balancesChanges,
       balancesChangesLoading,
+      simulationError,
       form,
       tab,
       setTab,
@@ -148,8 +149,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       senderAccount: sendingAccount,
       network,
       simulateOperation: true,
-      sourcePkIsRevealed,
-      isEstimationError: Boolean(estimationError)
+      sourcePkIsRevealed
     });
 
     const handleSubmit = useCallback(
@@ -184,7 +184,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           setSelectedTab={setTab}
           selectedFeeOption={selectedFeeOption}
           latestSubmitError={submitError}
-          estimationError={estimationError}
+          estimationError={estimationError || simulationError}
           onFeeOptionSelect={handleFeeOptionSelect}
           onSubmit={handleSubmit}
           displayedFee={displayedFee}

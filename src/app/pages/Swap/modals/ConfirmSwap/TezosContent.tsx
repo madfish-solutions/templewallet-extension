@@ -70,24 +70,19 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   );
 
   const estimate = useCallback(async () => {
-    try {
-      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
-      const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
+    const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
+    const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
 
-      const estimatedBaseFee = mutezToTz(
-        BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
-      );
+    const estimatedBaseFee = mutezToTz(
+      BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
+    );
 
-      return {
-        estimates: estimates.map(serializeEstimate),
-        baseFee: estimatedBaseFee,
-        gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
-        revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
-      };
-    } catch (err) {
-      console.error(err);
-      return;
-    }
+    return {
+      estimates: estimates.map(serializeEstimate),
+      baseFee: estimatedBaseFee,
+      gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
+      revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
+    };
   }, [sourcePkh, tezos, opParams]);
 
   const {
@@ -111,6 +106,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFee,
     displayedStorageFee,
     balancesChanges,
+    simulationError,
     assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
@@ -119,8 +115,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     simulateOperation: true,
     estimationDataLoading,
     network,
-    sourcePkIsRevealed,
-    isEstimationError: Boolean(estimationError)
+    sourcePkIsRevealed
   });
   const { formState } = form;
 
@@ -240,6 +235,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError || simulationError}
           selectedFeeOption={selectedFeeOption}
           onFeeOptionSelect={handleFeeOptionSelect}
           displayedFee={displayedFee}
