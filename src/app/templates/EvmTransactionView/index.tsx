@@ -6,12 +6,9 @@ import { TransactionRequest, decodeFunctionData, formatTransactionRequest } from
 
 import { HashChip } from 'app/atoms/HashChip';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmOperationKind, approveAbis, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
-import { EvmAssetStandard } from 'lib/evm/types';
 import { T } from 'lib/i18n';
-import { useEvmGenericAssetMetadata, useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
 import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { equalsIgnoreCase } from 'lib/utils';
@@ -101,11 +98,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
     );
 
     const { formState } = form;
-    const globalMetadataLoading = useEvmGenericAssetsMetadataLoading();
-    const approvalAssetMetadata = useEvmGenericAssetMetadata(req.to ? toEvmAssetSlug(req.to) : '', parsedChainId);
-    const isKnownTokenApproval =
-      operationKind === EvmOperationKind.Approval && approvalAssetMetadata?.standard === EvmAssetStandard.ERC20;
-    const metadataLoading = globalMetadataLoading && !isKnownTokenApproval;
 
     const handleSubmit = useCallback(
       ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
@@ -191,7 +183,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           destinationValue={destinationHash ? <HashChip hash={destinationHash} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges || {}}
-          metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading || approvesLoading}
           renderApproveLayout={footer =>
             operationKind === EvmOperationKind.Approval ? (

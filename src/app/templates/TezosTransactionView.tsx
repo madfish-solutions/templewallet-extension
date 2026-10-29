@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
@@ -57,7 +56,6 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       () => accounts.find(acc => getAccountAddressForTezos(acc) === sourcePkh)!,
       [accounts, sourcePkh]
     );
-    const metadataLoading = useTezosGenericAssetsMetadataLoading();
 
     const estimationData = useMemo(() => {
       if (!estimates) return undefined;
@@ -196,7 +194,6 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           destinationValue={null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}
-          metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading}
         />
       </FormProvider>
