@@ -1,24 +1,22 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { useTezosGasOnRamp } from 'app/hooks/use-tezos-gas-on-ramp';
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
 import { dispatch } from 'app/store';
-import { setOnRampAssetAction } from 'app/store/settings/actions';
 import {
   addPendingTezosTransactionAction,
   monitorPendingTezosTransactionsAction
 } from 'app/store/tezos/pending-transactions/actions';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTypedSWR } from 'lib/swr';
-import { isTezosGasBalanceError } from 'lib/temple/error-messages/tezos';
 import { mutezToTz } from 'lib/temple/helpers';
-import { TEZOS_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
+import { TempleAccountType } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
@@ -121,20 +119,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     sourcePkIsRevealed
   });
   const { formState } = form;
-  const insufficientTez = isTezosGasBalanceError(latestSubmitError || estimationError || simulationError, sourcePkh);
-  const onRampPromptSourceRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!insufficientTez || chainId !== TEZOS_MAINNET_CHAIN_ID) {
-      onRampPromptSourceRef.current = null;
-      return;
-    }
-
-    if (onRampPromptSourceRef.current === sourcePkh) return;
-
-    onRampPromptSourceRef.current = sourcePkh;
-    dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
-  }, [chainId, insufficientTez, sourcePkh]);
+  useTezosGasOnRamp(chainId, sourcePkh, latestSubmitError || estimationError || simulationError);
 
   const filteredBalancesChanges = useMemo(
     () => Object.fromEntries(Object.entries(balancesChanges).filter(([, { atomicAmount }]) => !atomicAmount.isZero())),

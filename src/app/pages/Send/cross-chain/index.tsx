@@ -6,12 +6,9 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
-import { dispatch } from 'app/store';
-import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { useAnalytics } from 'lib/analytics';
-import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
-import { toChainAssetSlug } from 'lib/assets/utils';
+import { isTezAsset } from 'lib/assets';
 import {
   CROSS_CHAIN_ASSETS,
   CrossChainAsset,
@@ -24,6 +21,7 @@ import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -181,6 +179,12 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   const insufficientBalance = (() => {
     if (!fromAmountInTokens) return false;
+    const isNativeInput =
+      fromAsset.chainKind === TempleChainKind.EVM
+        ? isEvmNativeTokenSlug(fromAsset.assetSlug ?? '')
+        : fromAsset.chainKind === TempleChainKind.Tezos && isTezAsset(fromAsset.assetSlug ?? '');
+    if (isNativeInput) return false;
+
     const n = new BigNumber(fromAmountInTokens);
     return n.isGreaterThan(0) && n.isGreaterThan(maxAmount);
   })();
@@ -281,12 +285,6 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const onSubmit = (data: CrossChainFormData) => {
     if (amountError) {
       setError('fromAmount', { message: amountError });
-      if (insufficientBalance && fromAsset.chainKind && fromAsset.chainId != null && fromAsset.assetSlug) {
-        const chainAssetSlug = toChainAssetSlug(fromAsset.chainKind, String(fromAsset.chainId), fromAsset.assetSlug);
-        if (isWertSupportedChainAssetSlug(chainAssetSlug)) {
-          dispatch(setOnRampAssetAction({ chainAssetSlug }));
-        }
-      }
       return;
     }
     if (!toAmountEstimated) {

@@ -105,14 +105,17 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const validateAmount = useCallback(
     (amount: string) => {
       if (!amount) return t('required');
-      if (toValue && !isTezosContractAddress(toValue) && Number(amount) === 0) return t('amountMustBePositive');
+      const parsedAmount = new BigNumber(amount);
+      if (!parsedAmount.isFinite() || parsedAmount.lt(0)) return t('amountMustBePositive');
+      if (toValue && !isTezosContractAddress(toValue) && parsedAmount.isZero()) return t('amountMustBePositive');
+      if (isTezAsset(assetSlug)) return true;
 
       return (
-        new BigNumber(amount).isLessThanOrEqualTo(maxAmount) ||
+        parsedAmount.isLessThanOrEqualTo(maxAmount) ||
         t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
       );
     },
-    [maxAmount, toValue, assetDecimals]
+    [maxAmount, toValue, assetDecimals, assetSlug]
   );
 
   const validateRecipient = useCallback(

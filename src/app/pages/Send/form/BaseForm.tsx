@@ -1,15 +1,7 @@
 import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import {
-  Controller,
-  SubmitErrorHandler,
-  SubmitHandler,
-  useFormContext,
-  useFormState,
-  useWatch,
-  Validate
-} from 'react-hook-form';
+import { Controller, SubmitHandler, useFormContext, useFormState, useWatch, Validate } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -19,10 +11,6 @@ import { Loader } from 'app/atoms/Loader';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
-import { dispatch } from 'app/store';
-import { setOnRampAssetAction } from 'app/store/settings/actions';
-import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -187,17 +175,6 @@ export const BaseForm: FC<Props> = ({
     [setSelectAccountModalClosed, setValue, formSubmitted]
   );
 
-  const onInvalidSubmit = useCallback<SubmitErrorHandler<SendFormData>>(
-    errors => {
-      if (errors.amount?.message?.includes(t('maximalAmount'))) {
-        const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, assetSlug);
-
-        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction({ chainAssetSlug }));
-      }
-    },
-    [assetSlug, network]
-  );
-
   return (
     <>
       <div ref={scrollContainerRef} className="flex-1 px-4 flex flex-col overflow-y-auto">
@@ -214,7 +191,7 @@ export const BaseForm: FC<Props> = ({
           testID={SendFormSelectors.selectAssetButton}
         />
 
-        <form id="send-form" onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
+        <form id="send-form" onSubmit={handleSubmit(onSubmit)}>
           <Controller
             name="amount"
             control={control}
@@ -320,7 +297,7 @@ export const BaseForm: FC<Props> = ({
           form="send-form"
           size="L"
           color="primary"
-          loading={maxEstimating || isSubmitting}
+          loading={isSubmitting}
           disabled={shouldDisableSubmitButton({ errors, formState })}
           testID={SendFormSelectors.sendButton}
         >

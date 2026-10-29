@@ -101,14 +101,16 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const validateAmount = useCallback(
     (amount: string) => {
       if (!amount) return t('required');
-      if (Number(amount) === 0) return t('amountMustBePositive');
+      const parsedAmount = new BigNumber(amount);
+      if (!parsedAmount.isFinite() || parsedAmount.lte(0)) return t('amountMustBePositive');
+      if (isEvmNativeTokenSlug(assetSlug)) return true;
 
       return (
-        new BigNumber(amount).isLessThanOrEqualTo(maxAmount) ||
+        parsedAmount.isLessThanOrEqualTo(maxAmount) ||
         t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
       );
     },
-    [assetDecimals, maxAmount]
+    [assetDecimals, assetSlug, maxAmount]
   );
 
   const validateRecipient = useCallback(

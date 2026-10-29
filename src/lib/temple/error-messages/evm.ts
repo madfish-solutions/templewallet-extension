@@ -82,6 +82,19 @@ type SerializedViemError = Pick<
 > & { data?: unknown };
 
 export function isSerializedViemError(error: unknown): error is SerializedViemError {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    error.name === 'InsufficientFundsError' &&
+    'shortMessage' in error &&
+    typeof error.shortMessage === 'string' &&
+    'metaMessages' in error &&
+    Array.isArray(error.metaMessages)
+  ) {
+    return true;
+  }
+
   return (
     typeof error === 'object' &&
     error !== null &&
@@ -212,6 +225,10 @@ const errorHasName = (error: SerializedViemError, name: string) =>
  * Handles viem-specific errors
  */
 export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemError) => {
+  if (errorHasName(error, 'InsufficientFundsError')) {
+    return ERROR_MESSAGES.lowGasBalance;
+  }
+
   if (error instanceof HttpRequestError) {
     return ERROR_MESSAGES.networkError;
   }

@@ -1,11 +1,12 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
+import BigNumber from 'bignumber.js';
 import { FormProvider, useFormState } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { useTezosGasOnRamp } from 'app/hooks/use-tezos-gas-on-ramp';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
-import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { dispatch } from 'app/store';
 import {
   addPendingTezosTransactionAction,
@@ -15,12 +16,12 @@ import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { useTezosAssetBalance } from 'lib/balances';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
 import { loadContract } from 'lib/temple/contract';
-import { tzToMutez } from 'lib/temple/helpers';
+import { TezosEstimationData } from 'lib/temple/front/estimation-data-providers';
+import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
@@ -28,8 +29,8 @@ import { useUpdatableRef } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
-import { ZERO } from 'lib/utils/numbers';
-import { getTezosToolkitWithSigner } from 'temple/front';
+import { serializeEstimate } from 'lib/utils/serialize-estimate';
+import { getTezosToolkitWithSigner, useTezosNetworkTiming } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
@@ -62,34 +63,14 @@ export const TezosContent: FC<TezosContentProps> = ({
   if (!assetMetadata) throw new Error('Metadata not found');
 
   const accountPkh = account.address;
+  const sourcePkh = account.ownerAddress || accountPkh;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
-  const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
-  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
-
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
-
-  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
-
-  const {
-    data: estimationData,
-    error: estimationError,
-    mutate: revalidateEstimation
-  } = useTezosEstimationData({
-    to,
-    tezos,
-    network,
-    chainId,
-    account,
-    accountPkh,
-    assetSlug,
-    balance,
-    tezBalance,
-    assetMetadata,
-    toFilled: true
-  });
+  const tezos = getTezosToolkitWithSigner(network, sourcePkh, true);
+  const { blockDurationMs } = useTezosNetworkTiming(network);
 
   const getBasicSendParams = async (): Promise<WalletParamsWithKind[]> => {
     let transferParams: TransferParams;
@@ -111,9 +92,33 @@ export const TezosContent: FC<TezosContentProps> = ({
     ];
   };
 
-  const { data: basicSendParams } = useTypedSWR(
+  const { data: basicSendParams, error: basicParamsError } = useTypedSWR(
     ['tezos-basic-send-params', accountPkh, amount, assetSlug, to, rpcBaseURL, account.ownerAddress],
-    getBasicSendParams
+    getBasicSendParams,
+    { shouldRetryOnError: false }
+  );
+
+  const estimate = async (): Promise<TezosEstimationData> => {
+    if (!basicSendParams) throw new Error('Transfer parameters are unavailable');
+
+    const estimates = await tezos.estimate.batch(basicSendParams.map(params => ({ ...params, source: sourcePkh })));
+
+    return {
+      estimates: estimates.map(serializeEstimate),
+      baseFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))),
+      gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
+      revealFee: mutezToTz(estimates.length > basicSendParams.length ? estimates[0].suggestedFeeMutez : 0)
+    };
+  };
+  const {
+    data: estimationData,
+    error: estimationError,
+    isLoading: estimationDataLoading,
+    mutate: revalidateEstimation
+  } = useTypedSWR(
+    basicSendParams ? ['tezos-send-estimation-data', chainId, sourcePkh, rpcBaseURL, basicSendParams] : null,
+    estimate,
+    { shouldRetryOnError: false, focusThrottleInterval: 10_000, dedupingInterval: blockDurationMs }
   );
 
   const {
@@ -126,14 +131,19 @@ export const TezosContent: FC<TezosContentProps> = ({
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee,
+    simulationError,
     assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams: basicSendParams,
     senderAccount: account,
-    network
+    network,
+    estimationDataLoading,
+    simulateOperation: true
   });
   const { isSubmitting } = useFormState({ control: form.control });
+  const confirmationEstimationError = basicParamsError || estimationError || simulationError;
+  useTezosGasOnRamp(chainId, sourcePkh, latestSubmitError || confirmationEstimationError);
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
@@ -245,6 +255,7 @@ export const TezosContent: FC<TezosContentProps> = ({
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}
+          estimationError={confirmationEstimationError}
           displayedStorageFee={displayedStorageFee}
           onFeeOptionSelect={handleFeeOptionSelect}
           selectedFeeOption={selectedFeeOption}
