@@ -9,7 +9,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
+import { ExolixPairUnavailableError } from 'lib/apis/exolix/pair';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
@@ -63,12 +63,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const inputCurrency = useWatch({ control, name: 'inputCurrency' });
   const outputCurrency = useWatch({ control, name: 'outputCurrency' });
-  const pairKey = getExolixPairKey({
-    coinFrom: inputCurrency.code,
-    networkFrom: inputCurrency.network.code,
-    coinTo: outputCurrency.code,
-    networkTo: outputCurrency.network.code
-  });
+  const pairKey = [inputCurrency.code, inputCurrency.network.code, outputCurrency.code, outputCurrency.network.code];
   const {
     data: minMaxData,
     error: minMaxError,

@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
 import { toastError } from 'app/toaster';
-import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
+import { ExolixPairUnavailableError } from 'lib/apis/exolix/pair';
 import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
 import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
@@ -24,13 +24,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
   const hasAmount = parsed.isFinite() && parsed.isGreaterThan(0);
   const probeAmount = hasAmount ? debouncedAmount : SEED_PROBE_AMOUNT;
   const probeKey = hasAmount ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
-  const pairKey = getExolixPairKey({
-    coinFrom: from.exolixCoin,
-    networkFrom: from.exolixNetwork,
-    coinTo: to.exolixCoin,
-    networkTo: to.exolixNetwork
-  });
-  const key = ['cross-chain-rate', pairKey, probeKey];
+  const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
 
   const swr = useTypedSWR<GetRateResponse>(
     key,
