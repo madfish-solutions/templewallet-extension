@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, MouseEvent, Suspense, useMemo, FC } from 'react';
+import React, { memo, useCallback, useState, MouseEvent, Suspense, useMemo, useRef, FC } from 'react';
 
 import clsx from 'clsx';
 import { uniq } from 'lodash';
@@ -25,10 +25,12 @@ import { t } from 'lib/i18n';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 import { isFilterChain } from '../../form/utils';
 
 import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
+import { getBridgeDirection } from './bridge-card';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
@@ -40,10 +42,11 @@ interface SelectTokenModalProps {
   onRequestClose: EmptyFn;
   chainKind: TempleChainKind.EVM | TempleChainKind.Tezos | null;
   fromChainAssetSlug: string | null;
+  bridgeCardSnoozedUntil: number;
 }
 
 export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
-  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind, fromChainAssetSlug }) => {
+  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind, fromChainAssetSlug, bridgeCardSnoozedUntil }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
     const lifiMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
@@ -108,6 +111,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
             activeField={activeField}
             publicKeyHash={accountTezAddress}
             searchValue={searchValueDebounced}
+            bridgeDirection={getBridgeDirection(activeField, localFilterChain, bridgeCardSnoozedUntil)}
             onAssetSelect={handleAssetSelect}
           />
         );
@@ -119,6 +123,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
             activeField={activeField}
             publicKeyHash={accountEvmAddress}
             searchValue={searchValueDebounced}
+            bridgeDirection={getBridgeDirection(activeField, localFilterChain, bridgeCardSnoozedUntil)}
             onAssetSelect={handleAssetSelect}
           />
         );
@@ -143,6 +148,9 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
               activeField={activeField}
               publicKeyHash={accountTezAddress}
               searchValue={searchValueDebounced}
+              bridgeDirection={
+                localFilterChain ? undefined : getBridgeDirection(activeField, tezosNetwork, bridgeCardSnoozedUntil)
+              }
               onAssetSelect={handleAssetSelect}
             />
           );
@@ -164,14 +172,18 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       accountEvmAddress,
       accountTezAddress,
       activeField,
+      bridgeCardSnoozedUntil,
       handleAssetSelect,
       localFilterChain,
       searchValueDebounced,
-      tezosNetwork.chainId
+      tezosNetwork
     ]);
+
+    const scrollerRef = useRef<HTMLDivElement>(null);
 
     const handleFilterOptionSelect = useCallback(
       (filterChain: FilterChain | string) => {
+        scrollerRef.current?.scrollTo({ top: 0 });
         setLocalFilterChain(filterChain);
 
         if (activeField === 'output') setOutputFilterChain(filterChain);
@@ -218,7 +230,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         </div>
 
-        <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+        <div
+          ref={scrollerRef}
+          className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto"
+          id={SWAP_SELECT_ASSET_SCROLLABLE_ID}
+        >
+          <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+        </div>
       </PageModal>
     );
   }

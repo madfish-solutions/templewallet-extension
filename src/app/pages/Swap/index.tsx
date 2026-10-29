@@ -25,7 +25,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useAccountForEvm, u
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
+import { SWAP_BRIDGE_CARD_SNOOZED_UNTIL_STORAGE_KEY, SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
 import {
   SwapFieldName,
   SwapReviewData,
@@ -70,6 +70,7 @@ const Swap = memo<Props>(() => {
   const to = parseChainSlugParam(searchParams.get('to'));
 
   const [slippageTolerance, setSlippageTolerance] = useStorage<number>(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
+  const [bridgeCardSnoozedUntil] = useStorage<number>(SWAP_BRIDGE_CARD_SNOOZED_UNTIL_STORAGE_KEY, 0);
 
   const accountEvmAddress = useAccountAddressForEvm();
   const accountTezosAddress = useAccountAddressForTezos();
@@ -354,6 +355,7 @@ const Swap = memo<Props>(() => {
         onRequestClose={setSelectAssetModalClosed}
         chainKind={activeChainKind}
         fromChainAssetSlug={selectedChainAssets.from}
+        bridgeCardSnoozedUntil={bridgeCardSnoozedUntil}
       />
       <SwapSettingsModal
         currentSlippageTolerance={slippageTolerance}

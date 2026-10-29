@@ -2,15 +2,14 @@ import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { uniq } from 'lodash';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
@@ -18,23 +17,14 @@ import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { EvmChain, useAllEvmChains, useEnabledEvmChains } from 'temple/front';
+import { useAllEvmChains, useEnabledEvmChains } from 'temple/front';
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
-import { TOKEN_ITEM_HEIGHT } from '../../constants';
+import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 
 import { useFirstValue, useLifiEvmAllTokensSlugs, use3RouteEvmAllTokensSlugs } from './hooks';
-
-interface ItemData {
-  searchedSlugs: string[];
-  publicKeyHash: HexString;
-  evmChains: StringRecord<EvmChain>;
-  showOnlyFavorites?: boolean;
-  showFavoritesMark?: boolean;
-  onAssetSelect: (e: React.MouseEvent, slug: string) => void;
-}
 
 interface Props {
   activeField: SwapFieldName;
@@ -122,51 +112,23 @@ export const AllEvmChainsAssetsList = memo<Props>(
     );
 
     if ((lifiTokensLoading || route3EvmTokensLoading) && !filterZeroBalances) return <PageLoader stretch />;
-    if (searchedSlugs.length === 0) return <EmptyState />;
-
-    const itemData: ItemData = {
-      searchedSlugs,
-      publicKeyHash: accountEvmAddress,
-      evmChains,
-      onAssetSelect,
-      showFavoritesMark,
-      showOnlyFavorites
-    };
-
     return (
-      <List
-        overscanCount={10}
-        itemKey={index => searchedSlugs[index]}
-        height={window.innerHeight}
-        itemCount={searchedSlugs.length}
-        style={{ paddingBottom: 16 }}
-        itemSize={TOKEN_ITEM_HEIGHT}
-        width="100%"
-        itemData={itemData}
-      >
-        {TokenListItemRenderer}
-      </List>
+      <TokensListView slugs={searchedSlugs} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
+        {slug => {
+          const [_, chainId, assetSlug] = parseChainAssetSlug(slug);
+
+          return (
+            <EvmTokenListItem
+              network={evmChains[chainId]}
+              assetSlug={assetSlug}
+              publicKeyHash={accountEvmAddress}
+              showOnlyFavorites={showOnlyFavorites}
+              showFavoritesMark={showFavoritesMark}
+              onClick={e => onAssetSelect(e, slug)}
+            />
+          );
+        }}
+      </TokensListView>
     );
   }
 );
-
-const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, publicKeyHash, evmChains, showOnlyFavorites, showFavoritesMark, onAssetSelect } = data;
-  const slug = searchedSlugs[index];
-  const [_, chainId, assetSlug] = parseChainAssetSlug(slug);
-
-  return (
-    <div style={style} key={slug} className="px-4">
-      <EvmTokenListItem
-        index={index}
-        network={evmChains[chainId]}
-        assetSlug={assetSlug}
-        publicKeyHash={publicKeyHash}
-        requiresVisibility={false}
-        showOnlyFavorites={showOnlyFavorites}
-        showFavoritesMark={showFavoritesMark}
-        onClick={e => onAssetSelect(e, slug)}
-      />
-    </div>
-  );
-};

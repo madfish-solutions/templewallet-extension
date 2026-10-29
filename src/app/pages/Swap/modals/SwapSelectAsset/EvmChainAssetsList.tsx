@@ -1,17 +1,15 @@
 import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import clsx from 'clsx';
 import { uniq } from 'lodash';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
@@ -20,126 +18,93 @@ import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEvmChainByChainId } from 'temple/front/chains';
-import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { TOKEN_ITEM_HEIGHT } from '../../constants';
+import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 
+import { BridgeCard, BridgeDirection } from './bridge-card';
 import { use3RouteEvmTokensSlugs, useFirstValue, useLifiEvmTokensSlugs } from './hooks';
-
-interface ItemData {
-  showFavoritesMark: boolean;
-  searchedSlugs: string[];
-  publicKeyHash: HexString;
-  network: EvmNetworkEssentials;
-  onAssetSelect: (e: React.MouseEvent, slug: string) => void;
-  chainId: number;
-}
 
 interface Props {
   chainId: number;
   activeField: SwapFieldName;
   publicKeyHash: HexString;
   searchValue: string;
+  bridgeDirection?: BridgeDirection;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
-export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
-  const network = useEvmChainByChainId(chainId);
-  if (!network) throw new DeadEndBoundaryError();
+export const EvmChainAssetsList = memo<Props>(
+  ({ chainId, activeField, publicKeyHash, searchValue, bridgeDirection, onAssetSelect }) => {
+    const network = useEvmChainByChainId(chainId);
+    if (!network) throw new DeadEndBoundaryError();
 
-  const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
-  const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
-  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+    const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
+    const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
+    const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
 
-  const isEvmNonZeroBalance = useCallback(
-    (assetSlug: string) => {
-      return isDefined(getEvmBalance(chainId, assetSlug));
-    },
-    [chainId, getEvmBalance]
-  );
-  const showFavoritesMark = activeField === 'output';
-  const filterZeroBalances = activeField === 'input';
+    const isEvmNonZeroBalance = useCallback(
+      (assetSlug: string) => {
+        return isDefined(getEvmBalance(chainId, assetSlug));
+      },
+      [chainId, getEvmBalance]
+    );
+    const showFavoritesMark = activeField === 'output';
+    const filterZeroBalances = activeField === 'input';
 
-  const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+    const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
-  const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
-  const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
+    const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
-  const evmChainAssetsSlugs = useMemo(() => {
-    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+    const evmChainAssetsSlugs = useMemo(() => {
+      const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-    return filterZeroBalances
-      ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
-      : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
-  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
+      return filterZeroBalances
+        ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
+        : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
+    }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
 
-  const evmChainAssetsSlugsSorted = useMemoWithCompare(
-    () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
-    [evmChainAssetsSlugs, tokensSortPredicate]
-  );
+    const evmChainAssetsSlugsSorted = useMemoWithCompare(
+      () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
+      [evmChainAssetsSlugs, tokensSortPredicate]
+    );
 
-  const metadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
-  const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
+    const metadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
-  const getMetadata = useCallback(
-    (slug: string) =>
-      slug === EVM_TOKEN_SLUG
-        ? network?.currency
-        : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
-    [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
-  );
+    const getMetadata = useCallback(
+      (slug: string) =>
+        slug === EVM_TOKEN_SLUG
+          ? network?.currency
+          : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
+      [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
+    );
 
-  const searchedSlugs = useMemo(
-    () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
-    [evmChainAssetsSlugsSorted, getMetadata, searchValue]
-  );
+    const searchedSlugs = useMemo(
+      () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
+      [evmChainAssetsSlugsSorted, getMetadata, searchValue]
+    );
 
-  if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
-  if (searchedSlugs.length === 0) return <EmptyState />;
+    if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
+    return (
+      <>
+        {bridgeDirection && <BridgeCard direction={bridgeDirection} className="mb-2 shrink-0" />}
 
-  const itemData: ItemData = {
-    searchedSlugs,
-    publicKeyHash,
-    network,
-    onAssetSelect,
-    chainId,
-    showFavoritesMark
-  };
-
-  return (
-    <List
-      overscanCount={10}
-      itemKey={index => searchedSlugs[index]}
-      height={window.innerHeight}
-      itemCount={searchedSlugs.length}
-      style={{ paddingBottom: 16 }}
-      itemSize={TOKEN_ITEM_HEIGHT}
-      width="100%"
-      itemData={itemData}
-    >
-      {TokenListItemRenderer}
-    </List>
-  );
-});
-
-const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId, showFavoritesMark } = data;
-  const slug = searchedSlugs[index];
-
-  return (
-    <div style={style} key={slug} className={clsx('px-4')}>
-      <EvmTokenListItem
-        index={index}
-        assetSlug={slug}
-        publicKeyHash={publicKeyHash}
-        network={network}
-        requiresVisibility={false}
-        showFavoritesMark={showFavoritesMark}
-        onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
-      />
-    </div>
-  );
-};
+        <TokensListView slugs={searchedSlugs} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
+          {slug => (
+            <EvmTokenListItem
+              assetSlug={slug}
+              publicKeyHash={publicKeyHash}
+              network={network}
+              showFavoritesMark={showFavoritesMark}
+              onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
+            />
+          )}
+        </TokensListView>
+      </>
+    );
+  }
+);

@@ -1,10 +1,20 @@
-import React, { FC, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  FC,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore
+} from 'react';
 
-import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useDebounce } from 'use-debounce';
 
+import { getRestoredScrollTop } from 'app/layouts/PageLayout/ScrollRestorer';
 import { combineRefs } from 'lib/ui/utils';
+import * as Woozie from 'lib/woozie';
 
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
@@ -13,49 +23,55 @@ interface ListItemsVisibility {
   bottom: number;
 }
 
-const debounceOptions = {
-  equalityFn: (a: ListItemsVisibility, b: ListItemsVisibility) => a.bottom === b.bottom && a.top === b.top
-};
-
-interface InfiniteScrollVisibilityContextValue {
-  listItemsVisibility: { top: number; bottom: number };
-  setListItemsVisibility: (v: { top: number; bottom: number }) => void;
-}
-
 /**
   Narrow the initial window so the first paint only renders a few items fully;
   the real window expands once updateScrollDimensions runs after layout.
 */
 const INITIAL_VISIBLE_COUNT = 20;
 
-const defaultContext: InfiniteScrollVisibilityContextValue = {
-  listItemsVisibility: { top: 0, bottom: INITIAL_VISIBLE_COUNT },
-  setListItemsVisibility: noop
+interface VisibilityStore {
+  subscribe: (listener: EmptyFn) => EmptyFn;
+  isVisible: (index: number) => boolean;
+  update: (next: ListItemsVisibility) => void;
+}
+
+const createVisibilityStore = (): VisibilityStore => {
+  let rendered: ListItemsVisibility = { top: 0, bottom: INITIAL_VISIBLE_COUNT };
+  const listeners = new Set<EmptyFn>();
+
+  return {
+    subscribe: listener => {
+      listeners.add(listener);
+
+      return () => void listeners.delete(listener);
+    },
+    isVisible: index => index >= rendered.top && index <= rendered.bottom,
+    update: next => {
+      // an empty getElementsIndexes result arrives as ±Infinity through Math.min/max
+      if (!Number.isFinite(next.top) || !Number.isFinite(next.bottom)) return;
+
+      const top = Math.min(rendered.top, next.top);
+      const bottom = Math.max(rendered.bottom, next.bottom);
+
+      if (top === rendered.top && bottom === rendered.bottom) return;
+
+      rendered = { top, bottom };
+      listeners.forEach(listener => listener());
+    }
+  };
 };
 
-const InfiniteScrollVisibilityContext = createContext<InfiniteScrollVisibilityContextValue>(defaultContext);
+const defaultVisibilityStore = createVisibilityStore();
 
-const useInfiniteScrollVisibilityContext = () => useContext(InfiniteScrollVisibilityContext);
+const InfiniteScrollVisibilityContext = createContext<VisibilityStore>(defaultVisibilityStore);
 
 const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [listItemsVisibility, setListItemsVisibilityRaw] = useState({ top: 0, bottom: INITIAL_VISIBLE_COUNT });
-  const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
+  const [store] = useState(createVisibilityStore);
 
-  // Expand the window monotonically so items that have been scrolled into view don't revert to skeleton when scrolled away.
-  const setListItemsVisibility = (next: ListItemsVisibility) =>
-    setListItemsVisibilityRaw(prev => ({
-      top: Math.min(prev.top, next.top),
-      bottom: Math.max(prev.bottom, next.bottom)
-    }));
-
-  const value = { listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility };
-
-  return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
+  return <InfiniteScrollVisibilityContext value={store}>{children}</InfiniteScrollVisibilityContext>;
 };
 
-export interface VisibilityTrackingInfiniteScrollProps extends PropsWithChildren<
-  Omit<SimpleInfiniteScrollProps, 'onScroll'>
-> {
+interface VisibilityTrackingInfiniteScrollProps extends PropsWithChildren<Omit<SimpleInfiniteScrollProps, 'onScroll'>> {
   /** Return the indexes of the elements that are located at the height of `y` relatively to the scrollable node */
   getElementsIndexes: (y: number) => number[];
 }
@@ -72,25 +88,46 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
   ref,
   ...restProps
 }) => {
-  const { setListItemsVisibility } = useInfiniteScrollVisibilityContext();
+  const store = useContext(InfiniteScrollVisibilityContext);
+  const { trigger, href } = Woozie.useLocation();
   const internalScrollViewRef = useRef<InfiniteScroll>(null);
   const scrollViewRef = combineRefs(internalScrollViewRef, ref);
+  const restoredRef = useRef(false);
 
-  const updateScrollDimensions = useCallback(() => {
+  const getScrollableNode = useCallback((): HTMLElement | nullish => {
     const scrollView = internalScrollViewRef.current;
 
-    if (!scrollView) return;
-
     // @ts-expect-error: accessing private property
-    const scrollableNode: HTMLElement | nullish = scrollView.getScrollableTarget() ?? scrollView._infScroll;
+    return scrollView ? (scrollView.getScrollableTarget() ?? scrollView._infScroll) : null;
+  }, []);
+
+  const updateScrollDimensions = useCallback(() => {
+    const scrollableNode = getScrollableNode();
 
     if (!scrollableNode) return;
 
-    setListItemsVisibility({
+    store.update({
       top: Math.min(...getElementsIndexes(scrollableNode.scrollTop)),
       bottom: Math.max(...getElementsIndexes(scrollableNode.scrollTop + scrollableNode.clientHeight))
     });
-  }, [getElementsIndexes, setListItemsVisibility]);
+  }, [getElementsIndexes, getScrollableNode, store]);
+
+  // Back navigation restores the scroll position after this effect; the rows there must already be real ones in the
+  // first paint, or their later swap-in leaves the browser without a scroll anchor if the header or promo changes size.
+  useLayoutEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    const scrollTop = trigger === 'popstate' ? getRestoredScrollTop(href) : undefined;
+    const scrollableNode = getScrollableNode();
+
+    if (scrollTop == null || !scrollableNode) return;
+
+    store.update({
+      top: Math.min(...getElementsIndexes(scrollTop)),
+      bottom: Math.max(...getElementsIndexes(scrollTop + scrollableNode.clientHeight))
+    });
+  }, [trigger, href, getScrollableNode, getElementsIndexes, store]);
 
   useEffect(() => {
     updateScrollDimensions();
@@ -114,7 +151,7 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
 };
 
 export const useIsItemVisible = (index: number | undefined) => {
-  const { listItemsVisibility } = useInfiniteScrollVisibilityContext();
+  const store = useContext(InfiniteScrollVisibilityContext);
 
-  return index == null || (index >= listItemsVisibility.top && index <= listItemsVisibility.bottom);
+  return useSyncExternalStore(store.subscribe, () => index == null || store.isVisible(index));
 };
