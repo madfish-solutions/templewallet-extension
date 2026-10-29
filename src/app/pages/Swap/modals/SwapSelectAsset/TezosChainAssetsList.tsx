@@ -20,16 +20,19 @@ import { TempleChainKind } from 'temple/types';
 
 import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 
+import { BridgeCard, BridgeDirection } from './bridge-card';
+
 interface Props {
   chainId: string;
   activeField: SwapFieldName;
   publicKeyHash: string;
   searchValue: string;
+  bridgeDirection?: BridgeDirection;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
 export const TezosChainAssetsList = memo<Props>(
-  ({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
+  ({ chainId, activeField, publicKeyHash, searchValue, bridgeDirection, onAssetSelect }) => {
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
 
@@ -64,18 +67,22 @@ export const TezosChainAssetsList = memo<Props>(
     }, [filterZeroBalances, assetsSlugs, searchValue, getAssetMetadata, isNonZeroBalance]);
 
     return (
-      <TokensListView slugs={filteredAssets} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
-        {slug => (
-          <TezosTokenListItem
-            network={network}
-            publicKeyHash={publicKeyHash}
-            assetSlug={slug}
-            showTags={false}
-            showFavoritesMark={showFavorites}
-            onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
-          />
-        )}
-      </TokensListView>
+      <>
+        {bridgeDirection && <BridgeCard direction={bridgeDirection} className="mb-2 shrink-0" />}
+
+        <TokensListView slugs={filteredAssets} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
+          {slug => (
+            <TezosTokenListItem
+              network={network}
+              publicKeyHash={publicKeyHash}
+              assetSlug={slug}
+              showTags={false}
+              showFavoritesMark={showFavorites}
+              onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
+            />
+          )}
+        </TokensListView>
+      </>
     );
   }
 );
