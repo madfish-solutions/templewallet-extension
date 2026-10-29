@@ -438,7 +438,7 @@ export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: st
   useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
 };
 
-export const useTezosGenericAssetsMetadataLoading = () => {
+const useTezosGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
@@ -584,7 +584,7 @@ const useTezosAssetsMetadataPresenceCheck = (
   }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains, associatedAccountPkh]);
 };
 
-export const useEvmGenericAssetsMetadataLoading = () => {
+const useEvmGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useEvmNoCategoryAssetsMetadataLoadingSelector();
