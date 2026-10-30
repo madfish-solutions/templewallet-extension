@@ -466,7 +466,7 @@ export const useTezosGenericAssetsMetadataCheck = (
     loading &&
     Boolean(
       chainSlugsToCheck?.some(chainSlug => {
-        const [_, _2, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+        const [, , slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
         return !isTezAsset(slug) && !getAssetMetadata(slug);
       })
     )
