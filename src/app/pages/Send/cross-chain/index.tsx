@@ -8,7 +8,6 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import { toastError } from 'app/toaster';
 import { useAnalytics } from 'lib/analytics';
-import { isTezAsset } from 'lib/assets';
 import {
   CROSS_CHAIN_ASSETS,
   CrossChainAsset,
@@ -179,14 +178,13 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   const insufficientBalance = (() => {
     if (!fromAmountInTokens) return false;
-    const isNativeInput =
-      fromAsset.chainKind === TempleChainKind.EVM
-        ? isEvmNativeTokenSlug(fromAsset.assetSlug ?? '')
-        : fromAsset.chainKind === TempleChainKind.Tezos && isTezAsset(fromAsset.assetSlug ?? '');
-    if (isNativeInput) return false;
+    const validationMaxAmount =
+      fromAsset.chainKind === TempleChainKind.EVM && isEvmNativeTokenSlug(fromAsset.assetSlug ?? '')
+        ? balance
+        : maxAmount;
 
     const n = new BigNumber(fromAmountInTokens);
-    return n.isGreaterThan(0) && n.isGreaterThan(maxAmount);
+    return n.isGreaterThan(0) && n.isGreaterThan(validationMaxAmount);
   })();
 
   const amountError = (() => {
