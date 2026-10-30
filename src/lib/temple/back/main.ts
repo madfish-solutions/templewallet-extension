@@ -388,7 +388,18 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       break;
     }
 
-    case TempleMessageType.PageRequest:
+    case TempleMessageType.PageRequest: {
+      let senderOrigin: string;
+      try {
+        senderOrigin = new URL(port.sender?.tab?.url ?? '').origin;
+      } catch {
+        throw new Error('Invalid page request origin');
+      }
+
+      if (senderOrigin === 'null' || req.origin !== senderOrigin) {
+        throw new Error('Invalid page request origin');
+      }
+
       const dAppEnabled = await Actions.canInteractWithDApps();
 
       if (!dAppEnabled && req.chainType === TempleChainKind.EVM) {
@@ -411,7 +422,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         let resPayload: any;
         try {
           resPayload = {
-            data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl, req.providers)
+            data: await Actions.processEvmDApp(senderOrigin, req.payload, req.chainId, req.iconUrl, req.providers)
           };
         } catch (e) {
           console.error(e);
@@ -456,19 +467,20 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       }
 
       if (!req.beacon) {
-        const resPayload = await Actions.processDApp(req.origin, req.payload);
+        const resPayload = await Actions.processDApp(senderOrigin, req.payload);
         return {
           type: TempleMessageType.PageResponse,
           payload: resPayload ?? null
         };
       } else {
-        const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
+        const res = await Actions.processBeacon(senderOrigin, req.payload, req.encrypted);
         return {
           type: TempleMessageType.PageResponse,
           payload: res?.payload ?? null,
           encrypted: res?.encrypted
         };
       }
+    }
 
     case TempleMessageType.AnalyzeYoutubeSearchPageRequest: {
       const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();

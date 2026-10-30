@@ -107,8 +107,19 @@ interface SerializedParameterValidationError {
   name: (typeof PARAMETER_VALIDATION_ERROR_NAMES)[number];
 }
 
+interface SerializedBatchGasLimitExceededError {
+  name: 'BatchGasLimitExceededError';
+  requiredGasLimit: number;
+  hardGasLimitPerBlock: number;
+}
+
 interface SerializedDryRunError {
-  error: (SerializedTezosOperationError | SerializedHttpResponseError | SerializedParameterValidationError)[];
+  error: (
+    | SerializedTezosOperationError
+    | SerializedHttpResponseError
+    | SerializedParameterValidationError
+    | SerializedBatchGasLimitExceededError
+  )[];
 }
 
 function isSerializedHttpResponseError(error: unknown): error is SerializedHttpResponseError {
@@ -127,6 +138,10 @@ function isSerializedParameterValidationError(error: unknown): error is Serializ
   );
 }
 
+function isSerializedBatchGasLimitExceededError(error: unknown): error is SerializedBatchGasLimitExceededError {
+  return isObject(error) && 'name' in error && error.name === 'BatchGasLimitExceededError';
+}
+
 export function isSerializedDryRunError(error: unknown): error is SerializedDryRunError {
   return (
     isObject(error) &&
@@ -136,7 +151,8 @@ export function isSerializedDryRunError(error: unknown): error is SerializedDryR
       err =>
         isSerializedHttpResponseError(err) ||
         isSerializedTezosOperationError(err) ||
-        isSerializedParameterValidationError(err)
+        isSerializedParameterValidationError(err) ||
+        isSerializedBatchGasLimitExceededError(err)
     )
   );
 }
@@ -227,6 +243,10 @@ export const getHumanTezosErrorMessage = (
 
     const serializedParameterValidationError = error.error.find(isSerializedParameterValidationError);
     if (serializedParameterValidationError) {
+      return ERROR_MESSAGES.invalidParams;
+    }
+
+    if (error.error.some(isSerializedBatchGasLimitExceededError)) {
       return ERROR_MESSAGES.invalidParams;
     }
 

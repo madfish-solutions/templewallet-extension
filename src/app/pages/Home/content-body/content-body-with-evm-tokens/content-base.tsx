@@ -37,17 +37,15 @@ export const ContentBase: FC<ContentBaseProps> = ({
   const mainnetChain = useEthereumMainnetChain();
   const evmChains = useAllEvmChains();
 
-  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug }) => {
     const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
     return (
       <EvmTokenListItem
         showTags={false}
         network={evmChains[chainId]!}
-        index={index}
         assetSlug={assetSlug}
         publicKeyHash={publicKeyHash}
-        ref={ref}
       />
     );
   };

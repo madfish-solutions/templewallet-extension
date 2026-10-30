@@ -15,7 +15,7 @@ import {
 } from 'app/store/tezos/collectibles/selectors';
 import { fromFa2TokenSlug, getTezCollectionName } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { buildTokenImagesStack } from 'lib/images-uri';
+import { buildCollectionLogoSourceStages } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
@@ -70,7 +70,7 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
     if (!details) return null;
     return {
       title: getTezCollectionName(assetSlug, details),
-      logoSrc: buildTokenImagesStack(details.fa.logo)[0]
+      logoSources: buildCollectionLogoSourceStages(details.fa.logo)
     };
   }, [assetSlug, details]);
 

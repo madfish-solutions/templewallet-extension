@@ -40,10 +40,11 @@ export const isCollectible = (metadata?: StringRecord<any>) =>
 export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
   isDefined(metadata) && 'tokenId' in metadata;
 
-/**
- * @deprecated // Assertion here is not safe!
- */
 export const isTezosCollectibleMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  'address' in metadata &&
+  isString(metadata.address) &&
+  'id' in metadata &&
+  isString(metadata.id) &&
   isCollectible(metadata);
 
 /** TODO: Better way */

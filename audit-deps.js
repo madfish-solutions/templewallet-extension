@@ -30,13 +30,6 @@ exec('yarn npm audit --recursive --severity high --json', (error, stdout, stderr
       return true;
     }
 
-    const versions = advisory.children['Tree Versions'];
-    const onlyLegacyVersions = versions.every(version => /^[12]\./.test(version));
-
-    if (!onlyLegacyVersions) {
-      return true;
-    }
-
     console.warn(`Ignoring ${advisoryId}: ${ignoreReason}`);
     return false;
   });
