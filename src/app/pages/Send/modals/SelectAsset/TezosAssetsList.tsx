@@ -1,15 +1,15 @@
-import { memo, useMemo, MouseEvent, useCallback, Ref } from 'react';
+import { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { useTezosAccountTokensForListing } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllTezosChains } from 'temple/front';
 
-import { TokensListView } from './tokens-list-view';
+import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface Props {
   publicKeyHash: string;
@@ -30,24 +30,25 @@ export const TezosAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAsse
   );
 
   const renderListItem = useCallback(
-    (slug: string, index: number, ref?: Ref<TokenListItemElement>) => {
+    (slug: string) => {
       const [_, chainId, assetSlug] = parseChainAssetSlug(slug);
 
       return (
         <TezosTokenListItem
-          key={slug}
-          index={index}
           network={tezosChains[chainId]}
           publicKeyHash={publicKeyHash}
           assetSlug={assetSlug}
           showTags={false}
           onClick={e => onAssetSelect(e, slug)}
-          ref={ref}
         />
       );
     },
     [onAssetSelect, publicKeyHash, tezosChains]
   );
 
-  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
+  return (
+    <TokensListView slugs={searchedSlugs} scrollElementId={SELECT_ASSET_SCROLLABLE_ID}>
+      {renderListItem}
+    </TokensListView>
+  );
 });

@@ -7,5 +7,15 @@ export const useSimplePaginationLogic = <T>(
   items: T[],
   deps: unknown[] = [],
   minInitialItemsCount = 10,
-  itemsPerPage = 30
-) => useGenericPaginationLogic(items, deps, minInitialItemsCount, itemsPerPage, simpleSlice, simpleLength);
+  itemsPerPage = 30,
+  initialItemsCount = itemsPerPage
+) =>
+  useGenericPaginationLogic(
+    items,
+    deps,
+    minInitialItemsCount,
+    itemsPerPage,
+    simpleSlice,
+    simpleLength,
+    initialItemsCount
+  );

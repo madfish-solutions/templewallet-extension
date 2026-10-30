@@ -1415,6 +1415,15 @@
   "bridgeToolsTooltip": {
     "message": "This operation will be proceeded by:"
   },
+  "bridgeTezosToEtherlink": {
+    "message": "Bridge Tezos to Etherlink"
+  },
+  "bridgeEtherlinkToTezos": {
+    "message": "Bridge Etherlink to Tezos"
+  },
+  "bridgeCardDescription": {
+    "message": "Move assets via official Tezos bridge"
+  },
   "extraGasInfoTooltipEvm": {
     "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
@@ -2976,9 +2985,6 @@
   },
   "savings": {
     "message": "Savings"
-  },
-  "externalOffers": {
-    "message": "External Offers"
   },
   "accountNumber": {
     "message": "Account number"

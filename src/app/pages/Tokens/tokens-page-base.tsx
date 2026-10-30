@@ -1,14 +1,8 @@
 import { FC } from 'react';
 
-import { noop } from 'lodash';
-
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { PageLoader } from 'app/atoms/Loader';
-import {
-  VisibilityTrackingInfiniteScroll,
-  VisibilityTrackingInfiniteScrollProps
-} from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useTokensSelectedChainsState } from 'app/hooks/use-assets-view-state';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -34,8 +28,6 @@ import { TokensPageSelectors } from './selectors';
 export interface TokensPageBaseProps {
   applicableNetworks: OneOfChains[];
   tokensCount: number;
-  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
-  loadNextPage: EmptyFn;
   isSyncing: boolean;
   accountId: string;
   isInSearchMode: boolean;
@@ -48,8 +40,6 @@ export interface TokensPageBaseProps {
 export const TokensPageBase: FC<TokensPageBaseProps> = ({
   applicableNetworks,
   tokensCount,
-  getElementIndex,
-  loadNextPage,
   isSyncing,
   accountId,
   isInSearchMode,
@@ -71,9 +61,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
     content = (
       <UninitializedAccountContent>
         {tokensCount > 0 ? (
-          <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={noop}>
-            {children}
-          </VisibilityTrackingInfiniteScroll>
+          children
         ) : (
           <LocalEmptyAssetsSection
             isInSearchMode={isInSearchMode}
@@ -118,9 +106,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
         {manageActive && (
           <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
         )}
-        <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
-          {children}
-        </VisibilityTrackingInfiniteScroll>
+        {children}
       </>
     );
   }

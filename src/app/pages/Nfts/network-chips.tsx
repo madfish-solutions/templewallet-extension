@@ -39,6 +39,11 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ enabledCollectibles }) => 
   );
 
   return (
-    <NetworkChipsTemplate chips={chipsProps} selectedChains={selectedChains} setSelectedChains={setSelectedChains} />
+    <NetworkChipsTemplate
+      chips={chipsProps}
+      layoutScope="nfts"
+      selectedChains={selectedChains}
+      setSelectedChains={setSelectedChains}
+    />
   );
 };
