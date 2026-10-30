@@ -9,7 +9,7 @@ interface PutLifiEvmTokensMetadataActionPayload {
   records: Record<string, LifiEvmTokenMetadata | undefined>;
 }
 
-export interface PutLifiEnabledNetworksCataloguePayload {
+interface PutLifiEnabledNetworksCataloguePayload {
   recordsByChainId: Record<number, TokenSlugTokenMetadataRecord>;
   timestamp: number;
 }
