@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
+import retry from 'async-retry';
 import { intersection } from 'lodash';
 
 import { dispatch } from 'app/store';
@@ -78,7 +79,17 @@ export const useLifiTokensMetadataSync = () => {
       const requestId = ++requestIdRef.current;
 
       try {
-        const tokensByChain = normalizeTokensByChain(await getLifiSwapTokens(chainIds), enabledChainsRef.current);
+        const tokensByChain = normalizeTokensByChain(
+          await retry(
+            async bail => {
+              if (requestId !== requestIdRef.current) bail(new Error('Aborted'));
+
+              return await getLifiSwapTokens(chainIds);
+            },
+            { retries: 5 }
+          ),
+          enabledChainsRef.current
+        );
         if (requestId !== requestIdRef.current) return;
 
         dispatch(
