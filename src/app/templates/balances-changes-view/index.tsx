@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
+import { Loader } from 'app/atoms';
 import { useOperationConfirmationCardRowsPropsPart } from 'app/hooks/use-operation-confirmation-card-rows-props-part';
 import { t } from 'lib/i18n';
 import {
@@ -29,16 +30,16 @@ function BalancesChangesViewHOC<
   useTokenOrGasMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | undefined,
   useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined,
   useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
-  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void
+  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => boolean
 ) {
   return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain, bridgeData, footer }) => {
     const { chainId } = chain;
     const getCollectibleMetadata = useCollectibleMetadataGetter(chainId);
 
-    const inputChanges = { ...balancesChanges[0] };
-    const outputChanges = Object.assign({}, ...balancesChanges.slice(1));
+    const inputChanges = bridgeData ? { ...balancesChanges[0] } : Object.assign({}, ...balancesChanges);
+    const outputChanges = bridgeData ? Object.assign({}, ...balancesChanges.slice(1)) : {};
 
-    const inputRows = useOperationConfirmationCardRowsPropsPart(
+    const { rows: inputRows, metadataLoading: inputMetadataLoading } = useOperationConfirmationCardRowsPropsPart(
       bridgeData ? (bridgeData.inputNetwork as C) : chain,
       inputChanges,
       useTokenOrGasMetadataGetter,
@@ -47,7 +48,7 @@ function BalancesChangesViewHOC<
       useGenericAssetsMetadataCheck
     );
 
-    const outputRows = useOperationConfirmationCardRowsPropsPart(
+    const { rows: outputRows, metadataLoading: outputMetadataLoading } = useOperationConfirmationCardRowsPropsPart(
       bridgeData ? (bridgeData.outputNetwork as C) : chain,
       outputChanges,
       useTokenOrGasMetadataGetter,
@@ -56,14 +57,7 @@ function BalancesChangesViewHOC<
       useGenericAssetsMetadataCheck
     );
 
-    const fallbackRows = useOperationConfirmationCardRowsPropsPart(
-      chain,
-      { ...inputChanges, ...outputChanges },
-      useTokenOrGasMetadataGetter,
-      useCollectibleMetadataGetter,
-      useNoCategoryMetadataGetter,
-      useGenericAssetsMetadataCheck
-    );
+    const metadataLoading = inputMetadataLoading || outputMetadataLoading;
 
     const allAssetsAreCollectibles = useMemo(
       () =>
@@ -71,22 +65,29 @@ function BalancesChangesViewHOC<
       [balancesChanges, getCollectibleMetadata]
     );
 
-    if (bridgeData) {
-      return (
-        <GroupedBalancesChangesViewLayout
-          title={t('simulatedResult')}
-          rows={[...inputRows, ...outputRows]}
-          footer={footer}
-        />
-      );
-    }
-
     return (
-      <BalancesChangesViewLayout
-        title={title ?? (allAssetsAreCollectibles ? t('estimatedTxDetails') : t('simulatedResult'))}
-        rows={fallbackRows}
-        footer={footer}
-      />
+      <>
+        <div className={metadataLoading ? 'hidden' : undefined}>
+          {bridgeData ? (
+            <GroupedBalancesChangesViewLayout
+              title={t('simulatedResult')}
+              rows={[...inputRows, ...outputRows]}
+              footer={footer}
+            />
+          ) : (
+            <BalancesChangesViewLayout
+              title={title ?? (allAssetsAreCollectibles ? t('estimatedTxDetails') : t('simulatedResult'))}
+              rows={inputRows}
+              footer={footer}
+            />
+          )}
+        </div>
+        {metadataLoading && (
+          <div className="flex justify-center items-center">
+            <Loader size="L" trackVariant="dark" className="text-secondary" />
+          </div>
+        )}
+      </>
     );
   });
 }

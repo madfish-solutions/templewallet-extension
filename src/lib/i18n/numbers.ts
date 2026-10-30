@@ -99,3 +99,11 @@ export function toShortened(value?: BigNumber.Value, fallback = '-') {
 
   return t(formats[formatIndex], toLocalFixed(bn, 0));
 }
+
+export function formatTinyAmount(amount: BigNumber, decimalSeparator: string): string {
+  const fraction = amount.abs().toFixed().split('.')[1];
+  const lastDigits = fraction.slice(-2).padStart(2, '0');
+  const sign = amount.isNegative() ? '-' : '';
+
+  return `${sign}0${decimalSeparator}00…${lastDigits}`;
+}

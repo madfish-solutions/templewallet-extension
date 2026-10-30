@@ -3,6 +3,7 @@ import { MichelsonV1Expression, TezosGenericOperationError } from '@taquito/rpc'
 import { TezosOperationError } from '@taquito/taquito';
 import { isObject } from 'lodash';
 
+import { IntercomError } from 'lib/intercom/helpers';
 import { isTezosContractAddress, isTezosGenericOperationErrorArray, parseJsonBody } from 'lib/tezos';
 
 import { ERROR_MESSAGES } from '../messages';
@@ -176,6 +177,27 @@ export function parseHttpResponseErrorBody(error: unknown): object | undefined {
   const body = parseJsonBody(error.body);
 
   return isObject(body) ? body : undefined;
+}
+
+export function isTezosGasBalanceError(error: unknown, sourcePkh: string): boolean {
+  if (error instanceof IntercomError) {
+    return error.errors?.some(nestedError => isTezosGasBalanceError(nestedError, sourcePkh)) ?? false;
+  }
+
+  if (isSerializedDryRunError(error)) {
+    return error.error.some(nestedError => isTezosGasBalanceError(nestedError, sourcePkh));
+  }
+
+  const errors = isSerializedTezosOperationError(error) ? error.errors : parseHttpResponseErrorBody(error);
+
+  return (
+    isTezosGenericOperationErrorArray(errors) &&
+    errors.some(
+      err =>
+        TEZOS_ERROR_PATTERNS.lowGasBalance?.some(pattern => err.id.includes(pattern)) &&
+        (!('contract' in err) || err.contract === sourcePkh)
+    )
+  );
 }
 
 export const getHumanTezosErrorMessage = (

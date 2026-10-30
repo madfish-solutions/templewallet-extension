@@ -9,6 +9,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
+import { ExolixPairUnavailableError } from 'lib/apis/exolix/pair';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
@@ -32,7 +33,10 @@ const DEFAULT_SWR_CONFIG = {
   shouldRetryOnError: false,
   focusThrottleInterval: TEN_SECONDS_IN_MS,
   refreshInterval: TEN_SECONDS_IN_MS,
-  dedupingInterval: TEN_SECONDS_IN_MS
+  dedupingInterval: TEN_SECONDS_IN_MS,
+  onError: (error: unknown): void => {
+    if (error instanceof ExolixPairUnavailableError) toastError(t('pairNotAvailable'));
+  }
 };
 
 interface Props {
@@ -59,9 +63,13 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const inputCurrency = useWatch({ control, name: 'inputCurrency' });
   const outputCurrency = useWatch({ control, name: 'outputCurrency' });
-
-  const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
-    ['exolix/api/min-max', inputCurrency, outputCurrency],
+  const pairKey = [inputCurrency.code, inputCurrency.network.code, outputCurrency.code, outputCurrency.network.code];
+  const {
+    data: minMaxData,
+    error: minMaxError,
+    isValidating: isMinMaxLoading
+  } = useTypedSWR(
+    ['exolix/api/min-max', pairKey],
     () =>
       loadMinMaxExchangeValues(
         inputCurrency.code,
@@ -81,8 +89,12 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     }
   }, [inputValue, minMaxData, trigger]);
 
-  const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
-    ['exolix/api/rate', minMaxData, inputValueDebounced],
+  const {
+    data: ratesData,
+    error: ratesError,
+    isValidating: isRatesLoading
+  } = useTypedSWR(
+    minMaxError || !minMaxData ? null : ['exolix/api/rate', pairKey, minMaxData, inputValueDebounced],
     () => {
       const amount = getParsedAmount(inputValueDebounced);
 
@@ -101,12 +113,15 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     DEFAULT_SWR_CONFIG
   );
 
+  const isPairUnavailable =
+    minMaxError instanceof ExolixPairUnavailableError || ratesError instanceof ExolixPairUnavailableError;
+
   const { rate, toAmount } = useMemo(
     () =>
-      ratesData && 'rate' in ratesData
+      ratesData && !isPairUnavailable && 'rate' in ratesData
         ? { rate: ratesData.rate, toAmount: ratesData.toAmount }
         : { rate: null, toAmount: 0 },
-    [ratesData]
+    [ratesData, isPairUnavailable]
   );
 
   const withdrawalAddress = useMemo(() => {
@@ -144,7 +159,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   const onSubmit = useCallback<SubmitHandler<CryptoExchangeFormData>>(
     async ({ inputValue, inputCurrency, outputCurrency }) => {
       try {
-        if (isSubmitting || !withdrawalAddress) return;
+        if (isSubmitting || isPairUnavailable || !withdrawalAddress) return;
 
         formAnalytics.trackSubmit();
 
@@ -167,11 +182,15 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
       } catch (e) {
         console.error(e);
         formAnalytics.trackSubmitFail();
+        if (e instanceof ExolixPairUnavailableError) {
+          toastError(t('pairNotAvailable'));
+          return;
+        }
         if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');
       }
     },
-    [formAnalytics, isSubmitting, setExchangeData, setStep, withdrawalAddress]
+    [formAnalytics, isPairUnavailable, isSubmitting, setExchangeData, setStep, withdrawalAddress]
   );
 
   return (
@@ -242,7 +261,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
           disabled={shouldDisableSubmitButton({
             errors,
             formState,
-            otherErrors: [toAmount ? null : 'output-amount-missing'],
+            otherErrors: [isPairUnavailable || !toAmount ? 'output-amount-missing' : null],
             disableWhileSubmitting: false
           })}
         >

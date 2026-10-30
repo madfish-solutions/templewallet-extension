@@ -4,6 +4,7 @@ import type { LiFiStep } from '@lifi/sdk';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Tooltip } from 'app/atoms/Tooltip';
+import { useEvmGasOnRamp } from 'app/hooks/use-evm-gas-on-ramp';
 import { dispatch, store, useSelector } from 'app/store';
 import { addPendingEvmBatchAction, monitorPendingEvmBatchesAction } from 'app/store/evm/pending-transactions/actions';
 import { hasPendingEvmBatch } from 'app/store/evm/pending-transactions/utils';
@@ -49,6 +50,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
   });
   const [tab, setTab] = useState<Tab>('details');
   const [error, setError] = useState<unknown>();
+  useEvmGasOnRamp(inputNetwork.chainId, error ?? batch.error);
   const [submitting, setSubmitting] = useState(false);
   const retried = useRef(false);
   const getExplorer = useGetEvmActiveBlockExplorer();

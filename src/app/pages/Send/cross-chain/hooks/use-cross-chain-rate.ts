@@ -1,9 +1,12 @@
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
+import { toastError } from 'app/toaster';
+import { ExolixPairUnavailableError } from 'lib/apis/exolix/pair';
 import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
 import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
 // Intentionally tiny: always falls below Exolix min so the API surfaces the real min in its response.
@@ -21,7 +24,6 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
   const hasAmount = parsed.isFinite() && parsed.isGreaterThan(0);
   const probeAmount = hasAmount ? debouncedAmount : SEED_PROBE_AMOUNT;
   const probeKey = hasAmount ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
-
   const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
 
   const swr = useTypedSWR<GetRateResponse>(
@@ -34,10 +36,23 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
         networkTo: to.exolixNetwork,
         amount: probeAmount
       }),
-    { refreshInterval: 10_000, revalidateOnFocus: false, dedupingInterval: 5_000 }
+    {
+      refreshInterval: 10_000,
+      revalidateOnFocus: false,
+      dedupingInterval: 5_000,
+      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError),
+      onError: (error: unknown): void => {
+        if (error instanceof ExolixPairUnavailableError) toastError(t('pairNotAvailable'));
+      }
+    }
   );
 
-  const normalized: NormalizedRateResult | undefined = swr.data ? normalizeRateResponse(swr.data) : undefined;
+  const isRouteUnavailable = swr.error instanceof ExolixPairUnavailableError;
+  const normalized: NormalizedRateResult | undefined = isRouteUnavailable
+    ? { kind: 'unsupported' }
+    : swr.data
+      ? normalizeRateResponse(swr.data)
+      : undefined;
 
-  return { ...swr, normalized };
+  return { ...swr, normalized, isRouteUnavailable };
 };

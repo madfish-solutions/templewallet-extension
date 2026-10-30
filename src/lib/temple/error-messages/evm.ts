@@ -17,6 +17,7 @@ import {
   decodeFunctionData,
   erc20Abi
 } from 'viem';
+import { array as arraySchema, object as objectSchema, string as stringSchema } from 'yup';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
 import { equalsIgnoreCase } from 'lib/utils';
@@ -81,21 +82,27 @@ type SerializedViemError = Pick<
   'cause' | 'details' | 'shortMessage' | 'message' | 'name' | 'metaMessages'
 > & { data?: unknown };
 
+const serializedViemErrorBaseSchema = objectSchema({
+  name: stringSchema().defined(),
+  shortMessage: stringSchema().defined(),
+  metaMessages: arraySchema().defined()
+})
+  .defined()
+  .strict();
+
+const serializedInsufficientFundsErrorSchema = serializedViemErrorBaseSchema.shape({
+  name: stringSchema().oneOf(['InsufficientFundsError']).defined()
+});
+
+const serializedViemErrorSchema = serializedViemErrorBaseSchema
+  .shape({
+    details: stringSchema().defined(),
+    message: stringSchema().optional()
+  })
+  .test('cause', 'Error must contain a cause', error => 'cause' in error);
+
 export function isSerializedViemError(error: unknown): error is SerializedViemError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'cause' in error &&
-    'details' in error &&
-    typeof error.details === 'string' &&
-    'shortMessage' in error &&
-    typeof error.shortMessage === 'string' &&
-    (!('message' in error) || error.message === undefined || typeof error.message === 'string') &&
-    'name' in error &&
-    typeof error.name === 'string' &&
-    'metaMessages' in error &&
-    Array.isArray(error.metaMessages)
-  );
+  return serializedInsufficientFundsErrorSchema.isValidSync(error) || serializedViemErrorSchema.isValidSync(error);
 }
 
 /**
@@ -212,6 +219,10 @@ const errorHasName = (error: SerializedViemError, name: string) =>
  * Handles viem-specific errors
  */
 export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemError) => {
+  if (errorHasName(error, 'InsufficientFundsError')) {
+    return ERROR_MESSAGES.lowGasBalance;
+  }
+
   if (error instanceof HttpRequestError) {
     return ERROR_MESSAGES.networkError;
   }
