@@ -6,6 +6,7 @@ export const mockLifiEvmTokensMetadataState = mockPersistedState<LifiEvmTokensMe
   connectedTokensMetadataRecord: {},
   enabledChainsTokensMetadataRecord: {},
   supportedChainIds: [],
+  catalogueFetchedAt: undefined,
   lastFetchTime: undefined,
   isLoading: false,
   error: null

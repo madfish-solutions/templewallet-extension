@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
+import retry from 'async-retry';
 import { intersection } from 'lodash';
 
 import { dispatch } from 'app/store';
@@ -11,12 +12,15 @@ import {
 } from 'app/store/evm/swap-3route-metadata/actions';
 import {
   putLifiConnectedEvmTokensMetadataAction,
-  putLifiEnabledNetworksEvmTokensMetadataAction,
+  putLifiEnabledNetworksEvmTokensCatalogueAction,
   putLifiEvmTokensMetadataLoadingAction
 } from 'app/store/evm/swap-lifi-metadata/actions';
-import { useLifiSupportedChainIdsSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import {
+  useLifiCatalogueFetchedAtSelector,
+  useLifiEnabledNetworksEvmTokensMetadataRecordSelector,
+  useLifiSupportedChainIdsSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
 import { TokenSlugTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
-import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
 import {
   get3RouteEvmTokens,
   getEvmSwapConnectionsMetadata,
@@ -28,8 +32,9 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmAssetStandard } from 'lib/evm/types';
+import { LIFI_TOKENS_CATALOGUE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useUpdatableRef } from 'lib/ui/hooks';
 import { equalsIgnoreCase } from 'lib/utils';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -42,6 +47,8 @@ interface FetchTokensSlugsPayload {
 export const useLifiTokensMetadataSync = () => {
   const supportedChainIds = useLifiSupportedChainIdsSelector();
   const enabledChains = useEnabledEvmChains();
+  const catalogue = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
+  const catalogueFetchedAt = useLifiCatalogueFetchedAtSelector();
   const chainsToSync = useMemo(
     () =>
       intersection(
@@ -50,27 +57,53 @@ export const useLifiTokensMetadataSync = () => {
       ),
     [supportedChainIds, enabledChains]
   );
+  const chainsToSyncKey = chainsToSync.join(',');
+
+  const catalogueRef = useUpdatableRef(catalogue);
+  const catalogueFetchedAtRef = useUpdatableRef(catalogueFetchedAt);
+  const enabledChainsRef = useUpdatableRef(enabledChains);
+  const requestIdRef = useRef(0);
 
   useInterval(
     async () => {
-      if (!chainsToSync.length) return;
+      if (!chainsToSyncKey) return;
 
-      handleTokensByChain(
-        normalizeTokensByChain(await getLifiSwapTokens(chainsToSync), enabledChains),
-        (chainId, records) => {
-          dispatch(putLifiEnabledNetworksEvmTokensMetadataAction({ chainId, records }));
-          dispatch(
-            processLoadedEvmExchangeRatesAction({
-              chainId,
-              data: { lifiItems: Object.values(records) },
-              timestamp: Date.now()
-            })
-          );
-        }
-      );
+      const chainIds = chainsToSyncKey.split(',').map(Number);
+      const storedCatalogue = catalogueRef.current;
+      const fetchedAt = catalogueFetchedAtRef.current;
+      const hasNewChain = chainIds.some(chainId => storedCatalogue[chainId] == null);
+      const isStale = fetchedAt == null || Date.now() - fetchedAt >= LIFI_TOKENS_CATALOGUE_SYNC_INTERVAL;
+
+      if (!isStale && !hasNewChain) return;
+
+      const requestId = ++requestIdRef.current;
+
+      try {
+        const tokensByChain = normalizeTokensByChain(
+          await retry(
+            async bail => {
+              if (requestId !== requestIdRef.current) bail(new Error('Aborted'));
+
+              return await getLifiSwapTokens(chainIds);
+            },
+            { retries: 5 }
+          ),
+          enabledChainsRef.current
+        );
+        if (requestId !== requestIdRef.current) return;
+
+        dispatch(
+          putLifiEnabledNetworksEvmTokensCatalogueAction({
+            recordsByChainId: buildCatalogueRecords(chainIds, tokensByChain),
+            timestamp: Date.now()
+          })
+        );
+      } catch (err) {
+        console.error('Failed to fetch LiFi swap tokens:', err);
+      }
     },
-    [chainsToSync, enabledChains],
-    300_000,
+    [chainsToSyncKey, catalogueRef, catalogueFetchedAtRef, enabledChainsRef, requestIdRef],
+    LIFI_TOKENS_CATALOGUE_SYNC_INTERVAL,
     true
   );
 };
@@ -214,6 +247,20 @@ const normalizeTokensByChain = (tokens: TokensByChain, enabledChains: EvmChain[]
   }
 
   return result;
+};
+
+const buildCatalogueRecords = (chainIds: number[], tokensByChain: TokensByChain) => {
+  const recordsByChainId: Record<number, TokenSlugTokenMetadataRecord> = {};
+
+  for (const chainId of chainIds) {
+    recordsByChainId[chainId] = {};
+  }
+
+  handleTokensByChain(tokensByChain, (chainId, records) => {
+    recordsByChainId[chainId] = records;
+  });
+
+  return recordsByChainId;
 };
 
 const handleTokensByChain = (

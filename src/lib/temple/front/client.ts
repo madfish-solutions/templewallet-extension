@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
-import { omit } from 'lodash';
+import { debounce, omit } from 'lodash';
 import { TransactionRequest, formatTransactionRequest } from 'viem';
 import browser from 'webextension-polyfill';
 
@@ -43,6 +43,43 @@ interface Confirmation {
   error?: any;
 }
 
+/** A dropped LockResponse (MV3 worker restart) must not stall later state fetches. */
+const STARTUP_LOCK_WAIT_MS = 5_000;
+
+/**
+ * In-flight startup lock. Module-level because TempleClientProvider suspends on its first
+ * render, and React discards hook state when a component suspends before committing.
+ */
+let startupLockPromise: Promise<void> | null = null;
+
+async function requestLock(): Promise<void> {
+  const res = await makeIntercomRequest({ type: TempleMessageType.LockRequest });
+  assertResponse(res.type === TempleMessageType.LockResponse);
+}
+
+const sendStartupLock = (): void => {
+  if (startupLockPromise) return;
+
+  let resolveGate!: () => void;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const gate = new Promise<void>(resolve => {
+    resolveGate = resolve;
+    timeoutId = setTimeout(resolve, STARTUP_LOCK_WAIT_MS);
+  }).finally(() => {
+    clearTimeout(timeoutId);
+    if (startupLockPromise === gate) startupLockPromise = null;
+  });
+
+  startupLockPromise = gate;
+
+  void requestLock()
+    .catch((error: unknown) => console.error(error))
+    .finally(resolveGate);
+};
+
+const waitForStartupLock = (): Promise<void> => startupLockPromise ?? Promise.resolve();
+
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**
    * State
@@ -52,30 +89,32 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   useDidMount(() => void (didMountRef.current = true));
 
   const fetchState = useCallback(async () => {
+    await waitForStartupLock();
+
     const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
 
     if (res.state.status !== TempleStatus.Ready) {
-      return { state: res.state, shouldLockOnStartup: false };
+      return res.state;
     }
 
-    const isLocked = await getShouldBeLockedOnStartup(didMountRef.current);
+    const shouldLockOnStartup = await getShouldBeLockedOnStartup(didMountRef.current);
+    if (!shouldLockOnStartup) return res.state;
+
+    // Background still answers Ready until this lock finishes. Fetches that start
+    // in that window wait on the module-level gate above.
+    sendStartupLock();
 
     return {
-      state: isLocked
-        ? {
-            status: TempleStatus.Locked,
-            accounts: [],
-            settings: null,
-            dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
-            dAppPendingConfirmationId: null,
-            focusLocation: { tabId: null, windowId: null },
-            windowsWithPopups: [],
-            windowsWithSidebars: [],
-            tabsOrigins: {}
-          }
-        : res.state,
-      shouldLockOnStartup: isLocked
+      status: TempleStatus.Locked,
+      accounts: [],
+      settings: null,
+      dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+      dAppPendingConfirmationId: null,
+      focusLocation: { tabId: null, windowId: null },
+      windowsWithPopups: [],
+      windowsWithSidebars: [],
+      tabsOrigins: {}
     };
   }, []);
 
@@ -85,23 +124,19 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
-  const state = data!.state;
+  const state = data!;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const [googleAuthToken, setGoogleAuthToken] = useState<string>();
 
   useEffect(() => {
-    let stateUpdateTimer: ReturnType<typeof setTimeout> | undefined;
+    // First update refetches immediately. Later ones inside 200ms collapse into one trailing refetch.
+    const refreshState = debounce(() => void mutate(), 200, { leading: true, trailing: true });
 
     const unsub = intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
-          if (stateUpdateTimer === undefined) {
-            stateUpdateTimer = setTimeout(() => {
-              stateUpdateTimer = undefined;
-              mutate();
-            }, 200);
-          }
+          refreshState();
           break;
 
         case TempleMessageType.ConfirmationRequested:
@@ -121,7 +156,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
     return () => {
       unsub();
-      if (stateUpdateTimer !== undefined) clearTimeout(stateUpdateTimer);
+      refreshState.cancel();
     };
   }, [mutate, setConfirmation]);
 
@@ -177,12 +212,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     localStorage.removeItem(CLOSURE_STORAGE_KEY);
   }, []);
 
-  const lock = useCallback(async () => {
-    const res = await request({
-      type: TempleMessageType.LockRequest
-    });
-    assertResponse(res.type === TempleMessageType.LockResponse);
-  }, []);
+  const lock = useCallback(() => requestLock(), []);
 
   const findFreeHdIndex = useCallback(async (walletId: string) => {
     const res = await request({
@@ -535,8 +565,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SubmitAlchemyBatchResponse);
     return res.callId;
   };
-
-  useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
     state,
