@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, ReactNode, useCallback, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
@@ -9,10 +9,12 @@ import { Player } from './VideoPlayer/Player';
 interface Props {
   uri: string;
   className?: string;
+  /** Still shown until the video file can play. */
+  poster?: ReactNode;
   onError?: EmptyFn;
 }
 
-export const VideoCollectible = memo<Props>(({ uri, className, onError = emptyFn }) => {
+export const VideoCollectible = memo<Props>(({ uri, className, poster, onError = emptyFn }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleLoaded = useCallback(() => setIsLoading(false), []);
@@ -27,7 +29,7 @@ export const VideoCollectible = memo<Props>(({ uri, className, onError = emptyFn
         className={className}
         onError={onError}
       />
-      <CollectibleImageLoader large className={isLoading ? undefined : 'hidden'} />
+      {isLoading ? (poster ?? <CollectibleImageLoader large />) : null}
     </>
   );
 });

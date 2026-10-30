@@ -7,11 +7,7 @@ import {
   isErc20TokenBalance
 } from 'lib/apis/etherlink';
 import { fetchTezExchangeRate } from 'lib/apis/temple';
-import {
-  BalanceItem,
-  BalancesResponse,
-  NftTokenContractBalanceItem
-} from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalanceItem, BalancesResponse, NftTokenContractBalanceItem } from 'lib/apis/temple/endpoints/evm';
 import { DEFAULT_NATIVE_TOKEN_ADDRESS } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';

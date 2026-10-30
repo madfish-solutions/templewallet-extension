@@ -437,7 +437,9 @@ export const Player: FC<Props> = ({
             onDoubleClick={toggleFullscreenHandler}
             onError={errorHandler}
           />
-          {audioPoster}
+          <div className="absolute inset-0 z-1" onClick={togglePlayHandler}>
+            {audioPoster}
+          </div>
         </>
       )}
       {!audioPlayer && (

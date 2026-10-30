@@ -238,3 +238,56 @@ export interface Route3EvmRoute {
   gasPrice: string;
   toAmountMin: string;
 }
+
+export interface OpenseaNftRef {
+  chainId: number;
+  contractAddress: string;
+  tokenId: string;
+}
+
+export interface OpenseaNftDetailed {
+  identifier: string;
+  collection: string;
+  contract: string;
+  tokenStandard: string;
+  name?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+  displayImageUrl?: string | null;
+  displayAnimationUrl?: string | null;
+  metadataUrl?: string | null;
+  openseaUrl: string;
+  updatedAt: string;
+  isDisabled: boolean;
+  isNsfw: boolean;
+  originalImageUrl?: string | null;
+  originalAnimationUrl?: string | null;
+  traits: Array<{
+    traitType: string;
+    displayType?: string | null;
+    maxValue?: string | null;
+    value: unknown;
+  }>;
+  /** Format: double */
+  estimatedValueUsd?: number | null;
+  /** Format: int32 */
+  decimals?: number | null;
+  animationUrl?: string | null;
+  isSuspicious?: boolean;
+  creator?: string;
+  owners?: Array<{
+    address: string;
+    quantity: number;
+    quantityString: string;
+  }>;
+  rarity?: {
+    strategyId: string;
+    strategyVersion: string;
+    rank?: number | null;
+  } | null;
+  subscription?: {
+    expiresAt?: number | null;
+    isRenewable: boolean;
+    isExpired: boolean;
+  } | null;
+}

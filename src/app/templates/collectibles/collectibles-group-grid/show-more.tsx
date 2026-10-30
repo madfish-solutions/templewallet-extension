@@ -1,8 +1,9 @@
-import { FC } from 'react';
+import { FC, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
+import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import {
@@ -65,6 +66,7 @@ interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
   addDetailsPlaceholder: boolean;
   metadatasLoading: boolean;
   isVisible: boolean;
+  visibilityChainSlug?: string;
   overlayClassName?: string;
   overlayStyle?: React.CSSProperties;
   onClick: EmptyFn;
@@ -76,7 +78,9 @@ const ShowMoreLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultShowMoreLayoutProps<T> = DefaultShowMoreLayoutProps<T>
 >(
-  CollectibleItemImage: FC<Pick<P, 'metadata' | 'assetSlug'> & Omit<P, keyof DefaultShowMoreLayoutProps<T>>>,
+  CollectibleItemImage: FC<
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId'> & Omit<P, keyof DefaultShowMoreLayoutProps<T>>
+  >,
   className?: string
 ) => {
   function ShowMoreLayout(props: P) {
@@ -87,6 +91,7 @@ const ShowMoreLayoutHOC = <
       addDetailsPlaceholder,
       metadatasLoading,
       isVisible,
+      visibilityChainSlug,
       onClick,
       children,
       overlayClassName,
@@ -94,9 +99,12 @@ const ShowMoreLayoutHOC = <
       testID,
       ...restProps
     } = props;
+    const visibilityElemRef = useRef<HTMLButtonElement>(null);
+    useReportEvmCollectibleVisibility(visibilityChainSlug, visibilityElemRef);
 
     return (
       <Button
+        ref={visibilityElemRef}
         onClick={onClick}
         className={clsx('relative flex flex-col overflow-hidden group rounded-8', className)}
         testID={testID}
@@ -110,7 +118,7 @@ const ShowMoreLayoutHOC = <
         >
           {!isVisible && <div className="w-full h-full z-1 bg-grey-3" />}
           {(!metadatasLoading || metadata) && isVisible && (
-            <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+            <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
           )}
         </div>
 
@@ -186,6 +194,7 @@ const EvmShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps 
       chainId={chainId}
       metadata={metadata}
       metadatasLoading={metadatasLoading}
+      visibilityChainSlug={chainSlug}
     />
   );
 };

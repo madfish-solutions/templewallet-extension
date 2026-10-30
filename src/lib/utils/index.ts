@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 import { capitalize } from 'lodash';
 
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
+export { stripUndefinedProps } from './strip-undefined-props';
 
 /** From lodash */
 type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never : T;

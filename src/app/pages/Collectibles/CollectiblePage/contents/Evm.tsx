@@ -3,6 +3,8 @@ import React, { memo, useCallback } from 'react';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { evmStoredCollectionName, isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { navigate } from 'lib/woozie';
 import { useAccountAddressForEvm } from 'temple/front';
@@ -37,14 +39,17 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   if (!metadata) return <EvmNoMetadataContent assetSlug={assetSlug} network={network} accountPkh={accountPkh} />;
 
   const collectibleName = getCollectibleName(metadata);
-  const collectionName = getCollectionName(metadata);
+  const storedCollectionName = evmStoredCollectionName(metadata, assetSlug);
+  const collectionName = isSharedStorefrontTokenId(metadata.tokenId ?? fromAssetSlug(assetSlug)[1])
+    ? storedCollectionName || getCollectionName(undefined)
+    : getCollectionName(metadata);
 
   const showSegmentControl = metadata.attributes && metadata.attributes.length > 0;
 
   return (
     <BaseContent
       headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
-      imageElement={<EvmCollectiblePageImage metadata={metadata} />}
+      imageElement={<EvmCollectiblePageImage chainId={chainId} assetSlug={assetSlug} metadata={metadata} />}
       collectibleName={collectibleName}
       collectionDetailsElement={<CollectionDetails title={collectionName} />}
       onSend={onSendButtonClick}

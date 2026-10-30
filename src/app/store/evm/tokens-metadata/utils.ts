@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 
-import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalanceItem } from 'lib/apis/temple/endpoints/evm';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmTokenMetadata } from 'lib/metadata/types';
 
