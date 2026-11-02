@@ -70,12 +70,12 @@ interface InFlightRace {
   abortTimeoutId?: ReturnType<typeof setTimeout>;
 }
 
-export const normalizeImageSources = (sources: Array<string | ImageSourceStage>): ImageSourceStage[] =>
+export const normalizeImageSources = (sources: Array<string | ImageSourceStage | nullish>): ImageSourceStage[] =>
   sources.reduce<ImageSourceStage[]>((stages, source) => {
+    if (!source) return stages;
+
     if (typeof source === 'string') {
-      if (source) {
-        stages.push({ urls: [source] });
-      }
+      stages.push({ urls: [source] });
 
       return stages;
     }

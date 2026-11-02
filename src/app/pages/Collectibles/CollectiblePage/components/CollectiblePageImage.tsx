@@ -27,7 +27,7 @@ interface TezosCollectiblePageImageProps {
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
-  objktArtifactUri?: string;
+  objktArtifactUri?: string | null;
   isAdultContent?: boolean;
   className?: string;
 }
@@ -98,7 +98,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
         />
         <TezosAssetImageStacked
           metadata={metadata}
-          extraSrc={objktArtifactUri && buildObjktArtifactExtraSrc(objktArtifactUri)}
+          extraSrc={objktArtifactUri ? buildObjktArtifactExtraSrc(objktArtifactUri) : undefined}
           fullViewCollectible
           loader={<CollectibleImageLoader large />}
           fallback={<CollectibleImageFallback large />}

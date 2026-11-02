@@ -84,7 +84,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
     metadata,
     adultBlur,
     areDetailsLoading: areDetailsLoading && details === undefined,
-    extraSrc: details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri),
+    extraSrc: details?.objktArtifactUri ? buildObjktArtifactExtraSrc(details.objktArtifactUri) : undefined,
     mime: details?.mime,
     scam,
     index,

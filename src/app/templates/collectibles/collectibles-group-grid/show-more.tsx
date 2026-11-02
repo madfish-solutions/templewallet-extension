@@ -169,7 +169,7 @@ const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProp
       metadatasLoading={metadatasLoading}
       metadata={metadata}
       mime={details?.mime}
-      extraSrc={details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri)}
+      extraSrc={details?.objktArtifactUri ? buildObjktArtifactExtraSrc(details.objktArtifactUri) : undefined}
     />
   );
 };
