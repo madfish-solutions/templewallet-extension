@@ -8,7 +8,7 @@ import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { ASSET_HUGE_AMOUNT } from 'lib/constants';
-import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t, formatTinyAmount } from 'lib/i18n';
+import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t, toSubscriptNotation } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 interface MoneyProps extends TestIDProps {
@@ -52,7 +52,7 @@ const Money: FC<MoneyProps> = ({
   const decimals = fiat ? 2 : Math.min(decimalsLength, cryptoDecimals);
   const isTinyAmount = !fiat && !shortened && !bn.isZero() && bn.decimalPlaces(decimals, roundingMode).isZero();
   const result = isTinyAmount
-    ? formatTinyAmount(bn, decimal)
+    ? toSubscriptNotation(bn, decimal, decimals, roundingMode)
     : shortened
       ? toShortened(bn)
       : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });

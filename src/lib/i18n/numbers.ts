@@ -100,10 +100,24 @@ export function toShortened(value?: BigNumber.Value, fallback = '-') {
   return t(formats[formatIndex], toLocalFixed(bn, 0));
 }
 
-export function formatTinyAmount(amount: BigNumber, decimalSeparator: string): string {
-  const fraction = amount.abs().toFixed().split('.')[1];
-  const lastDigits = fraction.slice(-2).padStart(2, '0');
+const SUBSCRIPT_DIGITS = '₀₁₂₃₄₅₆₇₈₉';
+
+export function toSubscriptNotation(
+  amount: BigNumber,
+  decimalSeparator: string,
+  decimals?: number,
+  roundingMode: BigNumber.RoundingMode = BigNumber.ROUND_DOWN
+): string {
+  const formattedAmount = (
+    decimals === undefined ? amount : amount.precision(Math.max(1, decimals), roundingMode)
+  ).toFixed();
+  const fraction = formattedAmount.split('.')[1] ?? '';
+  const leadingZeroCount = fraction.search(/[1-9]/);
+
+  if (leadingZeroCount < 2) return formattedAmount.replace('.', decimalSeparator);
+
+  const subscript = String(leadingZeroCount).replace(/\d/g, (digit: string): string => SUBSCRIPT_DIGITS[Number(digit)]);
   const sign = amount.isNegative() ? '-' : '';
 
-  return `${sign}0${decimalSeparator}00…${lastDigits}`;
+  return `${sign}0${decimalSeparator}0${subscript}${fraction.slice(leadingZeroCount)}`;
 }
