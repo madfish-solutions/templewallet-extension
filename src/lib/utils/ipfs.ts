@@ -1,8 +1,10 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import { Semaphore } from 'async-mutex';
+import axios, { AxiosRequestConfig, AxiosResponse, isAxiosError } from 'axios';
 import { CID } from 'multiformats/cid';
 
 import { EnvVars } from 'lib/env';
 
+import { acquireUnlessAborted } from './acquire-unless-aborted';
 import { delayUnlessAborted } from './delay-unless-aborted';
 
 import { isTruthy } from '.';
@@ -155,6 +157,11 @@ export const buildLastResortIpfsGatewayUrl = (uri?: string) => buildGatewayUrls(
 
 const DEFAULT_MAX_REDIRECTS = 4;
 export const LAST_RESORT_IPFS_DELAY = 5_000;
+const INTERACTIVE_IPFS_TIMEOUT_MS = 15_000;
+const MAX_CONCURRENT_BULK_IPFS_FETCHES = 12;
+const BULK_IPFS_TIMEOUT_MS = 8_000;
+const BULK_IPFS_FAILURE_BACKOFF_MS = 60_000;
+const BULK_IPFS_HOST_PAUSE_MS = 30_000;
 
 export const getIpfsGenericFile = async <T>(
   uri: string,
@@ -162,7 +169,7 @@ export const getIpfsGenericFile = async <T>(
 ) => {
   const { controller = new AbortController(), maxRedirects = DEFAULT_MAX_REDIRECTS, ...otherOptions } = options;
   const { signal } = controller;
-  const requestOptions = { signal, maxRedirects, ...otherOptions };
+  const requestOptions = { signal, maxRedirects, timeout: INTERACTIVE_IPFS_TIMEOUT_MS, ...otherOptions };
 
   const lastResortUri = buildLastResortIpfsGatewayUrl(uri);
 
@@ -183,3 +190,116 @@ export const getIpfsGenericFile = async <T>(
     controller.abort();
   }
 };
+
+export class IpfsHostPausedError extends Error {
+  constructor(
+    host: string,
+    readonly retryAt: number
+  ) {
+    super(`Bulk IPFS fetches to ${host} are paused after a 429`);
+    this.name = 'IpfsHostPausedError';
+  }
+}
+
+export class IpfsBackoffError extends Error {
+  constructor(uri: string) {
+    super(`Backed off after a recent IPFS failure: ${uri}`);
+    this.name = 'IpfsBackoffError';
+  }
+}
+
+export class IpfsTransientError extends Error {
+  constructor(
+    uri: string,
+    readonly retryAt: number,
+    refused = false
+  ) {
+    super(refused ? `Backed off after a transient IPFS failure: ${uri}` : `Transient IPFS failure: ${uri}`);
+    this.name = 'IpfsTransientError';
+  }
+}
+
+const isTransientFailure = (error: unknown) =>
+  isAxiosError(error) &&
+  (error.code === 'ECONNABORTED' ||
+    error.code === 'ETIMEDOUT' ||
+    error.code === 'ERR_NETWORK' ||
+    (error.response?.status ?? 0) >= 500);
+
+const getHostname = (url: string) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
+};
+
+class BulkIpfsFetcher {
+  private readonly slots = new Semaphore(MAX_CONCURRENT_BULK_IPFS_FETCHES);
+  private readonly failedUntil = new Map<string, { until: number; transient: boolean }>();
+  private readonly hostPausedUntil = new Map<string, number>();
+
+  async get<T>(uri: string, signal: AbortSignal): Promise<AxiosResponse<T>> {
+    const url = buildPrimaryIpfsGatewayUrls(uri).at(0) ?? uri;
+    const host = getHostname(url);
+    const refusal = this.getRefusal(uri, host);
+
+    if (refusal) throw refusal;
+
+    const [, release] = await acquireUnlessAborted(this.slots, signal);
+    const refusalAfterWait = this.getRefusal(uri, host);
+
+    if (refusalAfterWait) {
+      release();
+
+      throw refusalAfterWait;
+    }
+
+    try {
+      const response = await axios.get<T>(url, {
+        signal,
+        timeout: BULK_IPFS_TIMEOUT_MS,
+        maxRedirects: DEFAULT_MAX_REDIRECTS
+      });
+      this.failedUntil.delete(uri);
+
+      return response;
+    } catch (error) {
+      if (host !== undefined && isAxiosError(error) && error.response?.status === 429) {
+        const pausedUntil = Date.now() + BULK_IPFS_HOST_PAUSE_MS;
+        this.hostPausedUntil.set(host, pausedUntil);
+
+        throw new IpfsHostPausedError(host, pausedUntil);
+      }
+
+      if (!signal.aborted) {
+        const failure = { until: Date.now() + BULK_IPFS_FAILURE_BACKOFF_MS, transient: isTransientFailure(error) };
+        this.failedUntil.set(uri, failure);
+
+        if (failure.transient) throw new IpfsTransientError(uri, failure.until);
+      }
+
+      throw error;
+    } finally {
+      release();
+    }
+  }
+
+  private getRefusal(uri: string, host: string | undefined) {
+    const failure = this.failedUntil.get(uri);
+
+    if (failure && Date.now() < failure.until) {
+      return failure.transient ? new IpfsTransientError(uri, failure.until, true) : new IpfsBackoffError(uri);
+    }
+
+    if (host === undefined) return undefined;
+
+    const pausedUntil = this.hostPausedUntil.get(host) ?? 0;
+
+    return Date.now() < pausedUntil ? new IpfsHostPausedError(host, pausedUntil) : undefined;
+  }
+}
+
+const bulkIpfsFetcher = new BulkIpfsFetcher();
+
+export const getIpfsGenericFileInBulk = <T>(uri: string, signal: AbortSignal) => bulkIpfsFetcher.get<T>(uri, signal);
