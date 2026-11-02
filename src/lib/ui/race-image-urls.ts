@@ -1,3 +1,7 @@
+import { Semaphore } from 'async-mutex';
+
+import { acquireUnlessAborted } from 'lib/utils/acquire-unless-aborted';
+
 export interface ImageSourceStage {
   urls: string[];
   delayMs?: number;
@@ -18,6 +22,8 @@ interface InternalRaceOptions extends RaceImageUrlsOptions {
 
 const IMAGE_LOAD_TIMEOUT_MS = 10_000;
 const MAX_CONCURRENT_RACES = 5;
+const FAILURE_BACKOFF_BASE_MS = 5_000;
+const FAILURE_BACKOFF_MAX_MS = 5 * 60_000;
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 
@@ -139,13 +145,15 @@ const loadOneImage = (url: string, timeoutMs: number, signal: AbortSignal) =>
 export class ImageUrlRacer {
   private readonly winners = new Map<string, string>();
   private readonly inFlight = new Map<string, InFlightRace>();
-  private active = 0;
-  private readonly waiters: Array<() => void> = [];
+  private readonly failures = new Map<string, { until: number; attempts: number }>();
+  private readonly slots: Semaphore;
 
   constructor(
-    private readonly maxConcurrent = MAX_CONCURRENT_RACES,
+    maxConcurrent = MAX_CONCURRENT_RACES,
     private readonly defaultTimeoutMs = IMAGE_LOAD_TIMEOUT_MS
-  ) {}
+  ) {
+    this.slots = new Semaphore(maxConcurrent);
+  }
 
   async raceImageUrls(urls: string[], options: RaceImageUrlsOptions = {}): Promise<string | null> {
     return this.raceImageUrlsInternal(urls, options);
@@ -160,7 +168,7 @@ export class ImageUrlRacer {
 
     const signal = options.signal ?? new AbortController().signal;
 
-    await this.acquire(signal, options.immediate ?? false);
+    const [, release] = await acquireUnlessAborted(this.slots, signal, options.immediate ?? false);
 
     try {
       throwIfAborted(signal);
@@ -194,8 +202,12 @@ export class ImageUrlRacer {
 
       return null;
     } finally {
-      this.release();
+      release();
     }
+  }
+
+  clearFailures() {
+    this.failures.clear();
   }
 
   private async raceImageUrlsInternal(urls: string[], options: InternalRaceOptions = {}): Promise<string | null> {
@@ -213,6 +225,12 @@ export class ImageUrlRacer {
     }
 
     throwIfAborted(signal);
+
+    const failure = this.failures.get(key);
+
+    if (!immediate && failure && failure.until > Date.now()) {
+      return null;
+    }
 
     const existing = this.inFlight.get(key);
 
@@ -237,9 +255,16 @@ export class ImageUrlRacer {
       .then(winner => {
         if (winner) {
           this.winners.set(key, winner);
+          this.failures.delete(key);
+        } else {
+          this.recordFailure(key);
         }
       })
-      .catch(() => undefined)
+      .catch(error => {
+        if (!isAbortError(error)) {
+          this.recordFailure(key);
+        }
+      })
       .finally(() => {
         if (this.inFlight.get(key) === entry) {
           this.inFlight.delete(key);
@@ -251,6 +276,13 @@ export class ImageUrlRacer {
     } catch (error) {
       return this.retryIfDyingRace(error, signal, urls, options);
     }
+  }
+
+  private recordFailure(key: string) {
+    const attempts = (this.failures.get(key)?.attempts ?? 0) + 1;
+    const backoff = Math.min(FAILURE_BACKOFF_BASE_MS * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
+
+    this.failures.set(key, { until: Date.now() + backoff, attempts });
   }
 
   private retryIfDyingRace(
@@ -387,10 +419,11 @@ export class ImageUrlRacer {
     options: Required<Pick<InternalRaceOptions, 'timeoutMs' | 'immediate' | 'signal'>> &
       Pick<InternalRaceOptions, 'skipAcquire'>
   ) {
-    const skipAcquire = options.skipAcquire ?? false;
-    if (!skipAcquire) {
-      await this.acquire(options.signal, options.immediate);
-    }
+    const [, release] = await acquireUnlessAborted(
+      this.slots,
+      options.signal,
+      options.skipAcquire || options.immediate
+    );
 
     try {
       throwIfAborted(options.signal);
@@ -438,65 +471,16 @@ export class ImageUrlRacer {
         options.signal.removeEventListener('abort', onParentAbort);
       }
     } finally {
-      if (!skipAcquire) {
-        this.release();
-      }
-    }
-  }
-
-  private acquire(signal: AbortSignal, immediate: boolean) {
-    if (immediate) {
-      this.active += 1;
-      return Promise.resolve();
-    }
-
-    if (this.active < this.maxConcurrent) {
-      this.active += 1;
-      return Promise.resolve();
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      let settled = false;
-      const waiter = () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        signal.removeEventListener('abort', onAbort);
-        this.active += 1;
-        resolve();
-      };
-      const onAbort = () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        const waiterIndex = this.waiters.indexOf(waiter);
-        if (waiterIndex >= 0) {
-          this.waiters.splice(waiterIndex, 1);
-        }
-        reject(signal.reason instanceof Error ? signal.reason : abortError());
-      };
-
-      if (signal.aborted) {
-        onAbort();
-        return;
-      }
-
-      this.waiters.push(waiter);
-      signal.addEventListener('abort', onAbort, { once: true });
-    });
-  }
-
-  private release() {
-    this.active = Math.max(0, this.active - 1);
-    if (this.active < this.maxConcurrent) {
-      this.waiters.shift()?.();
+      release();
     }
   }
 }
 
 const defaultRacer = new ImageUrlRacer();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => defaultRacer.clearFailures());
+}
 
 export const raceImageUrls = (urls: string[], options?: RaceImageUrlsOptions) =>
   defaultRacer.raceImageUrls(urls, options);
