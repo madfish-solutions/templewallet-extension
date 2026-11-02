@@ -45,23 +45,31 @@ const makeCidInPathIpfsGate =
   info =>
     `https://${domain}/ipfs/${joinCidPath(info.id, info)}`;
 
-const makeCidInDomainIpfsGate =
-  (domain: string): IpfsGate =>
-  info => {
-    const nestedPath = info.pathWithoutCid ? `/${info.pathWithoutCid}` : '';
-
-    return `https://${info.idV1}.${domain}${nestedPath}${info.search}`;
-  };
-
 export const DEFAULT_IPFS_GATE = makeCidInPathIpfsGate('ipfs.filebase.io');
 const LAST_RESORT_IPFS_GATE = makeCidInPathIpfsGate(EnvVars.LAST_RESORT_IPFS_GATEWAY_DOMAIN);
-const PRIMARY_IPFS_GATES = [
-  DEFAULT_IPFS_GATE,
-  makeCidInDomainIpfsGate('ipfs.4everland.io'),
-  makeCidInDomainIpfsGate('ipfs.dweb.link')
-];
+const PRIMARY_IPFS_GATES = [DEFAULT_IPFS_GATE];
+
+const tryRecoverSubdomainIpfsUri = (url: string) => {
+  try {
+    const { hostname, pathname, search } = new URL(url);
+    const labels = hostname.split('.');
+    const cid = labels.at(0);
+
+    if (!cid || labels.at(1) !== 'ipfs' || labels.length < 3) return;
+
+    CID.parse(cid);
+
+    return `${IPFS_PROTOCOL}${cid}${pathname === '/' ? '' : pathname}${search}`;
+  } catch {
+    return;
+  }
+};
 
 const tryRecoverIpfsUri = (url: string) => {
+  const subdomainIpfsUri = tryRecoverSubdomainIpfsUri(url);
+
+  if (subdomainIpfsUri) return subdomainIpfsUri;
+
   const [urlBeforeSearch, searchWithoutMark = ''] = url.split('?');
   const search = searchWithoutMark ? `?${searchWithoutMark}` : '';
   const urlBeforeSearchParts = urlBeforeSearch.split('/');
@@ -119,7 +127,7 @@ const getMediaUriInfo = (uri?: string): MediaUriInfo => ({
   ipfs: uri ? getIpfsItemInfo(uri) : null
 });
 
-/** Native URI info plus IPFS info parsed from path-style HTTP gateways. */
+/** Native URI info plus IPFS info parsed from path-style and subdomain HTTP gateway URLs. */
 export const parseMediaUri = (uri?: string) => {
   const native = getMediaUriInfo(uri);
   if (native.ipfs || !uri) return { native, ipfsAware: native };
