@@ -2,8 +2,6 @@ import { Mutex } from 'async-mutex';
 import EventEmitter from 'events';
 import { capitalize } from 'lodash';
 
-import { el } from 'lib/el';
-
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
 /** From lodash */
