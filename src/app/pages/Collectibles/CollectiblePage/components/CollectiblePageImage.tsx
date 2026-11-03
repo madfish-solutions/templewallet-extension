@@ -109,6 +109,8 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
   }
 );
 
+const PAGE_IMAGE_TIMEOUT_MS = 30_000;
+
 interface EvmCollectiblePageImageProps {
   metadata: EvmCollectibleMetadata;
   className?: string;
@@ -128,11 +130,13 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ met
       <ImageStacked
         sources={sourcesWithCompressedFallback}
         immediate
+        timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         className="absolute w-full h-full object-cover blur"
       />
       <ImageStacked
         sources={sources}
         immediate
+        timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}
         className={clsx('w-full h-full object-contain z-1', className)}

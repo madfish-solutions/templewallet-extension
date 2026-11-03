@@ -38,11 +38,13 @@ const findLoadedSrc = (stages: ImageSourceStage[]) => {
  * @arg progressive // Load the leading single-URL stages through the `<img>` element (progressive rendering, no
  * timeout, no concurrency cap) and race only the remaining stages off-DOM. Otherwise, a stack with any multi-URL or
  * delayed stage is raced off-DOM from its first stage.
+ * @arg timeoutMs // Per-attempt timeout of the off-DOM races; the racer's default when omitted.
  */
 export const useImagesStackLoading = (
   sources: string[] | ImageSourceStage[],
   immediate = false,
-  progressive = false
+  progressive = false,
+  timeoutMs?: number
 ) => {
   const stages = useMemoWithCompare(() => normalizeImageSources(sources), [sources], areImageSourceStagesEqual);
   const emptyStack = stages.length < 1;
@@ -97,7 +99,7 @@ export const useImagesStackLoading = (
     const loaded = findLoadedSrc(stages);
     const load: ReturnType<typeof loadImageSourceStages> = loaded
       ? Promise.resolve(loaded.url)
-      : loadImageSourceStages(stages.slice(racedFrom), { signal: controller.signal, immediate });
+      : loadImageSourceStages(stages.slice(racedFrom), { signal: controller.signal, immediate, timeoutMs });
 
     void load
       .then(winner => {
@@ -132,7 +134,7 @@ export const useImagesStackLoading = (
       loadGenerationRef.current += 1;
       controller.abort();
     };
-  }, [stages, immediate, racing, racedFrom]);
+  }, [stages, immediate, timeoutMs, racing, racedFrom]);
 
   const src = index < 0 ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
 

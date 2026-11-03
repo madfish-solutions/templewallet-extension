@@ -164,13 +164,21 @@ export const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] =
   return stages;
 };
 
+const buildPrimaryIpfsGatewaySourceStages = (uri: string): ImageSourceStage[] => {
+  const primaryUrls = buildPrimaryIpfsGatewayUrls(uri);
+
+  return primaryUrls.length ? [{ urls: primaryUrls }] : [];
+};
+
 const chainIdsChainNamesRecord = chainIdsMapping as Record<string, string>;
 
 const rainbowBaseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 const llamaoBaseUrl = 'https://icons.llamao.fi/icons/chains/';
 
 const getCompressedImageUrl = (imageUrl: string, size: number) =>
-  `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
+  imageUrl.startsWith('data:')
+    ? imageUrl
+    : `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
 
 type NativeIconSource = 'rainbow' | 'llamao';
 
@@ -222,7 +230,9 @@ export const buildEvmCollectibleIconSources = (
   const originalUrl = metadata.image;
   if (!originalUrl) return [];
 
-  const gatewayStages = buildIpfsGatewaySourceStages(originalUrl);
+  if (originalUrl.startsWith('data:')) return [{ urls: [originalUrl] }];
+
+  const gatewayStages = buildPrimaryIpfsGatewaySourceStages(originalUrl);
   if (!includeCompressed) {
     return gatewayStages;
   }
