@@ -82,7 +82,7 @@ const MultiChainNftsPage: FC<{ accountTezAddress: string; accountEvmAddress: Hex
   const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
   const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
 
-  useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useEvmCollectiblesMetadataLoading(accountEvmAddress, true);
   useMissingCollectiblesDetailsLoading(accountTezAddress);
 
   return <NftsPageContent allCollectibles={tezCollectibles.concat(evmCollectibles)} sortPredicate={sortPredicate} />;
@@ -100,7 +100,7 @@ const TezosNftsPage: FC<{ accountTezAddress: string }> = ({ accountTezAddress })
 };
 
 const EvmNftsPage: FC<{ accountEvmAddress: HexString }> = ({ accountEvmAddress }) => {
-  useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useEvmCollectiblesMetadataLoading(accountEvmAddress, true);
 
   return (
     <NftsPageContent

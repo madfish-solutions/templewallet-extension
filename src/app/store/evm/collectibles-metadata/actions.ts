@@ -27,11 +27,19 @@ export const loadEvmCollectiblesMetadataAction = createAction<{
   publicKeyHash: HexString;
   chains: EvmNetworkEssentials[];
   loadAllChains: boolean;
+  onChainSlugsByChain: Record<number, string[]>;
+  readAllInBackground: boolean;
 }>('evm/collectible-metadata/LOAD');
 
-export const updateEvmCollectiblesMetadataSessionAction = createAction<{
+export const cancelEvmCollectiblesMetadataLoadingAction = createAction('evm/collectible-metadata/CANCEL_LOADING');
+
+export const markEvmCollectiblesMetadataChainLoadedAction = createAction<{
   publicKeyHash: HexString;
-  lastFullLoadAccount?: HexString;
-  seenChains: number[];
-  checkedSlugsByChain: Record<number, string[]>;
-}>('evm/collectible-metadata/UPDATE_SESSION');
+  chainId: number;
+}>('evm/collectible-metadata/MARK_CHAIN_LOADED');
+
+export const markEvmCollectibleSlugsCheckedAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+  slugs: string[];
+}>('evm/collectible-metadata/MARK_SLUGS_CHECKED');

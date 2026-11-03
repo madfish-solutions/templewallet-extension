@@ -1,10 +1,9 @@
-import { FC } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmCollectibleTileMetadata } from 'app/hooks/use-evm-collectible-metadata-request';
 import {
   useCollectibleMetadataSelector,
   useCollectiblesMetadataLoadingSelector
@@ -13,6 +12,7 @@ import { useCollectibleDetailsSelector } from 'app/store/tezos/collectibles/sele
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
 import { CollectibleMetadata } from 'lib/metadata/types';
+import { useAccountAddressForEvm } from 'temple/front';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -59,6 +59,7 @@ export const ShowMore: FC<ShowMoreProps> = ({
 };
 
 interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
+  wrapperElemRef?: Ref<HTMLDivElement>;
   assetSlug: string;
   chainId: ChainId<T>;
   metadata?: CollectibleMetadata<T>;
@@ -81,6 +82,7 @@ const ShowMoreLayoutHOC = <
 ) => {
   function ShowMoreLayout(props: P) {
     const {
+      wrapperElemRef,
       assetSlug,
       metadata,
       chainId,
@@ -102,6 +104,7 @@ const ShowMoreLayoutHOC = <
         testID={testID}
       >
         <div
+          ref={wrapperElemRef}
           className={clsx(
             'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
             isVisible && 'border-2 border-transparent',
@@ -176,16 +179,17 @@ const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProp
 
 const EvmShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps }) => {
   const [, chainId, assetSlug] = parseChainAssetSlug<TempleChainKind.EVM>(chainSlug);
-  const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
-  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const accountPkh = useAccountAddressForEvm();
+  const { metadata, metadataLoading, wrapperElemRef } = useEvmCollectibleTileMetadata(accountPkh, chainId, assetSlug);
 
   return (
     <EvmShowMoreLayout
       {...restProps}
+      wrapperElemRef={wrapperElemRef}
       assetSlug={assetSlug}
       chainId={chainId}
       metadata={metadata}
-      metadatasLoading={metadatasLoading}
+      metadatasLoading={metadataLoading}
     />
   );
 };

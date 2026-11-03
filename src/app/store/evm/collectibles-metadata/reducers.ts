@@ -7,9 +7,11 @@ import { storageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import {
+  loadEvmCollectiblesMetadataAction,
+  markEvmCollectibleSlugsCheckedAction,
+  markEvmCollectiblesMetadataChainLoadedAction,
   processLoadedEvmCollectiblesMetadataAction,
-  putEvmCollectiblesMetadataAction,
-  updateEvmCollectiblesMetadataSessionAction
+  putEvmCollectiblesMetadataAction
 } from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
 import { buildEvmCollectibleMetadataFromFetched } from './utils';
@@ -55,12 +57,25 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
       }
     });
 
-    builder.addCase(updateEvmCollectiblesMetadataSessionAction, (state, { payload }) => {
-      const { publicKeyHash, lastFullLoadAccount, seenChains, checkedSlugsByChain } = payload;
+    builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash, loadAllChains } }) => {
+      if (!loadAllChains || state.lastFullLoadAccount === publicKeyHash) return;
 
-      state.lastFullLoadAccount = lastFullLoadAccount;
-      state.seenChainsByAccount[publicKeyHash] = seenChains;
-      state.checkedSlugsByAccount[publicKeyHash] = checkedSlugsByChain;
+      state.lastFullLoadAccount = publicKeyHash;
+      state.seenChainsByAccount[publicKeyHash] = [];
+      state.checkedSlugsByAccount[publicKeyHash] = {};
+    });
+
+    builder.addCase(markEvmCollectiblesMetadataChainLoadedAction, (state, { payload: { publicKeyHash, chainId } }) => {
+      const seenChains = (state.seenChainsByAccount[publicKeyHash] ??= []);
+
+      if (!seenChains.includes(chainId)) seenChains.push(chainId);
+    });
+
+    builder.addCase(markEvmCollectibleSlugsCheckedAction, (state, { payload: { publicKeyHash, chainId, slugs } }) => {
+      const checkedByChain = (state.checkedSlugsByAccount[publicKeyHash] ??= {});
+      const checked = (checkedByChain[chainId] ??= {});
+
+      for (const slug of slugs) checked[slug] = true;
     });
   }
 );
@@ -75,7 +90,8 @@ export const evmCollectiblesMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesMetadata',
     ...storageConfig,
-    blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST
+    blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST,
+    throttle: 5_000
   },
   evmCollectiblesMetadataReducer
 );

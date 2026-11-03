@@ -33,14 +33,6 @@ export const fetchEvmTokensMetadataFromChain = async (network: EvmNetworkEssenti
     handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs)
   );
 
-export const fetchEvmCollectiblesMetadataFromChain = async (
-  network: EvmNetworkEssentials,
-  collectibleSlugs: string[]
-) =>
-  Promise.all(collectibleSlugs.map(slug => fetchEvmCollectibleMetadataFromChain(network, slug))).then(fetchedMetadata =>
-    handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
-  );
-
 export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentials, assetSlug: string) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(assetSlug);
 
