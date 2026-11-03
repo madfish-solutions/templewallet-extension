@@ -19,6 +19,7 @@ import { EvmCollectibleItemImage, TezosCollectibleItemImage } from '../collectib
 import { CommonLayoutProps } from './types';
 
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
+const IMAGE_BOX_STYLE = { contentVisibility: 'auto' } as const;
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> extends CommonLayoutProps<T> {
   showDetails: boolean;
@@ -70,6 +71,7 @@ const DefaultCollectibleListItemLayoutHOC = <
       >
         <div
           ref={wrapperElemRef}
+          style={IMAGE_BOX_STYLE}
           className={clsx(
             'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
             isVisible && 'border-2 border-transparent',

@@ -65,7 +65,6 @@ const PageContent: FC = () => {
   return (
     <PageContentBase
       manageActive={false}
-      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainsSlugsSorted}
       allSlugsSortedGrouped={enabledChainsSlugsSortedGrouped}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
@@ -103,7 +102,6 @@ const PageContentWithManageActive: FC = () => {
     <PageContentBase
       allSlugsSorted={allSlugsSorted}
       allSlugsSortedGrouped={allSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
       manageActive={true}
     />
   );
@@ -112,7 +110,6 @@ const PageContentWithManageActive: FC = () => {
 interface PageContentBaseProps {
   allSlugsSorted: string[];
   allSlugsSortedGrouped: ChainGroupedSlugs | null;
-  groupByNetwork: boolean;
   manageActive: boolean;
   shouldShowHiddenTokensHint?: boolean;
 }
@@ -120,19 +117,11 @@ interface PageContentBaseProps {
 const PageContentBase: FC<PageContentBaseProps> = ({
   allSlugsSorted,
   allSlugsSortedGrouped,
-  groupByNetwork,
   manageActive,
   shouldShowHiddenTokensHint
 }) => {
-  const {
-    applicableNetworks,
-    displayedSlugs,
-    displayedGroupedSlugs,
-    isSyncing,
-    loadNextPlain,
-    loadNextGrouped,
-    isInSearchMode
-  } = useAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+  const { applicableNetworks, displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode } =
+    useAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
   const tezosChains = useAllTezosChains();
   const evmChains = useAllEvmChains();
@@ -143,7 +132,6 @@ const PageContentBase: FC<PageContentBaseProps> = ({
       isInSearchMode={isInSearchMode}
       isSyncing={isSyncing}
       displayedSlugs={displayedSlugs}
-      loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
       groupedSlugs={displayedGroupedSlugs}
       tezosChains={tezosChains}
       evmChains={evmChains}

@@ -1,19 +1,20 @@
-import React, { memo, useMemo, MouseEvent, useCallback, Ref } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { useTokenWillBeRendered } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { TokensListView } from './tokens-list-view';
+import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface Props {
   publicKeyHash: HexString;
@@ -53,24 +54,31 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
     [enabledEvmAssetsSlugsSorted, getMetadata, searchValue]
   );
 
+  const tokenWillBeRendered = useTokenWillBeRendered();
+
   const renderListItem = useCallback(
-    (chainSlug: string, index: number, ref?: Ref<TokenListItemElement>) => {
+    (chainSlug: string) => {
       const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
       return (
         <EvmTokenListItem
-          key={chainSlug}
-          index={index}
           network={allEvmChains[chainId]}
           assetSlug={assetSlug}
           publicKeyHash={publicKeyHash}
           onClick={e => onAssetSelect(e, chainSlug)}
-          ref={ref}
         />
       );
     },
     [allEvmChains, onAssetSelect, publicKeyHash]
   );
 
-  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
+  return (
+    <TokensListView
+      slugs={searchedSlugs}
+      scrollElementId={SELECT_ASSET_SCROLLABLE_ID}
+      tokenWillBeRendered={tokenWillBeRendered}
+    >
+      {renderListItem}
+    </TokensListView>
+  );
 });

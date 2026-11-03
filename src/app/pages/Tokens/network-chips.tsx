@@ -50,6 +50,7 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ applicableNetworks }) => {
           />
         )
       }))}
+      layoutScope="tokens"
       selectedChains={selectedChains}
       setSelectedChains={setSelectedChains}
     />
