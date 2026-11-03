@@ -1,3 +1,5 @@
+import { InvalidInputRpcError } from 'viem';
+
 import { delay } from 'lib/utils';
 import { ChainPublicClient, getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -59,8 +61,8 @@ export abstract class EvmHttpRpcListener<T extends unknown[] = []> extends Liste
     }
   }
 
-  protected async onError(error: any) {
-    if (!this.isActive) return;
+  protected async onError(error: unknown) {
+    if (!this.isActive || error instanceof InvalidInputRpcError) return;
 
     console.error(error);
     this.stopListening();

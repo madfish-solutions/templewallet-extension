@@ -14,6 +14,7 @@ import { erc1155Abi } from 'lib/abi/erc1155';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { fromAssetSlug } from 'lib/assets';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
+import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import {
   getIpfsGenericFile,
   getIpfsGenericFileInBulk,
@@ -27,6 +28,18 @@ import { EvmNetworkEssentials } from 'temple/networks';
 import { EvmAssetStandard } from '../types';
 
 import { detectEvmTokenStandard } from './utils/common.utils';
+
+const ENS_NAME_CONTRACTS: Record<number, string[]> = {
+  [ETHEREUM_MAINNET_CHAIN_ID]: [
+    '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85',
+    '0xd4416b13d2b3a9abae7acd5d6c2bbdbe25686401'
+  ]
+};
+
+const getEnsMetadataUri = (chainId: number, contractAddress: HexString, tokenId: bigint) =>
+  ENS_NAME_CONTRACTS[chainId]?.includes(contractAddress.toLowerCase())
+    ? `https://metadata.ens.domains/mainnet/${contractAddress}/${tokenId}`
+    : undefined;
 
 export const fetchEvmTokensMetadataFromChain = async (network: EvmNetworkEssentials, tokenSlugs: string[]) =>
   Promise.all(tokenSlugs.map(slug => fetchEvmTokenMetadataFromChain(network, slug))).then(fetchedMetadata =>
@@ -152,7 +165,8 @@ const getERC721Metadata = async (
 ) => {
   const results = await getERC721Properties(publicClient, contractAddress, tokenId);
 
-  const metadataUri = getValue<string>(results[2]);
+  const metadataUri =
+    getValue<string>(results[2]) ?? getEnsMetadataUri(publicClient.chain.id, contractAddress, tokenId);
 
   if (!metadataUri) throw new Error();
 

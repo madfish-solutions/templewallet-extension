@@ -33,7 +33,7 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         const collectibles = contract.nft_data;
 
         for (const collectible of collectibles) {
-          if (!isProperCollectibleMetadata(collectible)) continue;
+          if (!isProperCollectibleMetadata(collectible) || !collectible.external_data.image) continue;
 
           const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
 
