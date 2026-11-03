@@ -9,7 +9,9 @@ import { ContractInterfaceId, EvmAssetStandard } from '../../types';
 
 const supportsInterfaceAbi = parseAbi(['function supportsInterface(bytes4 interfaceID) external view returns (bool)']);
 
-export const detectEvmTokenStandard = async (
+const standardDetections = new Map<string, Promise<EvmAssetStandard | undefined>>();
+
+export const detectEvmTokenStandard = (
   clientOrNetwork: ChainPublicClient | EvmNetworkEssentials,
   assetSlug: string
 ): Promise<EvmAssetStandard | undefined> => {
@@ -17,6 +19,30 @@ export const detectEvmTokenStandard = async (
 
   const publicClient = isNetworkArg(clientOrNetwork) ? getViemPublicClient(clientOrNetwork) : clientOrNetwork;
 
+  const key = `${publicClient.chain.id}:${contractAddress}`;
+  const detection = standardDetections.get(key);
+
+  if (detection) return detection;
+
+  const standard = readEvmTokenStandard(publicClient, contractAddress);
+  standardDetections.set(key, standard);
+  void standard.then(result => {
+    if (
+      result !== EvmAssetStandard.ERC721 &&
+      result !== EvmAssetStandard.ERC1155 &&
+      standardDetections.get(key) === standard
+    ) {
+      standardDetections.delete(key);
+    }
+  });
+
+  return standard;
+};
+
+const readEvmTokenStandard = async (
+  publicClient: ChainPublicClient,
+  contractAddress: HexString
+): Promise<EvmAssetStandard | undefined> => {
   try {
     const isERC721Supported = await publicClient.readContract({
       address: contractAddress,
