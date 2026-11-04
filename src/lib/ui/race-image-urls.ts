@@ -28,6 +28,7 @@ const FAILURE_BACKOFF_BASE_MS = 5_000;
 const FAILURE_BACKOFF_MAX_MS = 5 * 60_000;
 const RATE_LIMIT_BACKOFF_MS = 30_000;
 const RATE_LIMITED_STATUS = 429;
+const HOST_RESUME_JITTER_MS = 5_000;
 
 const rateLimitedAt = new Map<string, number>();
 const hostRateLimitedAt = new Map<string, number>();
@@ -71,6 +72,12 @@ const getBufferedRateLimitTime = (url: string) => {
 
 const wasRateLimited = (url: string) =>
   Date.now() - Math.max(rateLimitedAt.get(url) ?? 0, getBufferedRateLimitTime(url)) < RATE_LIMIT_BACKOFF_MS;
+
+const getHostsQuietAt = (urls: string[]) =>
+  Math.max(...urls.map(url => (hostRateLimitedAt.get(getHost(url)) ?? 0) + RATE_LIMIT_BACKOFF_MS));
+
+export const getFailureBackoffMs = (attempts: number, baseMs = FAILURE_BACKOFF_BASE_MS) =>
+  Math.min(baseMs * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 
@@ -214,6 +221,11 @@ export class ImageUrlRacer {
     }
 
     const signal = options.signal ?? new AbortController().signal;
+    const firstStageUrls = normalized[0].urls;
+
+    if (!options.immediate && getHostsQuietAt(firstStageUrls) > Date.now()) {
+      await this.waitForQuietHosts(firstStageUrls, signal);
+    }
 
     const [, release] = await acquireUnlessAborted(this.slots, signal, options.immediate ?? false);
 
@@ -263,14 +275,22 @@ export class ImageUrlRacer {
 
       if (!failure?.rateLimited) return [];
 
-      const hostQuietAt = Math.max(
-        ...urls.map(url => (hostRateLimitedAt.get(getHost(url)) ?? 0) + RATE_LIMIT_BACKOFF_MS)
-      );
-
-      return [Math.max(failure.until, hostQuietAt)];
+      return [Math.max(failure.until, getHostsQuietAt(urls))];
     });
 
     return retryTimes.length > 0 ? Math.min(...retryTimes) : undefined;
+  }
+
+  private async waitForQuietHosts(urls: string[], signal: AbortSignal) {
+    const deadline = Date.now() + RATE_LIMIT_BACKOFF_MS;
+
+    for (
+      let quietAt = getHostsQuietAt(urls);
+      quietAt > Date.now() && Date.now() < deadline;
+      quietAt = getHostsQuietAt(urls)
+    ) {
+      await delay(Math.min(quietAt, deadline) - Date.now() + Math.random() * HOST_RESUME_JITTER_MS, signal);
+    }
   }
 
   private async raceImageUrlsInternal(urls: string[], options: InternalRaceOptions = {}): Promise<string | null> {
@@ -343,9 +363,7 @@ export class ImageUrlRacer {
 
   private recordFailure(key: string, rateLimited: boolean) {
     const attempts = (this.failures.get(key)?.attempts ?? 0) + 1;
-    const backoff = rateLimited
-      ? RATE_LIMIT_BACKOFF_MS
-      : Math.min(FAILURE_BACKOFF_BASE_MS * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
+    const backoff = rateLimited ? RATE_LIMIT_BACKOFF_MS : getFailureBackoffMs(attempts);
 
     this.failures.set(key, { until: Date.now() + backoff, attempts, rateLimited });
   }

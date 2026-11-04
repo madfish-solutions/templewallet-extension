@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import {
   areImageSourceStagesEqual,
+  getFailureBackoffMs,
   getImageStackRateLimitRetryAt,
   ImageSourceStage,
   loadImageSourceStages,
@@ -12,10 +13,21 @@ import {
 const RATE_LIMIT_RETRY_JITTER_MS = 5_000;
 const RATE_LIMIT_MAX_WAIT_MS = 2 * 60_000;
 
+interface ImagesStackLoadingOptions {
+  immediate?: boolean;
+  progressive?: boolean;
+  raced?: boolean;
+  timeoutMs?: number;
+  paused?: boolean;
+  failureBackoffMs?: number;
+}
+
 const needsRacer = (stage: ImageSourceStage) => stage.urls.length > 1 || Boolean(stage.delayMs);
 
 /** Index of the first stage the `<img>` element cannot try on its own; `stages.length` when every stage can be. */
-const firstRacedStageIndex = (stages: ImageSourceStage[], progressive: boolean) => {
+const firstRacedStageIndex = (stages: ImageSourceStage[], progressive: boolean, raced: boolean) => {
+  if (raced) return 0;
+
   if (!progressive) return stages.some(needsRacer) ? 0 : stages.length;
 
   const index = stages.findIndex(needsRacer);
@@ -24,6 +36,11 @@ const firstRacedStageIndex = (stages: ImageSourceStage[], progressive: boolean) 
 };
 
 const loadedSrcs = new Map<string, string>();
+const failedStacks = new Map<string, { until: number; attempts: number }>();
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => failedStacks.clear());
+}
 
 const getStackKey = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls).join('\0');
 
@@ -36,32 +53,55 @@ const findLoadedSrc = (stages: ImageSourceStage[]) => {
   return index === -1 ? undefined : { index, url };
 };
 
+const isStackRecentlyFailed = (stages: ImageSourceStage[], immediate: boolean) =>
+  !immediate && (failedStacks.get(getStackKey(stages))?.until ?? 0) > Date.now();
+
+const rememberFailedStack = (stages: ImageSourceStage[], immediate: boolean, backoffMs?: number) => {
+  if (immediate || stages.length === 0) return;
+
+  const key = getStackKey(stages);
+  const attempts = (failedStacks.get(key)?.attempts ?? 0) + 1;
+
+  failedStacks.set(key, { until: Date.now() + getFailureBackoffMs(attempts, backoffMs), attempts });
+};
+
 /**
  * @arg sources // Memoize
- * @arg immediate // Start the off-DOM race right away instead of waiting for a slot under the loader's in-flight cap.
- * @arg progressive // Load the leading single-URL stages through the `<img>` element (progressive rendering, no
+ * @arg options.immediate // Start the off-DOM race right away instead of waiting for a slot under the loader's in-flight
+ * cap.
+ * @arg options.progressive // Load the leading single-URL stages through the `<img>` element (progressive rendering, no
  * timeout, no concurrency cap) and race only the remaining stages off-DOM. Otherwise, a stack with any multi-URL or
  * delayed stage is raced off-DOM from its first stage.
- * @arg timeoutMs // Per-attempt timeout of the off-DOM races; the racer's default when omitted.
+ * @arg options.raced // Race the stack off-DOM from its first stage even when the `<img>` element could try every stage.
+ * @arg options.timeoutMs // Per-attempt timeout of the off-DOM races; the racer's default when omitted.
+ * @arg options.paused // Don't load while true; a load in progress is aborted, a loaded image stays.
+ * @arg options.failureBackoffMs // First back-off before a failed stack is tried again on remount; ignored with
+ * `immediate`.
  */
 export const useImagesStackLoading = (
   sources: string[] | ImageSourceStage[],
-  immediate = false,
-  progressive = false,
-  timeoutMs?: number
+  {
+    immediate = false,
+    progressive = false,
+    raced = false,
+    timeoutMs,
+    paused = false,
+    failureBackoffMs
+  }: ImagesStackLoadingOptions = {}
 ) => {
   const stages = useMemoWithCompare(() => normalizeImageSources(sources), [sources], areImageSourceStagesEqual);
   const emptyStack = stages.length < 1;
-  const racedFrom = firstRacedStageIndex(stages, progressive);
+  const racedFrom = firstRacedStageIndex(stages, progressive, raced);
 
   const prevStagesRef = useRef(stages);
   const loadGenerationRef = useRef(0);
 
   const [loadedAtMount] = useState(() => findLoadedSrc(stages));
-  const [index, setIndex] = useState(loadedAtMount?.index ?? (emptyStack ? -1 : 0));
+  const [failedAtMount] = useState(() => !loadedAtMount && isStackRecentlyFailed(stages, immediate));
+  const [index, setIndex] = useState(loadedAtMount?.index ?? (emptyStack || failedAtMount ? -1 : 0));
   const [racedSrc, setRacedSrc] = useState(loadedAtMount?.url);
-  const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount);
-  const [isStackFailed, setIsStackFailed] = useState(emptyStack);
+  const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount && !failedAtMount);
+  const [isStackFailed, setIsStackFailed] = useState(emptyStack || failedAtMount);
   const [rateLimitRetryAt, setRateLimitRetryAt] = useState<number>();
   const retriedAfterRateLimitRef = useRef(false);
   const rateLimitWaitStartRef = useRef(0);
@@ -77,9 +117,9 @@ export const useImagesStackLoading = (
     retriedAfterRateLimitRef.current = false;
     setRateLimitRetryAt(undefined);
 
-    if (stages.length > 0) {
-      const loaded = findLoadedSrc(stages);
+    const loaded = findLoadedSrc(stages);
 
+    if (stages.length > 0 && (loaded || !isStackRecentlyFailed(stages, immediate))) {
       setIndex(loaded?.index ?? 0);
       setRacedSrc(loaded?.url);
       setIsLoading(!loaded);
@@ -98,10 +138,10 @@ export const useImagesStackLoading = (
       setIsLoading(false);
       setIsStackFailed(true);
     }
-  }, [stages, racedFrom]);
+  }, [stages, racedFrom, immediate]);
 
   useEffect(() => {
-    if (!racing || racedFrom >= stages.length) return;
+    if (!racing || paused || racedFrom >= stages.length) return;
 
     const controller = new AbortController();
     const generation = ++loadGenerationRef.current;
@@ -117,10 +157,16 @@ export const useImagesStackLoading = (
       setIsLoading(false);
       setIsStackFailed(true);
 
-      if (retriedAfterRateLimitRef.current) return;
+      const retryAt = retriedAfterRateLimitRef.current ? undefined : getImageStackRateLimitRetryAt(racedStages);
+
+      if (retryAt === undefined) {
+        rememberFailedStack(stages, immediate, failureBackoffMs);
+
+        return;
+      }
 
       rateLimitWaitStartRef.current = Date.now();
-      setRateLimitRetryAt(getImageStackRateLimitRetryAt(racedStages));
+      setRateLimitRetryAt(retryAt);
     };
 
     void load
@@ -150,10 +196,10 @@ export const useImagesStackLoading = (
       loadGenerationRef.current += 1;
       controller.abort();
     };
-  }, [stages, immediate, timeoutMs, racing, racedFrom]);
+  }, [stages, immediate, timeoutMs, racing, racedFrom, paused, failureBackoffMs]);
 
   useEffect(() => {
-    if (rateLimitRetryAt === undefined) return;
+    if (rateLimitRetryAt === undefined || paused) return;
 
     const controller = new AbortController();
     const retryDelay = Math.max(0, rateLimitRetryAt - Date.now()) + Math.random() * RATE_LIMIT_RETRY_JITTER_MS;
@@ -187,12 +233,17 @@ export const useImagesStackLoading = (
             setIndex(racedFrom);
             setIsLoading(false);
             setIsStackFailed(false);
+          } else {
+            rememberFailedStack(stages, immediate, failureBackoffMs);
           }
 
           setRateLimitRetryAt(undefined);
         })
         .catch(() => {
-          if (!controller.signal.aborted) setRateLimitRetryAt(undefined);
+          if (controller.signal.aborted) return;
+
+          rememberFailedStack(stages, immediate, failureBackoffMs);
+          setRateLimitRetryAt(undefined);
         });
     }, retryDelay);
 
@@ -200,12 +251,16 @@ export const useImagesStackLoading = (
       clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [rateLimitRetryAt, stages, immediate, timeoutMs, racedFrom]);
+  }, [rateLimitRetryAt, stages, immediate, timeoutMs, racedFrom, paused, failureBackoffMs]);
 
-  const src = index < 0 ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
+  const shownBeforePause = !isLoading && !isStackFailed;
+  const src = index < 0 || (paused && !shownBeforePause) ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
 
   const onSuccess = () => {
-    if (src) loadedSrcs.set(getStackKey(stages), src);
+    const key = getStackKey(stages);
+
+    if (src) loadedSrcs.set(key, src);
+    failedStacks.delete(key);
     setIsLoading(false);
   };
 
@@ -222,6 +277,7 @@ export const useImagesStackLoading = (
         setIndex(-1);
         setIsLoading(false);
         setIsStackFailed(true);
+        rememberFailedStack(stages, immediate, failureBackoffMs);
       }
 
       return;
@@ -231,6 +287,7 @@ export const useImagesStackLoading = (
       setIndex(-1);
       setIsLoading(false);
       setIsStackFailed(true);
+      rememberFailedStack(stages, immediate, failureBackoffMs);
 
       return;
     }

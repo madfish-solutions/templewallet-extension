@@ -155,9 +155,14 @@ export const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
   'items-center justify-center'
 );
 
-export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  DefaultCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   TempleChainKind.EVM,
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />,
+  ({ metadata, inView }) => (
+    <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} inView={inView} className="object-contain" />
+  ),
   useEvmChainByChainId
 );

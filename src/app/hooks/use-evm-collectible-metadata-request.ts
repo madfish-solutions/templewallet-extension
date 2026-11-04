@@ -1,4 +1,4 @@
-import { RefCallback, useCallback } from 'react';
+import { RefCallback, useCallback, useEffect, useRef, useState } from 'react';
 
 import { throttle } from 'lodash';
 
@@ -8,14 +8,18 @@ import {
   useIsEvmCollectibleCheckedSelector
 } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 interface ObservedTarget {
   chainId: number;
   assetSlug: string;
   visible: boolean;
+  requestsMetadata: boolean;
+  onVisibilityChange: (visible: boolean) => void;
 }
 
 const NOTIFY_THROTTLE_MS = 300;
+const IN_VIEW_DWELL_MS = 250;
 
 const requestCounts = new Map<number, Map<string, number>>();
 const listeners = new Set<EmptyFn>();
@@ -75,6 +79,17 @@ const unregister = (chainId: number, assetSlug: string) => {
   notify();
 };
 
+const setRequestsMetadata = (target: ObservedTarget, requestsMetadata: boolean) => {
+  if (target.requestsMetadata === requestsMetadata) return;
+
+  target.requestsMetadata = requestsMetadata;
+
+  if (!target.visible) return;
+
+  if (requestsMetadata) register(target.chainId, target.assetSlug);
+  else unregister(target.chainId, target.assetSlug);
+};
+
 const handleIntersections = (entries: IntersectionObserverEntry[]) => {
   for (const { target, isIntersecting } of entries) {
     const observed = targets.get(target);
@@ -83,20 +98,23 @@ const handleIntersections = (entries: IntersectionObserverEntry[]) => {
 
     observed.visible = isIntersecting;
 
-    if (isIntersecting) register(observed.chainId, observed.assetSlug);
-    else unregister(observed.chainId, observed.assetSlug);
+    if (observed.requestsMetadata) {
+      if (isIntersecting) register(observed.chainId, observed.assetSlug);
+      else unregister(observed.chainId, observed.assetSlug);
+    }
+
+    observed.onVisibilityChange(isIntersecting);
   }
 };
 
 const getScrollRoot = () => (SCROLL_DOCUMENT ? null : document.getElementById(APP_CONTENT_PAPER_DOM_ID));
 
-const observe = (element: Element, chainId: number, assetSlug: string): EmptyFn => {
+const observe = (element: Element, target: ObservedTarget): EmptyFn => {
   const root = getScrollRoot();
   const shared = observers.get(root) ?? {
     observer: new IntersectionObserver(handleIntersections, { root, rootMargin: '50% 0px' }),
     count: 0
   };
-  const target: ObservedTarget = { chainId, assetSlug, visible: false };
 
   shared.count += 1;
   observers.set(root, shared);
@@ -107,7 +125,7 @@ const observe = (element: Element, chainId: number, assetSlug: string): EmptyFn 
     shared.observer.unobserve(element);
     targets.delete(element);
 
-    if (target.visible) unregister(chainId, assetSlug);
+    if (target.visible && target.requestsMetadata) unregister(target.chainId, target.assetSlug);
 
     shared.count -= 1;
 
@@ -118,21 +136,58 @@ const observe = (element: Element, chainId: number, assetSlug: string): EmptyFn 
   };
 };
 
-const useRequestEvmCollectibleMetadata = (chainId: number, assetSlug: string, enabled: boolean) =>
-  useCallback<RefCallback<Element>>(
+const showWithoutObserver = (target: ObservedTarget): EmptyFn => {
+  target.visible = true;
+
+  if (target.requestsMetadata) register(target.chainId, target.assetSlug);
+
+  return () => {
+    if (target.requestsMetadata) unregister(target.chainId, target.assetSlug);
+  };
+};
+
+const useEvmCollectibleTileObserver = (chainId: number, assetSlug: string, requestsMetadata: boolean) => {
+  const [inView, setInView] = useState(typeof IntersectionObserver === 'undefined');
+  const targetRef = useRef<ObservedTarget | null>(null);
+  const requestsMetadataRef = useUpdatableRef(requestsMetadata);
+
+  const wrapperElemRef = useCallback<RefCallback<Element>>(
     element => {
-      if (!element || !enabled) return;
+      if (!element) return;
 
-      if (typeof IntersectionObserver === 'undefined') {
-        register(chainId, assetSlug);
+      let dwellTimeoutId: ReturnType<typeof setTimeout> | undefined;
+      const target: ObservedTarget = {
+        chainId,
+        assetSlug,
+        visible: false,
+        requestsMetadata: requestsMetadataRef.current,
+        onVisibilityChange: visible => {
+          clearTimeout(dwellTimeoutId);
 
-        return () => unregister(chainId, assetSlug);
-      }
+          if (visible) dwellTimeoutId = setTimeout(() => setInView(true), IN_VIEW_DWELL_MS);
+          else setInView(false);
+        }
+      };
+      targetRef.current = target;
 
-      return observe(element, chainId, assetSlug);
+      const stopObserving =
+        typeof IntersectionObserver === 'undefined' ? showWithoutObserver(target) : observe(element, target);
+
+      return () => {
+        clearTimeout(dwellTimeoutId);
+        stopObserving();
+        if (targetRef.current === target) targetRef.current = null;
+      };
     },
-    [chainId, assetSlug, enabled]
+    [chainId, assetSlug, requestsMetadataRef]
   );
+
+  useEffect(() => {
+    if (targetRef.current) setRequestsMetadata(targetRef.current, requestsMetadata);
+  }, [requestsMetadata]);
+
+  return { wrapperElemRef, inView };
+};
 
 export const useEvmCollectibleTileMetadata = (
   accountPkh: HexString | undefined,
@@ -142,7 +197,7 @@ export const useEvmCollectibleTileMetadata = (
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
   const checked = useIsEvmCollectibleCheckedSelector(accountPkh, chainId, assetSlug);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const wrapperElemRef = useRequestEvmCollectibleMetadata(chainId, assetSlug, !metadata?.image);
+  const { wrapperElemRef, inView } = useEvmCollectibleTileObserver(chainId, assetSlug, !metadata?.image);
 
-  return { metadata, metadataLoading: (!checked && !metadata) || metadatasLoading, wrapperElemRef };
+  return { metadata, metadataLoading: (!checked && !metadata) || metadatasLoading, wrapperElemRef, inView };
 };

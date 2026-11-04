@@ -143,9 +143,10 @@ const TezosShowMoreLayout = ShowMoreLayoutHOC<
   'items-center justify-center'
 );
 
-const EvmShowMoreLayout = ShowMoreLayoutHOC<TempleChainKind.EVM, DefaultShowMoreLayoutProps<TempleChainKind.EVM>>(
-  EvmCollectibleItemImage
-);
+const EvmShowMoreLayout = ShowMoreLayoutHOC<
+  TempleChainKind.EVM,
+  DefaultShowMoreLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(EvmCollectibleItemImage);
 
 interface ShowMoreContentProps {
   chainSlug: string;
@@ -180,12 +181,17 @@ const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProp
 const EvmShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps }) => {
   const [, chainId, assetSlug] = parseChainAssetSlug<TempleChainKind.EVM>(chainSlug);
   const accountPkh = useAccountAddressForEvm();
-  const { metadata, metadataLoading, wrapperElemRef } = useEvmCollectibleTileMetadata(accountPkh, chainId, assetSlug);
+  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
+    accountPkh,
+    chainId,
+    assetSlug
+  );
 
   return (
     <EvmShowMoreLayout
       {...restProps}
       wrapperElemRef={wrapperElemRef}
+      inView={inView}
       assetSlug={assetSlug}
       chainId={chainId}
       metadata={metadata}

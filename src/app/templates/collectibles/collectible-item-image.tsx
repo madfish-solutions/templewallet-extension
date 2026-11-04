@@ -8,17 +8,20 @@ import {
   appendExtraSource,
   buildCollectibleImageSourceStages,
   buildEvmCollectibleIconSources,
-  buildIpfsGatewaySourceStages
+  buildPrimaryIpfsGatewaySourceStages
 } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
+import { parseMediaUri } from 'lib/utils/ipfs';
 
 import { CollectibleBlur } from './collectible-blur';
 import { CollectibleImageFallback } from './collectible-image-fallback';
 import { CollectibleImageLoader } from './collectible-image-loader';
+
+const EVM_TILE_IMAGE_FAILURE_BACKOFF_MS = 60_000;
 
 interface TezosCollectibleItemImageProps {
   assetSlug: string;
@@ -88,14 +91,17 @@ interface EvmCollectibleItemImageProps {
   metadata?: EvmCollectibleMetadata;
   className?: string;
   shouldUseBlurredBg?: boolean;
+  inView?: boolean;
 }
 
 export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   metadata,
   className,
-  shouldUseBlurredBg = false
+  shouldUseBlurredBg = false,
+  inView = true
 }) => {
-  const sources = useMemoWithCompare(() => buildIpfsGatewaySourceStages(metadata?.image), [metadata]);
+  const sources = useMemoWithCompare(() => buildPrimaryIpfsGatewaySourceStages(metadata?.image), [metadata]);
+  const isIpfsImage = Boolean(parseMediaUri(metadata?.image).ipfsAware.ipfs);
   const sourcesWithCompressedFallback = useMemoWithCompare(
     () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
     [metadata]
@@ -106,12 +112,17 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
       {shouldUseBlurredBg && (
         <ImageStacked
           sources={sourcesWithCompressedFallback}
+          paused={!inView}
+          failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
           loading="lazy"
           className="absolute w-full h-full object-cover blur-xs"
         />
       )}
       <ImageStacked
         sources={sources}
+        raced={isIpfsImage}
+        paused={!inView}
+        failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
         loading="lazy"
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback />}

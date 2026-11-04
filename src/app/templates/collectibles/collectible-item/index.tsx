@@ -122,7 +122,7 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   testID,
   nameTestID
 }) => {
-  const { metadata, metadataLoading, wrapperElemRef } = useEvmCollectibleTileMetadata(
+  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
     accountPkh,
     evmChainId,
     assetSlug
@@ -140,6 +140,7 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
 
   const commonProps = {
     wrapperElemRef,
+    inView,
     chainId: evmChainId,
     assetSlug,
     assetName,

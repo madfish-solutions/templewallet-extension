@@ -176,7 +176,7 @@ export const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] =
   return stages;
 };
 
-const buildPrimaryIpfsGatewaySourceStages = (uri: string): ImageSourceStage[] => {
+export const buildPrimaryIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] => {
   const primaryUrls = buildPrimaryIpfsGatewayUrls(uri);
 
   return primaryUrls.length ? [{ urls: primaryUrls }] : [];
