@@ -2396,6 +2396,9 @@
   "noAssetsFound": {
     "message": "No assets found"
   },
+  "nftsSearchDetailsLoadingHint": {
+    "message": "Some NFT details are still loading, so they may be missing from the results."
+  },
   "notFound": {
     "message": "Not Found"
   },

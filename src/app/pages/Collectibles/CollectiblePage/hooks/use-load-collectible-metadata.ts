@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { noop } from 'lodash';
+
 import { dispatch } from 'app/store';
 import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
@@ -33,6 +35,11 @@ export const useLoadCollectibleMetadata = (network: OneOfChains, slug: string) =
 
   return { isLoading, loadMetadata };
 };
+
+export const useLoadMissingEvmCollectibleImage = (network: EvmChain | undefined, slug: string, imageMissing: boolean) =>
+  useEffect(() => {
+    if (network && imageMissing) void loadEvmMetadata(network, slug).catch(noop);
+  }, [network, slug, imageMissing]);
 
 const loadTezosMetadata = async (network: TezosChain, slug: string) => {
   const [address, id] = fromAssetSlug(slug);

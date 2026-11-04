@@ -26,8 +26,8 @@ export const putEvmCollectiblesMetadataAction = createAction<PutEvmCollectiblesM
 export const loadEvmCollectiblesMetadataAction = createAction<{
   publicKeyHash: HexString;
   chains: EvmNetworkEssentials[];
-  loadAllChains: boolean;
-  onChainSlugsByChain: Record<number, string[]>;
+  restartSession: boolean;
+  visibleSlugsByChain: Record<number, string[]>;
   readAllInBackground: boolean;
 }>('evm/collectible-metadata/LOAD');
 
@@ -42,4 +42,5 @@ export const markEvmCollectibleSlugsCheckedAction = createAction<{
   publicKeyHash: HexString;
   chainId: number;
   slugs: string[];
+  retryAt?: number;
 }>('evm/collectible-metadata/MARK_SLUGS_CHECKED');

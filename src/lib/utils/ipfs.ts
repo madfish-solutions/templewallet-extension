@@ -191,16 +191,6 @@ export const getIpfsGenericFile = async <T>(
   }
 };
 
-export class IpfsHostPausedError extends Error {
-  constructor(
-    host: string,
-    readonly retryAt: number
-  ) {
-    super(`Bulk IPFS fetches to ${host} are paused after a 429`);
-    this.name = 'IpfsHostPausedError';
-  }
-}
-
 export class IpfsBackoffError extends Error {
   constructor(uri: string) {
     super(`Backed off after a recent IPFS failure: ${uri}`);
@@ -242,61 +232,65 @@ class BulkIpfsFetcher {
   async get<T>(uri: string, signal: AbortSignal): Promise<AxiosResponse<T>> {
     const url = buildPrimaryIpfsGatewayUrls(uri).at(0) ?? uri;
     const host = getHostname(url);
-    const refusal = this.getRefusal(uri, host);
 
-    if (refusal) throw refusal;
+    while (true) {
+      const refusal = this.getRefusal(uri);
 
-    const [, release] = await acquireUnlessAborted(this.slots, signal);
-    const refusalAfterWait = this.getRefusal(uri, host);
+      if (refusal) throw refusal;
 
-    if (refusalAfterWait) {
-      release();
+      const pauseLeft = this.getPauseLeft(host);
 
-      throw refusalAfterWait;
-    }
-
-    try {
-      const response = await axios.get<T>(url, {
-        signal,
-        timeout: BULK_IPFS_TIMEOUT_MS,
-        maxRedirects: DEFAULT_MAX_REDIRECTS
-      });
-      this.failedUntil.delete(uri);
-
-      return response;
-    } catch (error) {
-      if (host !== undefined && isAxiosError(error) && error.response?.status === 429) {
-        const pausedUntil = Date.now() + BULK_IPFS_HOST_PAUSE_MS;
-        this.hostPausedUntil.set(host, pausedUntil);
-
-        throw new IpfsHostPausedError(host, pausedUntil);
+      if (pauseLeft > 0) {
+        await delayUnlessAborted(pauseLeft, signal);
+        continue;
       }
 
-      if (!signal.aborted) {
-        const failure = { until: Date.now() + BULK_IPFS_FAILURE_BACKOFF_MS, transient: isTransientFailure(error) };
-        this.failedUntil.set(uri, failure);
+      const [, release] = await acquireUnlessAborted(this.slots, signal);
 
-        if (failure.transient) throw new IpfsTransientError(uri, failure.until);
+      if (this.getRefusal(uri) || this.getPauseLeft(host) > 0) {
+        release();
+        continue;
       }
 
-      throw error;
-    } finally {
-      release();
+      try {
+        const response = await axios.get<T>(url, {
+          signal,
+          timeout: BULK_IPFS_TIMEOUT_MS,
+          maxRedirects: DEFAULT_MAX_REDIRECTS
+        });
+        this.failedUntil.delete(uri);
+
+        return response;
+      } catch (error) {
+        if (host !== undefined && isAxiosError(error) && error.response?.status === 429) {
+          this.hostPausedUntil.set(host, Date.now() + BULK_IPFS_HOST_PAUSE_MS);
+          continue;
+        }
+
+        if (!signal.aborted) {
+          const failure = { until: Date.now() + BULK_IPFS_FAILURE_BACKOFF_MS, transient: isTransientFailure(error) };
+          this.failedUntil.set(uri, failure);
+
+          if (failure.transient) throw new IpfsTransientError(uri, failure.until);
+        }
+
+        throw error;
+      } finally {
+        release();
+      }
     }
   }
 
-  private getRefusal(uri: string, host: string | undefined) {
+  private getRefusal(uri: string) {
     const failure = this.failedUntil.get(uri);
 
-    if (failure && Date.now() < failure.until) {
-      return failure.transient ? new IpfsTransientError(uri, failure.until, true) : new IpfsBackoffError(uri);
-    }
+    if (!failure || Date.now() >= failure.until) return undefined;
 
-    if (host === undefined) return undefined;
+    return failure.transient ? new IpfsTransientError(uri, failure.until, true) : new IpfsBackoffError(uri);
+  }
 
-    const pausedUntil = this.hostPausedUntil.get(host) ?? 0;
-
-    return Date.now() < pausedUntil ? new IpfsHostPausedError(host, pausedUntil) : undefined;
+  private getPauseLeft(host: string | undefined) {
+    return host === undefined ? 0 : (this.hostPausedUntil.get(host) ?? 0) - Date.now();
   }
 }
 

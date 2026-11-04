@@ -135,7 +135,8 @@ export const useCollectiblesListingLogic = (
 
   const manageableChainSlugs = usePreservedOrderSlugsToManage(enabledSlugsSorted, otherSlugsSorted);
 
-  let searchedSlugs = manageActive ? manageableChainSlugs : enabledSlugsSorted;
+  const searchableSlugs = manageActive ? manageableChainSlugs : enabledSlugsSorted;
+  let searchedSlugs = searchableSlugs;
 
   if (isInSearchMode) {
     searchedSlugs = search(searchedSlugs);
@@ -182,12 +183,13 @@ export const useCollectiblesListingLogic = (
 
   return {
     isInSearchMode,
-    noCollectiblesAtAll: (manageActive ? manageableChainSlugs : enabledSlugsSorted).length === 0,
+    noCollectiblesAtAll: searchableSlugs.length === 0,
     paginatedSlugs,
     isSyncing,
     loadNext,
     searchedSlugsByCollections,
     enabledCollectibles,
-    tezDetailsReady
+    tezDetailsReady,
+    searchableSlugs
   };
 };

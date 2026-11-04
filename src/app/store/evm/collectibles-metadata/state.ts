@@ -8,7 +8,7 @@ export interface EvmCollectiblesMetadataState {
   metadataRecord: EvmCollectibleMetadataRecord;
   lastFullLoadAccount?: HexString;
   seenChainsByAccount: StringRecord<number[]>;
-  checkedSlugsByAccount: StringRecord<Record<number, StringRecord<true>>>;
+  checkedSlugsByAccount: StringRecord<Record<number, StringRecord<true | number>>>;
 }
 
 export const evmCollectiblesMetadataInitialState: EvmCollectiblesMetadataState = {

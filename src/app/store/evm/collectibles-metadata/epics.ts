@@ -1,6 +1,7 @@
+import { partition } from 'lodash';
 import { Action } from 'redux';
 import { Epic, StateObservable } from 'redux-observable';
-import { asapScheduler, concat, defer, EMPTY, from, merge, Observable, of, Subject, timer, TimeoutError } from 'rxjs';
+import { asapScheduler, concat, defer, EMPTY, from, merge, Observable, of, race, Subject, timer } from 'rxjs';
 import {
   auditTime,
   buffer,
@@ -27,13 +28,13 @@ import { ofType } from 'ts-action-operators';
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
 import { RootState } from 'app/store/root-state.type';
 import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm';
-import { ChainID, NftAddressBalanceNftResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { fetchEvmCollectibleMetadataFromChainInBulk } from 'lib/evm/on-chain/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
-import { IpfsHostPausedError, IpfsTransientError } from 'lib/utils/ipfs';
+import { IpfsTransientError } from 'lib/utils/ipfs';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import {
@@ -46,24 +47,13 @@ import {
 } from './actions';
 
 const API_DUMP_RETRY_MS = 60_000;
-const API_DUMP_RETENTION_MS = 60_000;
 const API_DUMP_TIMEOUT_MS = 30_000;
 const BACKGROUND_BATCH_SIZE = 8;
 const BACKGROUND_BATCH_DELAY_MS = 2_000;
 const READ_EMISSION_WINDOW_MS = 100;
+const BACKGROUND_READ_LIMIT_MS = 60_000;
 
 type LoadPayload = ReturnType<typeof loadEvmCollectiblesMetadataAction>['payload'];
-
-interface PausesEnd {
-  chainId: number;
-  slugs: string[];
-}
-
-interface RetryLater {
-  chainId: number;
-  slug: string;
-  retryAt: number;
-}
 
 interface Session {
   publicKeyHash: HexString;
@@ -71,16 +61,12 @@ interface Session {
   apiDumps: ApiDumps;
   requests$: Observable<LoadPayload>;
   dumpSettled: Subject<ChainID>;
-  pausesEnded: Subject<PausesEnd>;
   chains: Map<number, EvmNetworkEssentials>;
   visibleSlugs: Map<number, readonly string[]>;
-  inFlight: Set<string>;
-  pendingDumps: Set<number>;
+  claimed: Set<string>;
+  droppedInBackground: Set<string>;
   initialDumps: Set<number>;
-  backgroundAttempted: Set<string>;
   backgroundDone: boolean;
-  retryLater: Map<string, RetryLater>;
-  retried: Set<string>;
 }
 
 type ReadKind = 'foreground' | 'background';
@@ -89,19 +75,21 @@ interface SettledRead {
   chainId: number;
   slug: string;
   metadata?: EvmCollectibleMetadata;
-  retryAt?: number;
   transientUntil?: number;
+  dropped?: true;
 }
 
-type PausedRead = SettledRead & { retryAt: number };
+type TransientRead = SettledRead & { transientUntil: number };
 
-type BatchPick = { chainId: number; slugs: string[]; retry?: true } | { retryAt: number };
+type BackgroundPick =
+  | { kind: 'read'; chainId: number; slugs: string[] }
+  | { kind: 'sleep'; until: number }
+  | { kind: 'wait' }
+  | { kind: 'done' };
 
-type BackgroundPick = BatchPick | 'wait' | 'done';
-
-interface ApiDumpRequest {
-  dump: Promise<NftAddressBalanceNftResponse>;
-  requestedAt: number;
+interface ApiDumpSettlement {
+  publicKeyHash: HexString;
+  chainId: ChainID;
 }
 
 const getApiDumpKey = (publicKeyHash: HexString, chainId: number) => `${publicKeyHash}:${chainId}`;
@@ -115,59 +103,48 @@ const getSessionKey = ({ publicKeyHash, chains, readAllInBackground }: LoadPaylo
 };
 
 class ApiDumps {
-  private readonly requests = new Map<string, ApiDumpRequest>();
-  private readonly retentionTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly pending = new Set<string>();
   private readonly retryAt = new Map<string, number>();
+  private readonly actions = new Subject<Action>();
+  private readonly settlements = new Subject<ApiDumpSettlement>();
+  readonly actions$ = this.actions.asObservable();
+  readonly settled$ = this.settlements.asObservable();
 
-  request(publicKeyHash: HexString, chainId: ChainID): ApiDumpRequest {
+  request(publicKeyHash: HexString, chainId: ChainID): void {
     const key = getApiDumpKey(publicKeyHash, chainId);
-    const requested = this.requests.get(key);
 
-    if (requested) return requested;
+    if (this.pending.has(key)) return;
 
-    const request: ApiDumpRequest = {
-      dump: getEvmCollectiblesMetadata(publicKeyHash, chainId),
-      requestedAt: Date.now()
-    };
-    this.requests.set(key, request);
-    void request.dump.then(
-      () => {
-        if (this.requests.get(key) !== request) return;
-
-        this.retentionTimers.set(
-          key,
-          setTimeout(() => this.forget(key), API_DUMP_RETENTION_MS)
-        );
-      },
-      () => {
-        if (this.requests.get(key) === request) this.recordFailure(key);
-      }
-    );
-
-    return request;
+    this.pending.add(key);
+    const controller = new AbortController();
+    from(getEvmCollectiblesMetadata(publicKeyHash, chainId, controller.signal))
+      .pipe(timeout(API_DUMP_TIMEOUT_MS))
+      .subscribe({
+        next: data => {
+          this.actions.next(processLoadedEvmCollectiblesMetadataAction({ chainId, data }));
+          this.actions.next(markEvmCollectiblesMetadataChainLoadedAction({ publicKeyHash, chainId }));
+        },
+        error: error => {
+          controller.abort();
+          console.error(error);
+          this.retryAt.set(key, Date.now() + API_DUMP_RETRY_MS);
+          this.settle(key, publicKeyHash, chainId);
+        },
+        complete: () => this.settle(key, publicKeyHash, chainId)
+      });
   }
 
-  consume(publicKeyHash: HexString, chainId: number) {
-    this.forget(getApiDumpKey(publicKeyHash, chainId));
+  isPending(publicKeyHash: HexString, chainId: number): boolean {
+    return this.pending.has(getApiDumpKey(publicKeyHash, chainId));
   }
 
-  fail(publicKeyHash: HexString, chainId: number) {
-    this.recordFailure(getApiDumpKey(publicKeyHash, chainId));
-  }
-
-  getRetryAt(publicKeyHash: HexString, chainId: number) {
+  getRetryAt(publicKeyHash: HexString, chainId: number): number {
     return this.retryAt.get(getApiDumpKey(publicKeyHash, chainId)) ?? 0;
   }
 
-  private forget(key: string) {
-    clearTimeout(this.retentionTimers.get(key));
-    this.retentionTimers.delete(key);
-    this.requests.delete(key);
-  }
-
-  private recordFailure(key: string) {
-    this.forget(key);
-    this.retryAt.set(key, Date.now() + API_DUMP_RETRY_MS);
+  private settle(key: string, publicKeyHash: HexString, chainId: ChainID): void {
+    this.pending.delete(key);
+    this.settlements.next({ publicKeyHash, chainId });
   }
 }
 
@@ -184,36 +161,56 @@ const getSlugsToRead = (
   publicKeyHash: HexString,
   chainId: number,
   candidates: readonly string[],
-  ignoreChecked = false
+  now = Date.now()
 ): string[] => {
   const owned = state.evmAssets.collectibles[publicKeyHash]?.[chainId];
   const metadata = state.evmCollectiblesMetadata.metadataRecord[chainId];
   const checked = state.evmCollectiblesMetadata.checkedSlugsByAccount[publicKeyHash]?.[chainId];
 
-  return candidates.filter(slug => Boolean(owned?.[slug]) && !metadata?.[slug] && (ignoreChecked || !checked?.[slug]));
+  return candidates.filter(slug => {
+    const check = checked?.[slug];
+
+    return (
+      Boolean(owned?.[slug]) && !metadata?.[slug]?.image && (check === undefined || (check !== true && check <= now))
+    );
+  });
 };
 
-const isPausedRead = (read: SettledRead): read is PausedRead => read.retryAt !== undefined;
+const isTransientRead = (read: SettledRead): read is TransientRead => read.transientUntil !== undefined;
 
 const toReadActions = (publicKeyHash: HexString, chainId: number, settled: SettledRead[]): Action[] => {
   const records = settled.reduce<StringRecord<EvmCollectibleMetadata>>(
     (acc, { slug, metadata }) => (metadata ? { ...acc, [slug]: metadata } : acc),
     {}
   );
-  const checkedSlugs = settled.filter(read => !isPausedRead(read)).map(({ slug }) => slug);
+  const transient = settled.filter(isTransientRead);
+  const final = settled.filter(read => !isTransientRead(read));
   const actions: Action[] = [];
 
   if (Object.keys(records).length) actions.push(putEvmCollectiblesMetadataAction({ chainId, records }));
 
-  if (checkedSlugs.length) {
-    actions.push(markEvmCollectibleSlugsCheckedAction({ publicKeyHash, chainId, slugs: checkedSlugs }));
+  if (final.length) {
+    actions.push(
+      markEvmCollectibleSlugsCheckedAction({ publicKeyHash, chainId, slugs: final.map(({ slug }) => slug) })
+    );
+  }
+
+  if (transient.length) {
+    actions.push(
+      markEvmCollectibleSlugsCheckedAction({
+        publicKeyHash,
+        chainId,
+        slugs: transient.map(({ slug }) => slug),
+        retryAt: Math.max(...transient.map(({ transientUntil }) => transientUntil))
+      })
+    );
   }
 
   return actions;
 };
 
 const leavesView = ({ requests$ }: Session, chainId: number, slug: string) =>
-  requests$.pipe(filter(({ onChainSlugsByChain }) => !onChainSlugsByChain[chainId]?.includes(slug)));
+  requests$.pipe(filter(({ visibleSlugsByChain }) => !visibleSlugsByChain[chainId]?.includes(slug)));
 
 const readSlug = (
   session: Session,
@@ -228,8 +225,6 @@ const readSlug = (
     const read$ = from(fetchEvmCollectibleMetadataFromChainInBulk(chain, slug, controller.signal)).pipe(
       map((metadata): SettledRead => ({ chainId, slug, metadata })),
       catchError(error => {
-        if (error instanceof IpfsHostPausedError) return of<SettledRead>({ chainId, slug, retryAt: error.retryAt });
-
         if (error instanceof IpfsTransientError) {
           return of<SettledRead>({ chainId, slug, transientUntil: error.retryAt });
         }
@@ -243,12 +238,17 @@ const readSlug = (
       })
     );
 
-    return (kind === 'foreground' ? read$.pipe(takeUntil(leavesView(session, chainId, slug))) : read$).pipe(
+    const bounded$ =
+      kind === 'foreground'
+        ? read$.pipe(takeUntil(leavesView(session, chainId, slug)))
+        : race(read$, timer(BACKGROUND_READ_LIMIT_MS).pipe(map((): SettledRead => ({ chainId, slug, dropped: true }))));
+
+    return bounded$.pipe(
       finalize(() => {
         if (settled) return;
 
         controller.abort();
-        session.inFlight.delete(getSlugKey(chainId, slug));
+        session.claimed.delete(getSlugKey(chainId, slug));
       })
     );
   });
@@ -257,22 +257,21 @@ const readSlugs = (
   session: Session,
   chainId: number,
   candidates: readonly string[],
-  kind: ReadKind,
-  ignoreChecked = false
+  kind: ReadKind
 ): Observable<SettledRead> =>
   defer(() => {
-    const { publicKeyHash, state$, chains, inFlight, pendingDumps } = session;
+    const { publicKeyHash, state$, chains, claimed, apiDumps } = session;
     const chain = chains.get(chainId);
 
-    if (!chain || pendingDumps.has(chainId)) return EMPTY;
+    if (!chain || apiDumps.isPending(publicKeyHash, chainId)) return EMPTY;
 
-    const slugs = getSlugsToRead(state$.value, publicKeyHash, chainId, candidates, ignoreChecked).filter(
-      slug => !inFlight.has(getSlugKey(chainId, slug))
+    const slugs = getSlugsToRead(state$.value, publicKeyHash, chainId, candidates).filter(
+      slug => !claimed.has(getSlugKey(chainId, slug))
     );
 
     if (!slugs.length) return EMPTY;
 
-    for (const slug of slugs) inFlight.add(getSlugKey(chainId, slug));
+    for (const slug of slugs) claimed.add(getSlugKey(chainId, slug));
 
     return from(slugs).pipe(mergeMap(slug => readSlug(session, chain, slug, kind)));
   });
@@ -280,106 +279,49 @@ const readSlugs = (
 const readVisibleSlugs = (session: Session, chainId: number) =>
   readSlugs(session, chainId, session.visibleSlugs.get(chainId) ?? EMPTY_FROZEN_ARRAY, 'foreground');
 
-const releaseAfterPauses = (session: Session, chainId: number, paused: PausedRead[]): Observable<never> =>
-  merge(
-    ...groupByToEntries(paused, ({ retryAt }) => retryAt).map(([retryAt, reads]) =>
-      timer(Math.max(0, retryAt - Date.now())).pipe(
-        tap(() => session.pausesEnded.next({ chainId, slugs: reads.map(({ slug }) => slug) })),
-        ignoreElements()
-      )
-    )
-  );
-
-const readAfterPauses = (session: Session): Observable<SettledRead> =>
-  session.pausesEnded.pipe(
-    mergeMap(({ chainId, slugs }) => {
-      const visible = new Set(session.visibleSlugs.get(chainId));
-
-      for (const slug of slugs) {
-        session.inFlight.delete(getSlugKey(chainId, slug));
-        session.backgroundAttempted.delete(getSlugKey(chainId, slug));
-      }
-
-      return readSlugs(
-        session,
-        chainId,
-        slugs.filter(slug => visible.has(slug)),
-        'foreground'
-      );
-    })
-  );
-
 const coalesceReads = (reads$: Observable<SettledRead>): Observable<SettledRead[]> =>
   reads$.pipe(connect(shared$ => shared$.pipe(buffer(shared$.pipe(auditTime(READ_EMISSION_WINDOW_MS))))));
 
 const flushReads = (session: Session, settled: SettledRead[]): Observable<Action> => {
-  const { publicKeyHash, inFlight } = session;
+  const { publicKeyHash, claimed, droppedInBackground } = session;
+  const finished = settled.filter(({ chainId, slug, dropped }) => {
+    const key = getSlugKey(chainId, slug);
+    claimed.delete(key);
 
-  for (const read of settled) {
-    if (isPausedRead(read)) continue;
+    if (!dropped || droppedInBackground.has(key)) return true;
 
-    const key = getSlugKey(read.chainId, read.slug);
-    inFlight.delete(key);
+    droppedInBackground.add(key);
 
-    if (read.transientUntil !== undefined && !session.retried.has(key)) {
-      session.retryLater.set(key, { chainId: read.chainId, slug: read.slug, retryAt: read.transientUntil });
-    }
-  }
+    return false;
+  });
 
-  return merge(
-    ...groupByToEntries(settled, ({ chainId }) => chainId).map(([chainId, chainReads]) =>
-      concat(
-        from(toReadActions(publicKeyHash, chainId, chainReads)),
-        releaseAfterPauses(session, chainId, chainReads.filter(isPausedRead))
-      )
+  return from(
+    groupByToEntries(finished, ({ chainId }) => chainId).flatMap(([chainId, chainReads]) =>
+      toReadActions(publicKeyHash, chainId, chainReads)
     )
   );
 };
 
 const readRequestedSlugs = (session: Session, requests$: Observable<LoadPayload>): Observable<SettledRead> =>
   requests$.pipe(
-    mergeMap(({ chains, onChainSlugsByChain }) => {
+    mergeMap(({ chains, visibleSlugsByChain }) => {
       for (const chain of chains) session.chains.set(chain.chainId, chain);
 
       const chainIds = Array.from(session.chains.keys());
 
       for (const chainId of chainIds) {
-        session.visibleSlugs.set(chainId, onChainSlugsByChain[chainId] ?? EMPTY_FROZEN_ARRAY);
+        session.visibleSlugs.set(chainId, visibleSlugsByChain[chainId] ?? EMPTY_FROZEN_ARRAY);
       }
 
       return merge(...chainIds.map(chainId => readVisibleSlugs(session, chainId)));
     })
   );
 
-const loadApiDump = ({ apiDumps, publicKeyHash }: Session, chainId: ChainID): Observable<Action> =>
-  defer(() => {
-    const { dump, requestedAt } = apiDumps.request(publicKeyHash, chainId);
-
-    return from(dump).pipe(timeout({ first: new Date(requestedAt + API_DUMP_TIMEOUT_MS) }));
-  }).pipe(
-    mergeMap(data => {
-      apiDumps.consume(publicKeyHash, chainId);
-
-      return of(
-        processLoadedEvmCollectiblesMetadataAction({ chainId, data }),
-        markEvmCollectiblesMetadataChainLoadedAction({ publicKeyHash, chainId })
-      );
-    }),
-    catchError(error => {
-      if (error instanceof TimeoutError) apiDumps.fail(publicKeyHash, chainId);
-
-      console.error(error);
-
-      return EMPTY;
-    })
-  );
-
-const runApiDump = (session: Session, chainId: ChainID): Observable<Action> =>
-  concat(
-    loadApiDump(session, chainId),
-    defer(() => {
+const relayDumpSettlements = (session: Session): Observable<Action> =>
+  session.apiDumps.settled$.pipe(
+    filter(({ publicKeyHash, chainId }) => publicKeyHash === session.publicKeyHash && session.chains.has(chainId)),
+    mergeMap(({ chainId }) => {
       const settledInitialDump = session.initialDumps.delete(chainId);
-      session.pendingDumps.delete(chainId);
       session.dumpSettled.next(chainId);
 
       return settledInitialDump && session.initialDumps.size === 0
@@ -388,99 +330,77 @@ const runApiDump = (session: Session, chainId: ChainID): Observable<Action> =>
     })
   );
 
-const startApiDump = (session: Session, chainId: ChainID): Observable<Action> =>
+const retryApiDumpWhenDue = (session: Session, chainId: ChainID): Observable<never> =>
   defer(() => {
-    session.pendingDumps.add(chainId);
+    const { publicKeyHash, state$, apiDumps } = session;
 
-    return runApiDump(session, chainId);
-  });
-
-const requestDueApiDump = (session: Session, chainId: ChainID): Observable<Action> =>
-  defer(() =>
-    session.pendingDumps.has(chainId) || !shouldRequestApiDump(session, chainId)
-      ? EMPTY
-      : startApiDump(session, chainId)
-  );
-
-const requestDueApiDumps = (session: Session): Observable<Action> =>
-  session.requests$.pipe(
-    mergeMap(() =>
-      merge(
-        ...Array.from(session.chains.keys())
-          .filter(isSupportedChainId)
-          .map(chainId => requestDueApiDump(session, chainId))
-      )
-    )
-  );
-
-const retryApiDumpWhenDue = (session: Session, chainId: ChainID): Observable<Action> =>
-  defer(() => {
-    const { publicKeyHash, state$, pendingDumps, apiDumps } = session;
-
-    if (pendingDumps.has(chainId) || !isApiDumpOwed(state$.value, publicKeyHash, chainId)) return EMPTY;
+    if (apiDumps.isPending(publicKeyHash, chainId) || !isApiDumpOwed(state$.value, publicKeyHash, chainId)) {
+      return EMPTY;
+    }
 
     const delay = apiDumps.getRetryAt(publicKeyHash, chainId) - Date.now();
 
-    return delay > 0
-      ? timer(delay).pipe(mergeMap(() => retryApiDumpWhenDue(session, chainId)))
-      : startApiDump(session, chainId);
+    if (delay > 0) return timer(delay).pipe(mergeMap(() => retryApiDumpWhenDue(session, chainId)));
+
+    apiDumps.request(publicKeyHash, chainId);
+
+    return EMPTY;
   });
 
 const retryApiDumps = (session: Session, chainIds: ChainID[]): Observable<Action> =>
   merge(from(chainIds), session.dumpSettled).pipe(mergeMap(chainId => retryApiDumpWhenDue(session, chainId)));
 
-const pickRetryBatch = ({ retryLater, inFlight }: Session): BatchPick | undefined => {
-  const pending = Array.from(retryLater.entries()).filter(([key]) => !inFlight.has(key));
-
-  if (!pending.length) return undefined;
-
-  const now = Date.now();
-  const due = pending.filter(([, { retryAt }]) => retryAt <= now);
-
-  if (!due.length) return { retryAt: Math.min(...pending.map(([, { retryAt }]) => retryAt)) };
-
-  const { chainId } = due[0][1];
-
-  return {
-    chainId,
-    slugs: due
-      .filter(([, read]) => read.chainId === chainId)
-      .slice(0, BACKGROUND_BATCH_SIZE)
-      .map(([, { slug }]) => slug),
-    retry: true
-  };
-};
-
 const pickBackgroundBatch = (session: Session): BackgroundPick => {
-  const { publicKeyHash, state$, chains, inFlight, pendingDumps, backgroundAttempted } = session;
-  const retry = pickRetryBatch(session);
-
-  if (retry && 'slugs' in retry) return retry;
-
+  const { publicKeyHash, state$, chains, claimed, droppedInBackground, apiDumps } = session;
   const state = state$.value;
+  const now = Date.now();
+  let unreadPick: BackgroundPick | undefined;
+  let droppedPick: BackgroundPick | undefined;
   let waiting = false;
+  let nextRetryAt = Infinity;
 
   for (const chainId of chains.keys()) {
     const owned = Object.keys(state.evmAssets.collectibles[publicKeyHash]?.[chainId] ?? {});
-    const unread = getSlugsToRead(state, publicKeyHash, chainId, owned);
+    const checked = state.evmCollectiblesMetadata.checkedSlugsByAccount[publicKeyHash]?.[chainId];
+    const metadata = state.evmCollectiblesMetadata.metadataRecord[chainId];
+    const readable = getSlugsToRead(state, publicKeyHash, chainId, owned, now);
 
-    if (pendingDumps.has(chainId)) {
-      waiting ||= unread.length > 0;
+    for (const slug of owned) {
+      const retryAt = checked?.[slug];
+
+      if (typeof retryAt === 'number' && retryAt > now && !metadata?.[slug]?.image) {
+        nextRetryAt = Math.min(nextRetryAt, retryAt);
+      }
+    }
+
+    if (apiDumps.isPending(publicKeyHash, chainId)) {
+      waiting ||= readable.length > 0;
       continue;
     }
 
-    const slugs = unread
-      .filter(slug => !backgroundAttempted.has(getSlugKey(chainId, slug)) && !inFlight.has(getSlugKey(chainId, slug)))
-      .slice(0, BACKGROUND_BATCH_SIZE);
+    const idle = readable.filter(slug => !claimed.has(getSlugKey(chainId, slug)));
+    const [dropped, fresh] = partition(idle, slug => droppedInBackground.has(getSlugKey(chainId, slug)));
+    const dueRetries = fresh.filter(slug => typeof checked?.[slug] === 'number');
 
-    if (slugs.length) return { chainId, slugs };
+    if (dueRetries.length) return { kind: 'read', chainId, slugs: dueRetries.slice(0, BACKGROUND_BATCH_SIZE) };
 
-    waiting ||= unread.some(slug => inFlight.has(getSlugKey(chainId, slug)));
+    if (!unreadPick && fresh.length)
+      unreadPick = { kind: 'read', chainId, slugs: fresh.slice(0, BACKGROUND_BATCH_SIZE) };
+
+    if (!droppedPick && dropped.length) {
+      droppedPick = { kind: 'read', chainId, slugs: dropped.slice(0, BACKGROUND_BATCH_SIZE) };
+    }
+
+    waiting ||= idle.length < readable.length;
   }
 
-  if (waiting) return 'wait';
+  if (unreadPick) return unreadPick;
 
-  return retry ?? 'done';
+  if (droppedPick) return droppedPick;
+
+  if (waiting) return { kind: 'wait' };
+
+  return nextRetryAt < Infinity ? { kind: 'sleep', until: nextRetryAt } : { kind: 'done' };
 };
 
 const waitForInitialApiDumps = (session: Session): Observable<never> =>
@@ -493,33 +413,22 @@ const waitForInitialApiDumps = (session: Session): Observable<never> =>
       : EMPTY
   ).pipe(ignoreElements());
 
-const holdUntilPauseEnds = (read: SettledRead): Observable<SettledRead> =>
-  isPausedRead(read)
-    ? concat(of(read), timer(Math.max(0, read.retryAt - Date.now())).pipe(ignoreElements()))
-    : of(read);
-
 const runBackgroundPass = (session: Session): Observable<SettledRead> => {
-  const readNextBatch = () => {
+  const readNextBatch = (): Observable<SettledRead> => {
     const pick = pickBackgroundBatch(session);
 
-    if (pick === 'done') session.backgroundDone = true;
+    switch (pick.kind) {
+      case 'read':
+        return readSlugs(session, pick.chainId, pick.slugs, 'background');
+      case 'sleep':
+        return timer(Math.max(0, pick.until - Date.now())).pipe(ignoreElements());
+      case 'wait':
+        return EMPTY;
+      case 'done':
+        session.backgroundDone = true;
 
-    if (typeof pick === 'string') return EMPTY;
-
-    if ('retryAt' in pick) return timer(Math.max(0, pick.retryAt - Date.now())).pipe(ignoreElements());
-
-    const { chainId, slugs, retry = false } = pick;
-    for (const slug of slugs) {
-      const key = getSlugKey(chainId, slug);
-      session.backgroundAttempted.add(key);
-
-      if (retry) {
-        session.retryLater.delete(key);
-        session.retried.add(key);
-      }
+        return EMPTY;
     }
-
-    return readSlugs(session, chainId, slugs, 'background', retry).pipe(mergeMap(holdUntilPauseEnds));
   };
 
   return concat(
@@ -534,8 +443,9 @@ const readInBackground = (session: Session): Observable<SettledRead> =>
   concat(
     waitForInitialApiDumps(session),
     session.requests$.pipe(
+      // Picks after the reads this request aborts have released their slugs.
       observeOn(asapScheduler),
-      filter(() => session.backgroundDone && typeof pickBackgroundBatch(session) !== 'string'),
+      filter(() => session.backgroundDone && ['read', 'sleep'].includes(pickBackgroundBatch(session).kind)),
       startWith(undefined),
       exhaustMap(() => {
         session.backgroundDone = false;
@@ -559,39 +469,33 @@ const startLoadingSession = (
       apiDumps,
       requests$,
       dumpSettled: new Subject<ChainID>(),
-      pausesEnded: new Subject<PausesEnd>(),
       chains: new Map(chains.map(chain => [chain.chainId, chain])),
       visibleSlugs: new Map(),
-      inFlight: new Set(),
-      pendingDumps: new Set(),
+      claimed: new Set(),
+      droppedInBackground: new Set(),
       initialDumps: new Set(),
-      backgroundAttempted: new Set(),
-      backgroundDone: false,
-      retryLater: new Map(),
-      retried: new Set()
+      backgroundDone: false
     };
     const supportedChainIds = chains.map(({ chainId }) => chainId).filter(isSupportedChainId);
-    const dumpChainIds = supportedChainIds.filter(chainId => shouldRequestApiDump(session, chainId));
 
-    for (const chainId of dumpChainIds) {
-      session.pendingDumps.add(chainId);
-      session.initialDumps.add(chainId);
+    for (const chainId of supportedChainIds) {
+      if (shouldRequestApiDump(session, chainId)) apiDumps.request(publicKeyHash, chainId);
+
+      if (apiDumps.isPending(publicKeyHash, chainId)) session.initialDumps.add(chainId);
     }
 
     const reads$ = merge(
       readRequestedSlugs(session, requests$.pipe(startWith(initial))),
       session.dumpSettled.pipe(mergeMap(chainId => readVisibleSlugs(session, chainId))),
-      readAfterPauses(session),
       readAllInBackground ? readInBackground(session) : EMPTY
     );
 
     return concat(
-      of(setEvmCollectiblesMetadataLoading(dumpChainIds.length > 0)),
+      of(setEvmCollectiblesMetadataLoading(session.initialDumps.size > 0)),
       merge(
-        requestDueApiDumps(session),
+        relayDumpSettlements(session),
         coalesceReads(reads$).pipe(mergeMap(settled => flushReads(session, settled))),
-        retryApiDumps(session, supportedChainIds),
-        ...dumpChainIds.map(chainId => runApiDump(session, chainId))
+        retryApiDumps(session, supportedChainIds)
       )
     ).pipe(
       catchError(error => {
@@ -613,9 +517,9 @@ export const evmCollectiblesMetadataEpics: Epic<Action, Action, RootState> = (ac
 
   const getKey = (payload: LoadPayload) => getSessionKey(payload, state$.value.settings.isTestnetModeEnabled);
   const feedsSession = (payload: LoadPayload, sessionKey: string | undefined) =>
-    !payload.loadAllChains && getKey(payload) === sessionKey;
+    !payload.restartSession && getKey(payload) === sessionKey;
 
-  return action$.pipe(
+  const sessions$ = action$.pipe(
     ofType(loadEvmCollectiblesMetadataAction, cancelEvmCollectiblesMetadataLoadingAction),
     filter(
       action => !loadEvmCollectiblesMetadataAction.match(action) || !feedsSession(action.payload, runningSessionKey)
@@ -637,4 +541,6 @@ export const evmCollectiblesMetadataEpics: Epic<Action, Action, RootState> = (ac
       );
     })
   );
+
+  return merge(apiDumps.actions$, sessions$);
 };

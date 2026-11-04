@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { isNil, omitBy } from 'lodash';
 import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
@@ -33,7 +34,7 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         const collectibles = contract.nft_data;
 
         for (const collectible of collectibles) {
-          if (!isProperCollectibleMetadata(collectible) || !collectible.external_data.image) continue;
+          if (!isProperCollectibleMetadata(collectible)) continue;
 
           const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
 
@@ -53,12 +54,15 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         const metadata = records[slug];
         if (!metadata) continue;
 
-        chainCollectiblesMetadata[slug] = metadata;
+        const stored = chainCollectiblesMetadata[slug];
+        chainCollectiblesMetadata[slug] = stored
+          ? { ...metadata, ...omitBy(stored, value => isNil(value) || value === '') }
+          : metadata;
       }
     });
 
-    builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash, loadAllChains } }) => {
-      if (!loadAllChains || state.lastFullLoadAccount === publicKeyHash) return;
+    builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash, restartSession } }) => {
+      if (!restartSession || state.lastFullLoadAccount === publicKeyHash) return;
 
       state.lastFullLoadAccount = publicKeyHash;
       state.seenChainsByAccount[publicKeyHash] = [];
@@ -71,11 +75,12 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
       if (!seenChains.includes(chainId)) seenChains.push(chainId);
     });
 
-    builder.addCase(markEvmCollectibleSlugsCheckedAction, (state, { payload: { publicKeyHash, chainId, slugs } }) => {
+    builder.addCase(markEvmCollectibleSlugsCheckedAction, (state, { payload }) => {
+      const { publicKeyHash, chainId, slugs, retryAt } = payload;
       const checkedByChain = (state.checkedSlugsByAccount[publicKeyHash] ??= {});
       const checked = (checkedByChain[chainId] ??= {});
 
-      for (const slug of slugs) checked[slug] = true;
+      for (const slug of slugs) checked[slug] = retryAt === undefined || checked[slug] !== undefined ? true : retryAt;
     });
   }
 );

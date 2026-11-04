@@ -15,13 +15,7 @@ import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interf
 import { fromAssetSlug } from 'lib/assets';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import {
-  getIpfsGenericFile,
-  getIpfsGenericFileInBulk,
-  IpfsBackoffError,
-  IpfsHostPausedError,
-  IpfsTransientError
-} from 'lib/utils/ipfs';
+import { getIpfsGenericFile, getIpfsGenericFileInBulk, IpfsBackoffError, IpfsTransientError } from 'lib/utils/ipfs';
 import { ChainPublicClient, getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -30,10 +24,7 @@ import { EvmAssetStandard } from '../types';
 import { detectEvmTokenStandard } from './utils/common.utils';
 
 const ENS_NAME_CONTRACTS: Record<number, string[]> = {
-  [ETHEREUM_MAINNET_CHAIN_ID]: [
-    '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85',
-    '0xd4416b13d2b3a9abae7acd5d6c2bbdbe25686401'
-  ]
+  [ETHEREUM_MAINNET_CHAIN_ID]: ['0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85']
 };
 
 const getEnsMetadataUri = (chainId: number, contractAddress: HexString, tokenId: bigint) =>
@@ -135,7 +126,7 @@ const loadEvmCollectibleMetadataFromChain = async (
   } catch (error) {
     if (signal?.aborted || error instanceof IpfsBackoffError) return undefined;
 
-    if (signal && (error instanceof IpfsHostPausedError || error instanceof IpfsTransientError)) throw error;
+    if (error instanceof IpfsTransientError) throw error;
 
     console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`, error);
 
@@ -199,14 +190,11 @@ const getERC1155Metadata = async (
 
   const tokenIdStr = tokenId.toString();
 
-  let collectibleMetadata, actualMetadataUri;
-  try {
-    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr.padStart(64, '0'));
-    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri, fetchMetadataFile);
-  } catch {
-    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr);
-    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri, fetchMetadataFile);
-  }
+  const [collectibleMetadata, actualMetadataUri] = await fetchERC1155MetadataFile(
+    metadataUri,
+    tokenId,
+    fetchMetadataFile
+  );
 
   const metadata: EvmCollectibleMetadata = {
     address: contractAddress,
@@ -221,6 +209,39 @@ const getERC1155Metadata = async (
   };
 
   return metadata;
+};
+
+const fetchERC1155MetadataFile = async (
+  metadataUri: string,
+  tokenId: bigint,
+  fetchMetadataFile: MetadataFileFetcher
+): Promise<[CollectibleProperties, string]> => {
+  const hexUri = metadataUri.replace('{id}', tokenId.toString(16).padStart(64, '0'));
+
+  if (hexUri === metadataUri)
+    return [await getCollectiblePropertiesFromUri(metadataUri, fetchMetadataFile), metadataUri];
+
+  let fromHex: CollectibleProperties | undefined;
+  let hexFailure: unknown;
+  try {
+    fromHex = await getCollectiblePropertiesFromUri(hexUri, fetchMetadataFile);
+  } catch (error) {
+    hexFailure = error;
+  }
+
+  if (fromHex?.image) return [fromHex, hexUri];
+
+  const decimalUri = metadataUri.replace('{id}', tokenId.toString());
+
+  try {
+    const fromDecimal = await getCollectiblePropertiesFromUri(decimalUri, fetchMetadataFile);
+
+    return fromDecimal.image || !fromHex ? [fromDecimal, decimalUri] : [fromHex, hexUri];
+  } catch (error) {
+    if (fromHex) return [fromHex, hexUri];
+
+    throw hexFailure instanceof IpfsTransientError ? hexFailure : error;
+  }
 };
 
 const commonPropertiesByContract = new Map<
@@ -342,22 +363,22 @@ type MetadataFileFetcher = (uri: string) => Promise<MetadataFileResponse>;
 
 const fetchMetadataFileInteractively: MetadataFileFetcher = uri => getIpfsGenericFile<CollectibleMetadata>(uri);
 
+type CollectibleProperties = Pick<
+  EvmCollectibleMetadata,
+  'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
+>;
+
 const getCollectiblePropertiesFromUri = async (
   metadataUri: string | undefined,
   fetchMetadataFile: MetadataFileFetcher
-): Promise<
-  Pick<
-    EvmCollectibleMetadata,
-    'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
-  >
-> => {
+): Promise<CollectibleProperties> => {
   if (!metadataUri) throw new Error();
 
   const { data, headers } = await fetchMetadataFile(metadataUri);
 
   if (String(headers?.['content-type'] ?? '').startsWith('image/')) return { image: metadataUri };
 
-  if (typeof data !== 'object' || !data.image) throw new Error();
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) throw new Error();
 
   const {
     name,

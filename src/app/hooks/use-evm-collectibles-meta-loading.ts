@@ -27,15 +27,15 @@ export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString, read
   );
 
   useEffect(() => {
-    const loadAllChains = prevPublicKeyHashRef.current !== publicKeyHash;
+    const restartSession = prevPublicKeyHashRef.current !== publicKeyHash;
     prevPublicKeyHashRef.current = publicKeyHash;
 
     dispatch(
       loadEvmCollectiblesMetadataAction({
         publicKeyHash,
         chains: evmChains.map(({ chainId, rpcBaseURL }) => ({ chainId, rpcBaseURL })),
-        loadAllChains,
-        onChainSlugsByChain: getRequestedEvmCollectibleSlugs(),
+        restartSession,
+        visibleSlugsByChain: getRequestedEvmCollectibleSlugs(),
         readAllInBackground
       })
     );

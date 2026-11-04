@@ -19,8 +19,7 @@ const NOTIFY_THROTTLE_MS = 300;
 
 const requestCounts = new Map<number, Map<string, number>>();
 const listeners = new Set<EmptyFn>();
-const observers = new Map<Element | null, IntersectionObserver>();
-const observedCounts = new Map<Element | null, number>();
+const observers = new Map<Element | null, { observer: IntersectionObserver; count: number }>();
 const targets = new Map<Element, ObservedTarget>();
 let snapshot = 0;
 
@@ -93,32 +92,29 @@ const getScrollRoot = () => (SCROLL_DOCUMENT ? null : document.getElementById(AP
 
 const observe = (element: Element, chainId: number, assetSlug: string): EmptyFn => {
   const root = getScrollRoot();
-  const observer =
-    observers.get(root) ?? new IntersectionObserver(handleIntersections, { root, rootMargin: '50% 0px' });
+  const shared = observers.get(root) ?? {
+    observer: new IntersectionObserver(handleIntersections, { root, rootMargin: '50% 0px' }),
+    count: 0
+  };
   const target: ObservedTarget = { chainId, assetSlug, visible: false };
 
-  observers.set(root, observer);
-  observedCounts.set(root, (observedCounts.get(root) ?? 0) + 1);
+  shared.count += 1;
+  observers.set(root, shared);
   targets.set(element, target);
-  observer.observe(element);
+  shared.observer.observe(element);
 
   return () => {
-    observer.unobserve(element);
+    shared.observer.unobserve(element);
     targets.delete(element);
 
     if (target.visible) unregister(chainId, assetSlug);
 
-    const count = observedCounts.get(root) ?? 0;
+    shared.count -= 1;
 
-    if (count > 1) {
-      observedCounts.set(root, count - 1);
+    if (shared.count > 0) return;
 
-      return;
-    }
-
-    observedCounts.delete(root);
     observers.delete(root);
-    observer.disconnect();
+    shared.observer.disconnect();
   };
 };
 
@@ -146,7 +142,7 @@ export const useEvmCollectibleTileMetadata = (
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
   const checked = useIsEvmCollectibleCheckedSelector(accountPkh, chainId, assetSlug);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const wrapperElemRef = useRequestEvmCollectibleMetadata(chainId, assetSlug, !metadata);
+  const wrapperElemRef = useRequestEvmCollectibleMetadata(chainId, assetSlug, !metadata?.image);
 
   return { metadata, metadataLoading: (!checked && !metadata) || metadatasLoading, wrapperElemRef };
 };
