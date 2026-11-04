@@ -29,6 +29,7 @@ export const loadEvmCollectiblesMetadataAction = createAction<{
   restartSession: boolean;
   visibleSlugsByChain: Record<number, string[]>;
   readAllInBackground: boolean;
+  priorityChainIds?: number[];
 }>('evm/collectible-metadata/LOAD');
 
 export const cancelEvmCollectiblesMetadataLoadingAction = createAction('evm/collectible-metadata/CANCEL_LOADING');

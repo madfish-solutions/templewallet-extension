@@ -11,6 +11,8 @@ interface RaceImageUrlsOptions {
   timeoutMs?: number;
   signal?: AbortSignal;
   immediate?: boolean;
+  /** Let a rate-limited stage fall through to its delayed fallback stage. */
+  afterRateLimit?: boolean;
 }
 
 interface InternalRaceOptions extends RaceImageUrlsOptions {
@@ -24,6 +26,51 @@ const IMAGE_LOAD_TIMEOUT_MS = 10_000;
 const MAX_CONCURRENT_RACES = 5;
 const FAILURE_BACKOFF_BASE_MS = 5_000;
 const FAILURE_BACKOFF_MAX_MS = 5 * 60_000;
+const RATE_LIMIT_BACKOFF_MS = 30_000;
+const RATE_LIMITED_STATUS = 429;
+
+const rateLimitedAt = new Map<string, number>();
+const hostRateLimitedAt = new Map<string, number>();
+
+const getHost = (url: string) => {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+};
+
+const isRateLimitedEntry = (entry: PerformanceEntry | undefined): entry is PerformanceResourceTiming =>
+  typeof PerformanceResourceTiming !== 'undefined' &&
+  entry instanceof PerformanceResourceTiming &&
+  entry.responseStatus === RATE_LIMITED_STATUS;
+
+const watchRateLimitedResponses = () => {
+  if (typeof PerformanceObserver === 'undefined' || !PerformanceObserver.supportedEntryTypes?.includes('resource')) {
+    return;
+  }
+
+  new PerformanceObserver(list => {
+    for (const entry of list.getEntries()) {
+      if (!isRateLimitedEntry(entry)) continue;
+
+      const now = Date.now();
+      rateLimitedAt.set(entry.name, now);
+      hostRateLimitedAt.set(getHost(entry.name), now);
+    }
+  }).observe({ type: 'resource' });
+};
+
+const getBufferedRateLimitTime = (url: string) => {
+  if (typeof performance === 'undefined' || typeof performance.getEntriesByName !== 'function') return 0;
+
+  const entry = performance.getEntriesByName(url).at(-1);
+
+  return isRateLimitedEntry(entry) ? performance.timeOrigin + entry.responseEnd : 0;
+};
+
+const wasRateLimited = (url: string) =>
+  Date.now() - Math.max(rateLimitedAt.get(url) ?? 0, getBufferedRateLimitTime(url)) < RATE_LIMIT_BACKOFF_MS;
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 
@@ -145,7 +192,7 @@ const loadOneImage = (url: string, timeoutMs: number, signal: AbortSignal) =>
 export class ImageUrlRacer {
   private readonly winners = new Map<string, string>();
   private readonly inFlight = new Map<string, InFlightRace>();
-  private readonly failures = new Map<string, { until: number; attempts: number }>();
+  private readonly failures = new Map<string, { until: number; attempts: number; rateLimited: boolean }>();
   private readonly slots: Semaphore;
 
   constructor(
@@ -210,6 +257,22 @@ export class ImageUrlRacer {
     this.failures.clear();
   }
 
+  getRateLimitRetryAt(stages: ImageSourceStage[]): number | undefined {
+    const retryTimes = normalizeImageSources(stages).flatMap(({ urls }) => {
+      const failure = this.failures.get(getRaceKey(urls));
+
+      if (!failure?.rateLimited) return [];
+
+      const hostQuietAt = Math.max(
+        ...urls.map(url => (hostRateLimitedAt.get(getHost(url)) ?? 0) + RATE_LIMIT_BACKOFF_MS)
+      );
+
+      return [Math.max(failure.until, hostQuietAt)];
+    });
+
+    return retryTimes.length > 0 ? Math.min(...retryTimes) : undefined;
+  }
+
   private async raceImageUrlsInternal(urls: string[], options: InternalRaceOptions = {}): Promise<string | null> {
     const uniqueUrls = Array.from(new Set(urls.filter(Boolean)));
     if (uniqueUrls.length === 0) {
@@ -257,12 +320,12 @@ export class ImageUrlRacer {
           this.winners.set(key, winner);
           this.failures.delete(key);
         } else {
-          this.recordFailure(key);
+          this.recordFailure(key, uniqueUrls.some(wasRateLimited));
         }
       })
       .catch(error => {
         if (!isAbortError(error)) {
-          this.recordFailure(key);
+          this.recordFailure(key, uniqueUrls.some(wasRateLimited));
         }
       })
       .finally(() => {
@@ -278,11 +341,13 @@ export class ImageUrlRacer {
     }
   }
 
-  private recordFailure(key: string) {
+  private recordFailure(key: string, rateLimited: boolean) {
     const attempts = (this.failures.get(key)?.attempts ?? 0) + 1;
-    const backoff = Math.min(FAILURE_BACKOFF_BASE_MS * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
+    const backoff = rateLimited
+      ? RATE_LIMIT_BACKOFF_MS
+      : Math.min(FAILURE_BACKOFF_BASE_MS * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
 
-    this.failures.set(key, { until: Date.now() + backoff, attempts });
+    this.failures.set(key, { until: Date.now() + backoff, attempts, rateLimited });
   }
 
   private retryIfDyingRace(
@@ -315,7 +380,11 @@ export class ImageUrlRacer {
     }
 
     const nestedOptions: InternalRaceOptions = { ...options, signal: controller.signal };
-    const currentRace = this.raceStage(current, nestedOptions);
+    const currentRace = this.raceStage(current, nestedOptions).then(url => {
+      if (!url && !options.afterRateLimit && current.urls.some(wasRateLimited)) controller.abort();
+
+      return url;
+    });
     const nextRace = delay(next.delayMs ?? 0, controller.signal).then(() => {
       return this.raceStage({ urls: next.urls }, nestedOptions);
     });
@@ -480,6 +549,7 @@ const defaultRacer = new ImageUrlRacer();
 
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => defaultRacer.clearFailures());
+  watchRateLimitedResponses();
 }
 
 export const raceImageUrls = (urls: string[], options?: RaceImageUrlsOptions) =>
@@ -487,3 +557,5 @@ export const raceImageUrls = (urls: string[], options?: RaceImageUrlsOptions) =>
 
 export const loadImageSourceStages = (stages: ImageSourceStage[], options?: RaceImageUrlsOptions) =>
   defaultRacer.loadImageSourceStages(stages, options);
+
+export const getImageStackRateLimitRetryAt = (stages: ImageSourceStage[]) => defaultRacer.getRateLimitRetryAt(stages);

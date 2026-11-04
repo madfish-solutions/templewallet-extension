@@ -62,6 +62,7 @@ interface Session {
   requests$: Observable<LoadPayload>;
   dumpSettled: Subject<ChainID>;
   chains: Map<number, EvmNetworkEssentials>;
+  priorityChainIds: readonly number[];
   visibleSlugs: Map<number, readonly string[]>;
   claimed: Set<string>;
   droppedInBackground: Set<string>;
@@ -86,6 +87,13 @@ type BackgroundPick =
   | { kind: 'sleep'; until: number }
   | { kind: 'wait' }
   | { kind: 'done' };
+
+interface ChainBackgroundWork {
+  chainId: number;
+  dueRetries: string[];
+  fresh: string[];
+  dropped: string[];
+}
 
 interface ApiDumpSettlement {
   publicKeyHash: HexString;
@@ -304,7 +312,9 @@ const flushReads = (session: Session, settled: SettledRead[]): Observable<Action
 
 const readRequestedSlugs = (session: Session, requests$: Observable<LoadPayload>): Observable<SettledRead> =>
   requests$.pipe(
-    mergeMap(({ chains, visibleSlugsByChain }) => {
+    mergeMap(({ chains, visibleSlugsByChain, priorityChainIds }) => {
+      session.priorityChainIds = priorityChainIds ?? EMPTY_FROZEN_ARRAY;
+
       for (const chain of chains) session.chains.set(chain.chainId, chain);
 
       const chainIds = Array.from(session.chains.keys());
@@ -350,12 +360,22 @@ const retryApiDumpWhenDue = (session: Session, chainId: ChainID): Observable<nev
 const retryApiDumps = (session: Session, chainIds: ChainID[]): Observable<Action> =>
   merge(from(chainIds), session.dumpSettled).pipe(mergeMap(chainId => retryApiDumpWhenDue(session, chainId)));
 
+const pickReadBatch = (work: ChainBackgroundWork[]): BackgroundPick | undefined => {
+  for (const kind of ['dueRetries', 'fresh', 'dropped'] as const) {
+    const chainWork = work.find(item => item[kind].length > 0);
+
+    if (chainWork)
+      return { kind: 'read', chainId: chainWork.chainId, slugs: chainWork[kind].slice(0, BACKGROUND_BATCH_SIZE) };
+  }
+
+  return undefined;
+};
+
 const pickBackgroundBatch = (session: Session): BackgroundPick => {
-  const { publicKeyHash, state$, chains, claimed, droppedInBackground, apiDumps } = session;
+  const { publicKeyHash, state$, chains, priorityChainIds, claimed, droppedInBackground, apiDumps } = session;
   const state = state$.value;
   const now = Date.now();
-  let unreadPick: BackgroundPick | undefined;
-  let droppedPick: BackgroundPick | undefined;
+  const work: ChainBackgroundWork[] = [];
   let waiting = false;
   let nextRetryAt = Infinity;
 
@@ -382,21 +402,15 @@ const pickBackgroundBatch = (session: Session): BackgroundPick => {
     const [dropped, fresh] = partition(idle, slug => droppedInBackground.has(getSlugKey(chainId, slug)));
     const dueRetries = fresh.filter(slug => typeof checked?.[slug] === 'number');
 
-    if (dueRetries.length) return { kind: 'read', chainId, slugs: dueRetries.slice(0, BACKGROUND_BATCH_SIZE) };
-
-    if (!unreadPick && fresh.length)
-      unreadPick = { kind: 'read', chainId, slugs: fresh.slice(0, BACKGROUND_BATCH_SIZE) };
-
-    if (!droppedPick && dropped.length) {
-      droppedPick = { kind: 'read', chainId, slugs: dropped.slice(0, BACKGROUND_BATCH_SIZE) };
-    }
+    work.push({ chainId, dueRetries, fresh, dropped });
 
     waiting ||= idle.length < readable.length;
   }
 
-  if (unreadPick) return unreadPick;
+  const [priorityWork, otherWork] = partition(work, ({ chainId }) => priorityChainIds.includes(chainId));
+  const readPick = pickReadBatch(priorityWork) ?? pickReadBatch(otherWork);
 
-  if (droppedPick) return droppedPick;
+  if (readPick) return readPick;
 
   if (waiting) return { kind: 'wait' };
 
@@ -470,6 +484,7 @@ const startLoadingSession = (
       requests$,
       dumpSettled: new Subject<ChainID>(),
       chains: new Map(chains.map(chain => [chain.chainId, chain])),
+      priorityChainIds: initial.priorityChainIds ?? EMPTY_FROZEN_ARRAY,
       visibleSlugs: new Map(),
       claimed: new Set(),
       droppedInBackground: new Set(),

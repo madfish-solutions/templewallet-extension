@@ -31,6 +31,7 @@ const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
+const TCINFRA_FALLBACK_SIZES: TcInfraMediaSize[] = ['medium', 'small'];
 
 const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
@@ -67,7 +68,17 @@ const buildObjktStages = (uris: string[], renditions: ObjktAssetRendition[]): Im
     )
   ).map(url => ({ urls: [url] }));
 
-/** objkt's CDN first, then the IPFS gateways for the first URI they can serve. */
+const buildTcInfraFallbackStages = (uris: string[]): ImageSourceStage[] =>
+  uniq(
+    uris
+      .filter(isGatewayFallbackUri)
+      .flatMap(uri => buildTcInfraMediaUrls(uri, TCINFRA_FALLBACK_SIZES).filter(isTruthy))
+  ).map(url => ({ urls: [url] }));
+
+/**
+ * objkt's CDN first, then tcinfra's cached renditions (a miss fails fast, its origin is gone),
+ * then the IPFS gateways for the first URI they can serve.
+ */
 const buildTezosMediaStages = (
   uris: Array<string | undefined>,
   renditions: ObjktAssetRendition[] = ['artifact']
@@ -75,6 +86,7 @@ const buildTezosMediaStages = (
   const definedUris = uris.filter(isTruthy);
 
   return buildObjktStages(definedUris, renditions).concat(
+    buildTcInfraFallbackStages(definedUris),
     buildIpfsGatewaySourceStages(definedUris.find(isGatewayFallbackUri))
   );
 };
