@@ -6,5 +6,6 @@ export enum SettingsGeneralSelectors {
   evmDefaultWalletItem = 'Settings General/EVM Default Wallet Item',
   evmDefaultWalletDropDown = 'Settings General/EVM Default Wallet Drop-down',
   popUpCheckBox = 'Setting General/Pop-up Check Box',
-  notificationCheckBox = 'Setting General/Notification Check Box'
+  notificationCheckBox = 'Setting General/Notification Check Box',
+  pushNotificationCheckBox = 'Setting General/Push Notification Check Box'
 }

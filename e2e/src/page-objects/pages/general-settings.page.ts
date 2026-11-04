@@ -10,6 +10,7 @@ export class GeneralSettingsPage extends Page {
   currencyDropDown = createPageElement(SettingsGeneralSelectors.currencyDropDown);
   popUpCheckBox = createPageElement(SettingsGeneralSelectors.popUpCheckBox);
   notificationCheckBox = createPageElement(SettingsGeneralSelectors.notificationCheckBox);
+  pushNotificationCheckBox = createPageElement(SettingsGeneralSelectors.pushNotificationCheckBox);
 
   async isVisible() {
     await this.languageDropDown.waitForDisplayed();
