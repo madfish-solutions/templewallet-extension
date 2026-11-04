@@ -1,3 +1,4 @@
+import { isNotEmptyString } from '@rnw-community/shared';
 import { AxiosResponse } from 'axios';
 import { pickBy } from 'lodash';
 import {
@@ -345,7 +346,10 @@ const handleFetchedMetadata = <T>(fetchedMetadata: T[], assetSlugs: string[]) =>
 const getValue = <T>(result: PromiseSettledResult<T>) => (result.status === 'fulfilled' ? result.value : undefined);
 
 interface CollectibleMetadata {
-  image?: string;
+  image?: unknown;
+  image_url?: unknown;
+  imageUrl?: unknown;
+  image_data?: unknown;
   name?: string;
   decimals?: number;
   description?: string;
@@ -368,6 +372,16 @@ type CollectibleProperties = Pick<
   'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
 >;
 
+const getImageUri = ({ image, image_url, imageUrl, image_data }: CollectibleMetadata) => {
+  const uri = [image, image_url, imageUrl].find(isNotEmptyString);
+
+  if (uri || !isNotEmptyString(image_data)) return uri;
+
+  if (image_data.startsWith('data:image/')) return image_data;
+
+  return image_data.trimStart().startsWith('<svg') ? `data:image/svg+xml,${encodeURIComponent(image_data)}` : undefined;
+};
+
 const getCollectiblePropertiesFromUri = async (
   metadataUri: string | undefined,
   fetchMetadataFile: MetadataFileFetcher
@@ -380,18 +394,10 @@ const getCollectiblePropertiesFromUri = async (
 
   if (typeof data !== 'object' || data === null || Array.isArray(data)) throw new Error();
 
-  const {
-    name,
-    description,
-    decimals,
-    image,
-    attributes,
-    external_url: externalUrl,
-    animation_url: animationUrl
-  } = data;
+  const { name, description, decimals, attributes, external_url: externalUrl, animation_url: animationUrl } = data;
 
   return {
-    image,
+    image: getImageUri(data),
     collectibleName: name,
     description,
     ...pickBy({ attributes, externalUrl, animationUrl, decimals }, value => value !== undefined && value !== '')

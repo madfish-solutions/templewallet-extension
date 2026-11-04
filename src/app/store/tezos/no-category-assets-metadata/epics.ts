@@ -1,4 +1,4 @@
-import { chunk } from 'lodash';
+import { chunk, uniq } from 'lodash';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
 import { forkJoin, from, of } from 'rxjs';
@@ -40,7 +40,7 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
     withLatestFrom(state$),
     exhaustMap(([{ rpcUrls, associatedAccountPkh }, { noCategoryAssetMetadata }]) => {
       const { contractsChainIds, accountToAssetAssociations } = noCategoryAssetMetadata;
-      const slugs = accountToAssetAssociations[associatedAccountPkh] || [];
+      const slugs = uniq(accountToAssetAssociations[associatedAccountPkh] || []);
 
       const slugsByRpcUrls = slugs.reduce<StringRecord<string[]>>((acc, slug) => {
         const [address] = fromAssetSlug(slug);
