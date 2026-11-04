@@ -9,6 +9,7 @@ import { useNotificationsSelector } from 'app/store/notifications/selectors';
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { browser } from 'lib/browser';
 import { t } from 'lib/i18n';
 import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
@@ -31,9 +32,13 @@ export const Notifications = () => {
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
 
   const handleItemClick = useCallback(
-    (id: number) => {
+    (id: number, sourceUrl?: string) => {
       setSelectedNotificationId(id);
-      setNotificationModalOpen();
+      if (sourceUrl) {
+        browser.tabs.create({ url: sourceUrl });
+      } else {
+        setNotificationModalOpen();
+      }
     },
     [setNotificationModalOpen]
   );

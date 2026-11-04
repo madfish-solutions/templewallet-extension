@@ -2,6 +2,7 @@ import 'lib/keep-bg-worker-alive/background';
 
 import { initializeApp } from '@firebase/app';
 import { getMessaging } from '@firebase/messaging/sw';
+import { compareVersions } from 'compare-versions';
 import browser from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
@@ -115,7 +116,7 @@ async function handleExtensionUpdate(previousVersion?: string) {
     })
   );
 
-  if (shouldShowFineTuneRewardsModal == null) {
+  if (shouldShowFineTuneRewardsModal == null && previousVersion && compareVersions(previousVersion, '2.0.33') < 0) {
     const shouldShow = hasAccount && !isInWalletAdsEnabledFromPersisted(partnersPromoState);
     await putToStorage(SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY, shouldShow);
     if (shouldShow && !fullPageHasBeenOpened) {

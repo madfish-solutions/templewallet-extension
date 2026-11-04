@@ -8,6 +8,7 @@ import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { ASSET_HUGE_AMOUNT } from 'lib/constants';
+import { el } from 'lib/el';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t, toSubscriptNotation } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
@@ -296,7 +297,7 @@ export const FullAmountTippy: FC<FullAmountTippyProps> = ({
   );
 
   const tooltipWrapperFactory = useCallback(() => {
-    const element = document.createElement('span');
+    const element = el('span');
     if (isHugeAmount) {
       element.style.overflowWrap = 'break-word';
     }
