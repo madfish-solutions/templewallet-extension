@@ -185,9 +185,12 @@ export const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
   useTezosChainByChainId
 );
 
-export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  ManageCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage metadata={metadata} className="object-cover" />,
+  ({ metadata, inView }) => <EvmCollectibleItemImage metadata={metadata} inView={inView} className="object-cover" />,
   (status, assetSlug, chainId, account) =>
     void dispatch(setEvmCollectibleStatusAction({ account, chainId, slug: assetSlug, status })),
   (assetSlug, chainId, account) =>

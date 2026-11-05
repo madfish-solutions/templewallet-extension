@@ -1,8 +1,10 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import { Semaphore } from 'async-mutex';
+import axios, { AxiosRequestConfig, AxiosResponse, isAxiosError } from 'axios';
 import { CID } from 'multiformats/cid';
 
 import { EnvVars } from 'lib/env';
 
+import { acquireUnlessAborted } from './acquire-unless-aborted';
 import { delayUnlessAborted } from './delay-unless-aborted';
 
 import { isTruthy } from '.';
@@ -45,23 +47,31 @@ const makeCidInPathIpfsGate =
   info =>
     `https://${domain}/ipfs/${joinCidPath(info.id, info)}`;
 
-const makeCidInDomainIpfsGate =
-  (domain: string): IpfsGate =>
-  info => {
-    const nestedPath = info.pathWithoutCid ? `/${info.pathWithoutCid}` : '';
-
-    return `https://${info.idV1}.${domain}${nestedPath}${info.search}`;
-  };
-
 export const DEFAULT_IPFS_GATE = makeCidInPathIpfsGate('ipfs.filebase.io');
 const LAST_RESORT_IPFS_GATE = makeCidInPathIpfsGate(EnvVars.LAST_RESORT_IPFS_GATEWAY_DOMAIN);
-const PRIMARY_IPFS_GATES = [
-  DEFAULT_IPFS_GATE,
-  makeCidInDomainIpfsGate('ipfs.4everland.io'),
-  makeCidInDomainIpfsGate('ipfs.dweb.link')
-];
+const PRIMARY_IPFS_GATES = [DEFAULT_IPFS_GATE];
+
+const tryRecoverSubdomainIpfsUri = (url: string) => {
+  try {
+    const { hostname, pathname, search } = new URL(url);
+    const labels = hostname.split('.');
+    const cid = labels.at(0);
+
+    if (!cid || labels.at(1) !== 'ipfs' || labels.length < 3) return;
+
+    CID.parse(cid);
+
+    return `${IPFS_PROTOCOL}${cid}${pathname === '/' ? '' : pathname}${search}`;
+  } catch {
+    return;
+  }
+};
 
 const tryRecoverIpfsUri = (url: string) => {
+  const subdomainIpfsUri = tryRecoverSubdomainIpfsUri(url);
+
+  if (subdomainIpfsUri) return subdomainIpfsUri;
+
   const [urlBeforeSearch, searchWithoutMark = ''] = url.split('?');
   const search = searchWithoutMark ? `?${searchWithoutMark}` : '';
   const urlBeforeSearchParts = urlBeforeSearch.split('/');
@@ -119,7 +129,7 @@ const getMediaUriInfo = (uri?: string): MediaUriInfo => ({
   ipfs: uri ? getIpfsItemInfo(uri) : null
 });
 
-/** Native URI info plus IPFS info parsed from path-style HTTP gateways. */
+/** Native URI info plus IPFS info parsed from path-style and subdomain HTTP gateway URLs. */
 export const parseMediaUri = (uri?: string) => {
   const native = getMediaUriInfo(uri);
   if (native.ipfs || !uri) return { native, ipfsAware: native };
@@ -147,6 +157,11 @@ export const buildLastResortIpfsGatewayUrl = (uri?: string) => buildGatewayUrls(
 
 const DEFAULT_MAX_REDIRECTS = 4;
 export const LAST_RESORT_IPFS_DELAY = 5_000;
+const INTERACTIVE_IPFS_TIMEOUT_MS = 15_000;
+const MAX_CONCURRENT_BULK_IPFS_FETCHES = 12;
+const BULK_IPFS_TIMEOUT_MS = 8_000;
+const BULK_IPFS_FAILURE_BACKOFF_MS = 60_000;
+const BULK_IPFS_HOST_PAUSE_MS = 30_000;
 
 export const getIpfsGenericFile = async <T>(
   uri: string,
@@ -154,7 +169,7 @@ export const getIpfsGenericFile = async <T>(
 ) => {
   const { controller = new AbortController(), maxRedirects = DEFAULT_MAX_REDIRECTS, ...otherOptions } = options;
   const { signal } = controller;
-  const requestOptions = { signal, maxRedirects, ...otherOptions };
+  const requestOptions = { signal, maxRedirects, timeout: INTERACTIVE_IPFS_TIMEOUT_MS, ...otherOptions };
 
   const lastResortUri = buildLastResortIpfsGatewayUrl(uri);
 
@@ -175,3 +190,110 @@ export const getIpfsGenericFile = async <T>(
     controller.abort();
   }
 };
+
+export class IpfsBackoffError extends Error {
+  constructor(uri: string) {
+    super(`Backed off after a recent IPFS failure: ${uri}`);
+    this.name = 'IpfsBackoffError';
+  }
+}
+
+export class IpfsTransientError extends Error {
+  constructor(
+    uri: string,
+    readonly retryAt: number,
+    refused = false
+  ) {
+    super(refused ? `Backed off after a transient IPFS failure: ${uri}` : `Transient IPFS failure: ${uri}`);
+    this.name = 'IpfsTransientError';
+  }
+}
+
+const isTransientFailure = (error: unknown) =>
+  isAxiosError(error) &&
+  (error.code === 'ECONNABORTED' ||
+    error.code === 'ETIMEDOUT' ||
+    error.code === 'ERR_NETWORK' ||
+    (error.response?.status ?? 0) >= 500);
+
+const getHostname = (url: string) => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return undefined;
+  }
+};
+
+class BulkIpfsFetcher {
+  private readonly slots = new Semaphore(MAX_CONCURRENT_BULK_IPFS_FETCHES);
+  private readonly failedUntil = new Map<string, { until: number; transient: boolean }>();
+  private readonly hostPausedUntil = new Map<string, number>();
+
+  async get<T>(uri: string, signal: AbortSignal): Promise<AxiosResponse<T>> {
+    const url = buildPrimaryIpfsGatewayUrls(uri).at(0) ?? uri;
+    const host = getHostname(url);
+
+    while (true) {
+      const refusal = this.getRefusal(uri);
+
+      if (refusal) throw refusal;
+
+      const pauseLeft = this.getPauseLeft(host);
+
+      if (pauseLeft > 0) {
+        await delayUnlessAborted(pauseLeft, signal);
+        continue;
+      }
+
+      const [, release] = await acquireUnlessAborted(this.slots, signal);
+
+      if (this.getRefusal(uri) || this.getPauseLeft(host) > 0) {
+        release();
+        continue;
+      }
+
+      try {
+        const response = await axios.get<T>(url, {
+          signal,
+          timeout: BULK_IPFS_TIMEOUT_MS,
+          maxRedirects: DEFAULT_MAX_REDIRECTS
+        });
+        this.failedUntil.delete(uri);
+
+        return response;
+      } catch (error) {
+        if (host !== undefined && isAxiosError(error) && error.response?.status === 429) {
+          this.hostPausedUntil.set(host, Date.now() + BULK_IPFS_HOST_PAUSE_MS);
+          continue;
+        }
+
+        if (!signal.aborted) {
+          const failure = { until: Date.now() + BULK_IPFS_FAILURE_BACKOFF_MS, transient: isTransientFailure(error) };
+          this.failedUntil.set(uri, failure);
+
+          if (failure.transient) throw new IpfsTransientError(uri, failure.until);
+        }
+
+        throw error;
+      } finally {
+        release();
+      }
+    }
+  }
+
+  private getRefusal(uri: string) {
+    const failure = this.failedUntil.get(uri);
+
+    if (!failure || Date.now() >= failure.until) return undefined;
+
+    return failure.transient ? new IpfsTransientError(uri, failure.until, true) : new IpfsBackoffError(uri);
+  }
+
+  private getPauseLeft(host: string | undefined) {
+    return host === undefined ? 0 : (this.hostPausedUntil.get(host) ?? 0) - Date.now();
+  }
+}
+
+const bulkIpfsFetcher = new BulkIpfsFetcher();
+
+export const getIpfsGenericFileInBulk = <T>(uri: string, signal: AbortSignal) => bulkIpfsFetcher.get<T>(uri, signal);

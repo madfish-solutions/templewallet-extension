@@ -25,6 +25,13 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
   immediate?: boolean;
   /** Load the leading single-URL stages through the `<img>` element and race only the rest off-DOM. */
   progressive?: boolean;
+  /** Race a single-URL stack off-DOM too. */
+  raced?: boolean;
+  /** Don't load while true; a load in progress is aborted. */
+  paused?: boolean;
+  timeoutMs?: number;
+  /** First back-off before a failed stack is tried again on remount. */
+  failureBackoffMs?: number;
   size?: number;
   loader?: ReactNode;
   fallback?: ReactNode;
@@ -36,6 +43,10 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
   immediate = false,
   progressive = false,
+  raced = false,
+  paused = false,
+  timeoutMs,
+  failureBackoffMs,
   size,
   loader,
   fallback,
@@ -44,7 +55,14 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   onStackFailed,
   ...imgProps
 }) => {
-  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate, progressive);
+  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, {
+    immediate,
+    progressive,
+    raced,
+    timeoutMs,
+    paused,
+    failureBackoffMs
+  });
   const [preventLoadImage, setPreventLoadImage] = useState(isLoading);
 
   useDidMount(() => startTransition(() => setPreventLoadImage(false)));
