@@ -1,6 +1,7 @@
 import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
+import { isEqual } from 'lodash';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as StackIcon } from 'app/icons/base/stack.svg';
@@ -8,6 +9,7 @@ import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-opti
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -40,7 +42,11 @@ export const CollectiblesGroupGrid: FC<CollectiblesGroupGridProps> = ({
   showMoreTestID,
   onShowMore
 }) => {
-  const displayedNftsSlugs = isCollapsed ? chainSlugs.slice(0, colsCount) : chainSlugs;
+  const displayedNftsSlugs = useMemoWithCompare(
+    () => (isCollapsed ? chainSlugs.slice(0, colsCount) : chainSlugs),
+    [isCollapsed, chainSlugs, colsCount],
+    (a, b) => (isCollapsed ? isEqual(a, b) : a === b)
+  );
 
   return (
     <div className={clsx('grid gap-2', { 'grid-cols-3': colsCount === 3, 'grid-cols-4': colsCount === 4 })}>

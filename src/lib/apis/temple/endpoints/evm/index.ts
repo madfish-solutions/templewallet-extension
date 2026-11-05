@@ -2,6 +2,9 @@ import { Route, RoutesResponse, Token, LiFiStep, StatusResponse, GetStatusReques
 import retry from 'async-retry';
 import axios from 'axios';
 
+import { isAbortError } from 'lib/apis/utils';
+import { stripUndefinedProps } from 'lib/utils';
+
 import { templeWalletApi } from '../templewallet.api';
 
 import { AssetTransfersWithMetadataResult, Log } from './alchemy';
@@ -12,18 +15,62 @@ import {
   Route3EvmRouteRequest,
   Route3EvmRoute,
   Route3EvmTokenWithPrice,
-  RouteParams
+  RouteParams,
+  OpenseaNftDetailed,
+  OpenseaNftRef
+} from './api.interfaces';
+
+export type {
+  ChainID,
+  BalancesResponse,
+  RouteParams,
+  BalanceItem,
+  BalanceNftData,
+  NftCollectionAttribute,
+  NftAddressBalanceNftResponse,
+  NftTokenContractBalanceItem,
+  NftData,
+  Route3EvmRoute,
+  Route3EvmTokenWithPrice,
+  OpenseaNftDetailed,
+  OpenseaNftRef
 } from './api.interfaces';
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
+  buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId });
 
 /** Response also contains exchange rates */
 export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<BalancesResponse>('/tokens-metadata', walletAddress, chainId);
+  buildEvmRequest<BalancesResponse>({ path: '/tokens-metadata', walletAddress, chainId });
 
-export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
+export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID, signal?: AbortSignal) =>
+  buildEvmRequest<NftAddressBalanceNftResponse>({ path: '/collectibles-metadata', walletAddress, chainId, signal });
+
+/** The multichain OpenSea metadata route rejects requests with more than 30 items. */
+export const OPENSEA_MULTICHAIN_NFTS_LIMIT = 30;
+
+export const getOpenseaMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
+  buildEvmRequest<Array<OpenseaNftDetailed | null>>({
+    path: '/multichain-collectibles-metadata',
+    method: 'post',
+    body: nftRefs.slice(0, OPENSEA_MULTICHAIN_NFTS_LIMIT),
+    signal
+  });
+
+export const getOpenseaChainNftsMetadata = (
+  chainId: number,
+  walletAddress: string,
+  collection?: string,
+  next?: string,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ nfts: Array<OpenseaNftDetailed>; next?: string | null }>({
+    path: '/opensea-collectibles-metadata',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ collection, next }),
+    signal
+  });
 
 export const fetchEvmTransactions = (
   walletAddress: string,
@@ -32,23 +79,20 @@ export const fetchEvmTransactions = (
   olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ) =>
-  buildEvmRequest<TransactionsResponse>(
-    '/transactions/v2',
+  buildEvmRequest<TransactionsResponse>({
+    path: '/transactions/v2',
     walletAddress,
     chainId,
-    {
-      contractAddress,
-      olderThanBlockHeight
-    },
+    params: { contractAddress, olderThanBlockHeight },
     signal
-  );
+  });
 
 export interface TokensByChain {
   [chainId: number]: Token[];
 }
 
 export const fetchEvmAccountInitialized = (walletAddress: string, signal?: AbortSignal) =>
-  buildEvmRequest<{ isInitialized: boolean }>('/is-initialized', walletAddress, undefined, undefined, signal);
+  buildEvmRequest<{ isInitialized: boolean }>({ path: '/is-initialized', walletAddress, signal });
 
 interface TransactionsResponse {
   transfers: AssetTransfersWithMetadataResult[];
@@ -149,22 +193,51 @@ export const get3RouteEvmSwap = (params: Route3EvmRouteRequest) =>
     }
   );
 
-const buildEvmRequest = <T>(
-  path: string,
-  walletAddress: string,
-  chainId?: number,
-  params?: object,
-  signal?: AbortSignal
-) =>
-  templeWalletApi
-    .get<T>(`evm${path}`, {
-      params: { ...params, walletAddress, chainId },
-      signal
-    })
-    .then(
-      res => res.data,
-      error => {
-        console.error(error);
-        throw error;
-      }
-    );
+interface BuildEvmRequestParamsBase {
+  path: string;
+  walletAddress?: string;
+  chainId?: number;
+  params?: object;
+  signal?: AbortSignal;
+  method?: 'get' | 'post';
+  body?: any;
+}
+
+interface BuildEvmRequestParamsGet extends BuildEvmRequestParamsBase {
+  method?: 'get';
+  body?: undefined;
+}
+
+interface BuildEvmRequestParamsPost extends BuildEvmRequestParamsBase {
+  method: 'post';
+}
+
+type BuildEvmRequestParams = BuildEvmRequestParamsGet | BuildEvmRequestParamsPost;
+
+const buildEvmRequest = <T>({
+  path,
+  walletAddress,
+  chainId,
+  params,
+  signal,
+  method = 'get',
+  body
+}: BuildEvmRequestParams) => {
+  const config = {
+    params: { ...params, walletAddress, chainId },
+    signal,
+    ...(body instanceof Uint8Array ? { headers: { 'Content-Type': 'application/octet-stream' } } : {})
+  };
+  const request =
+    method === 'post'
+      ? templeWalletApi.post<T>(`evm${path}`, body, config)
+      : templeWalletApi.get<T>(`evm${path}`, config);
+
+  return request.then(
+    res => res.data,
+    error => {
+      if (!isAbortError(error)) console.error(error);
+      throw error;
+    }
+  );
+};

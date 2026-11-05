@@ -5,4 +5,6 @@ export interface CollectiblesCollection {
   title?: string;
   logoSources?: ImageSourceStage[];
   collectionSlug: string;
+  /** Chain and contract, shared by every collection minted on that contract. */
+  contractSlug: string;
 }

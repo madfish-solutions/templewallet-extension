@@ -2,10 +2,11 @@ import { pickBy } from 'lodash';
 import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
-import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
+import { collectibleImagePreviewUrl, firstCollectibleArtifactUrl } from 'lib/metadata/collectible-media';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
-import { getIpfsGenericFile } from 'lib/utils/ipfs';
+import { getMaybeIpfsGenericFile } from 'lib/utils/ipfs';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -236,12 +237,19 @@ const getCollectiblePropertiesFromUri = async (
 ): Promise<
   Pick<
     EvmCollectibleMetadata,
-    'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
+    | 'image'
+    | 'images'
+    | 'collectibleName'
+    | 'description'
+    | 'attributes'
+    | 'externalUrl'
+    | 'animationUrl'
+    | 'artifactUrl'
   >
 > => {
   if (!metadataUri) throw new Error();
 
-  const { data } = await getIpfsGenericFile<CollectibleMetadata>(metadataUri);
+  const { data } = await getMaybeIpfsGenericFile<CollectibleMetadata>(metadataUri);
 
   if (typeof data !== 'object' || !data.image) throw new Error();
 
@@ -255,10 +263,14 @@ const getCollectiblePropertiesFromUri = async (
     animation_url: animationUrl
   } = data;
 
+  const still = collectibleImagePreviewUrl(image);
+
   return {
-    image,
+    image: still,
+    images: still ? [still] : undefined,
     collectibleName: name,
     description,
+    artifactUrl: firstCollectibleArtifactUrl(animationUrl, image),
     ...pickBy({ attributes, externalUrl, animationUrl, decimals }, value => value !== undefined && value !== '')
   };
 };

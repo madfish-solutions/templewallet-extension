@@ -1,3 +1,4 @@
+import { Semaphore } from 'async-mutex';
 import axios, { AxiosRequestConfig } from 'axios';
 import { CID } from 'multiformats/cid';
 
@@ -40,17 +41,20 @@ const joinCidPath = (cid: string, { pathWithoutCid, search }: IpfsUriInfo) => {
   return `${cid}${nestedPath}${search}`;
 };
 
+const LOCALHOST_DOMAIN_REGEXP = /^localhost(:[0-9]+)?$/;
+const getProtocol = (domain: string) => (LOCALHOST_DOMAIN_REGEXP.test(domain) ? 'http' : 'https');
+
 const makeCidInPathIpfsGate =
   (domain: string): IpfsGate =>
   info =>
-    `https://${domain}/ipfs/${joinCidPath(info.id, info)}`;
+    `${getProtocol(domain)}://${domain}/ipfs/${joinCidPath(info.id, info)}`;
 
 const makeCidInDomainIpfsGate =
   (domain: string): IpfsGate =>
   info => {
     const nestedPath = info.pathWithoutCid ? `/${info.pathWithoutCid}` : '';
 
-    return `https://${info.idV1}.${domain}${nestedPath}${info.search}`;
+    return `${getProtocol(domain)}://${info.idV1}.${domain}${nestedPath}${info.search}`;
   };
 
 export const DEFAULT_IPFS_GATE = makeCidInPathIpfsGate('ipfs.filebase.io');
@@ -148,7 +152,9 @@ export const buildLastResortIpfsGatewayUrl = (uri?: string) => buildGatewayUrls(
 const DEFAULT_MAX_REDIRECTS = 4;
 export const LAST_RESORT_IPFS_DELAY = 5_000;
 
-export const getIpfsGenericFile = async <T>(
+const ipfsGenericFileSemaphore = new Semaphore(50);
+
+const getIpfsGenericFile = async <T>(
   uri: string,
   options: Omit<AxiosRequestConfig, 'signal'> & { controller?: AbortController } = {}
 ) => {
@@ -174,4 +180,18 @@ export const getIpfsGenericFile = async <T>(
   } finally {
     controller.abort();
   }
+};
+
+export const getMaybeIpfsGenericFile = async <T>(
+  uri: string,
+  options: Omit<AxiosRequestConfig, 'signal'> & { controller?: AbortController } = {}
+) => {
+  const { ipfsAware } = parseMediaUri(uri);
+  const ipfsUriInfo = ipfsAware.ipfs;
+
+  if (ipfsUriInfo) {
+    return ipfsGenericFileSemaphore.runExclusive(() => getIpfsGenericFile<T>(uri, options));
+  }
+
+  return getIpfsGenericFile<T>(uri, options);
 };

@@ -11,6 +11,12 @@ import {
 import { useSimpleAssetsPaginationLogic } from 'app/hooks/use-simple-assets-pagination-logic';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import {
+  evmContractCollectionName,
+  evmStoredCollectionName,
+  isSharedStorefrontTokenId,
+  singleContractCollectionNames
+} from 'app/store/evm/collectibles-metadata/utils';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
@@ -120,6 +126,16 @@ export const useCollectiblesListingLogic = (
   const getTezMetadata = useGetCollectibleMetadata();
 
   const getEvmMetadata = (chainId: number, slug: string) => evmMetadata[chainId]?.[slug];
+  const contractCollectionNames = singleContractCollectionNames(evmMetadata);
+  const evmCollectionTitle = (chainId: number, assetSlug: string) => {
+    const metadata = getEvmMetadata(chainId, assetSlug);
+    const ownName = evmStoredCollectionName(metadata, assetSlug);
+    if (isSharedStorefrontTokenId(fromAssetSlug(assetSlug)[1])) return ownName || getEvmCollectionName(undefined);
+
+    return (
+      evmContractCollectionName(contractCollectionNames, chainId, assetSlug, ownName) || getEvmCollectionName(metadata)
+    );
+  };
 
   const search = (slugs: string[]) =>
     searchCollectiblesWithNoMeta({
@@ -130,7 +146,8 @@ export const useCollectiblesListingLogic = (
       getChainSlug: slug => slug,
       getSlug: getSlugFromChainSlug,
       getTezCollectionName: (_, slug) =>
-        viewAsCollections ? getTezCollectionName(slug, allTezosCollectiblesDetails[slug]) : undefined
+        viewAsCollections ? getTezCollectionName(slug, allTezosCollectiblesDetails[slug]) : undefined,
+      getEvmCollectionName: evmCollectionTitle
     });
 
   const manageableChainSlugs = usePreservedOrderSlugsToManage(enabledSlugsSorted, otherSlugsSorted);
@@ -150,7 +167,7 @@ export const useCollectiblesListingLogic = (
   const getCollectionName = (chainKind: TempleChainKind, chainId: string | number, assetSlug: string) =>
     chainKind === TempleChainKind.Tezos
       ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
-      : getEvmCollectionName(getEvmMetadata(chainId as number, assetSlug));
+      : evmCollectionTitle(chainId as number, assetSlug);
 
   const slugsByCollectionsInContracts = groupSlugsByCollectionsInContracts(searchedSlugs, getCollectionName);
 
@@ -168,7 +185,13 @@ export const useCollectiblesListingLogic = (
                   : undefined;
 
               return [
-                { chainId, title: collectionName, logoSources, collectionSlug: `${contractSlug}_${collectionName}` },
+                {
+                  chainId,
+                  title: collectionName,
+                  logoSources,
+                  collectionSlug: `${contractSlug}_${collectionName}`,
+                  contractSlug
+                },
                 chainCollectibleSlugs
               ];
             })

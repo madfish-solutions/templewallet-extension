@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
-import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm';
 import { toLocalFormat } from 'lib/i18n';
 
 import { InfoContainer } from './InfoContainer';

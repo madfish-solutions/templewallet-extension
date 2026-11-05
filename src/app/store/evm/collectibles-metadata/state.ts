@@ -9,10 +9,13 @@ export interface EvmCollectiblesMetadataState {
   lastFullLoadAccount?: HexString;
   seenChainsByAccount: StringRecord<number[]>;
   checkedSlugsByAccount: StringRecord<Record<number, string[]>>;
+  /** Slugs already given an on-chain metadata read in this session. */
+  onChainSlugsByAccount: StringRecord<Record<number, string[]>>;
 }
 
 export const evmCollectiblesMetadataInitialState: EvmCollectiblesMetadataState = {
   metadataRecord: {},
   seenChainsByAccount: {},
-  checkedSlugsByAccount: {}
+  checkedSlugsByAccount: {},
+  onChainSlugsByAccount: {}
 };

@@ -21,9 +21,9 @@ import {
   get3RouteEvmTokens,
   getEvmSwapConnectionsMetadata,
   getLifiSwapTokens,
-  TokensByChain
+  TokensByChain,
+  Route3EvmTokenWithPrice
 } from 'lib/apis/temple/endpoints/evm';
-import { Route3EvmTokenWithPrice } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';

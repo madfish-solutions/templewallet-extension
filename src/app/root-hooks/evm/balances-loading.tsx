@@ -16,8 +16,7 @@ import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/sele
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
-import { getEvmBalances } from 'lib/apis/temple/endpoints/evm';
-import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalancesResponse, ChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
