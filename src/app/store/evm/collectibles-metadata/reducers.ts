@@ -67,7 +67,14 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         if (!metadata) continue;
 
         const stored = chainCollectiblesMetadata[slug];
-        chainCollectiblesMetadata[slug] = stored ? { ...metadata, ...omitBy(stored, isMissingValue) } : metadata;
+
+        if (!stored) {
+          chainCollectiblesMetadata[slug] = metadata;
+          continue;
+        }
+
+        const merged = { ...metadata, ...omitBy(stored, isMissingValue) };
+        if (countFilledFields(merged) > countFilledFields(stored)) chainCollectiblesMetadata[slug] = merged;
       }
     });
 
