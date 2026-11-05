@@ -130,12 +130,14 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ met
       <ImageStacked
         sources={sourcesWithCompressedFallback}
         immediate
+        raced
         timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         className="absolute w-full h-full object-cover blur"
       />
       <ImageStacked
         sources={sources}
         immediate
+        raced
         timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}

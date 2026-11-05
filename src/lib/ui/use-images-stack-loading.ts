@@ -121,7 +121,7 @@ export const useImagesStackLoading = (
       setIsLoading(!loaded);
       setIsStackFailed(false);
 
-      if (!loaded && racedFrom > 0) {
+      if (!loaded && !paused && racedFrom > 0) {
         const img = new Image();
         img.src = stages[0].urls[0];
         if (img.complete) {
@@ -134,7 +134,7 @@ export const useImagesStackLoading = (
       setIsLoading(false);
       setIsStackFailed(true);
     }
-  }, [stages, racedFrom, immediate]);
+  }, [stages, racedFrom, immediate, paused]);
 
   useEffect(() => {
     if (!racing || paused || racedFrom >= stages.length) return;
