@@ -27,13 +27,7 @@ export const detectEvmTokenStandard = (
   const standard = readEvmTokenStandard(publicClient, contractAddress);
   standardDetections.set(key, standard);
   void standard.then(result => {
-    if (
-      result !== EvmAssetStandard.ERC721 &&
-      result !== EvmAssetStandard.ERC1155 &&
-      standardDetections.get(key) === standard
-    ) {
-      standardDetections.delete(key);
-    }
+    if (result !== EvmAssetStandard.ERC721 && result !== EvmAssetStandard.ERC1155) standardDetections.delete(key);
   });
 
   return standard;

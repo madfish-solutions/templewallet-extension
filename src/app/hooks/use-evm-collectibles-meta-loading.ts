@@ -1,4 +1,4 @@
-import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 
 import { dispatch } from 'app/store';
 import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/assets/selectors';
@@ -25,21 +25,16 @@ export const useEvmCollectiblesMetadataLoading = (
   const evmChains = useEnabledEvmChains();
   const isTestnetMode = useTestnetModeEnabledSelector();
   const storedCollectiblesRecord = useEvmStoredCollectiblesRecordSelector();
-  const prevPublicKeyHashRef = useRef<HexString | undefined>(undefined);
   const requestedSlugsSnapshot = useSyncExternalStore(
     subscribeToRequestedEvmCollectibles,
     getRequestedEvmCollectiblesSnapshot
   );
 
   useEffect(() => {
-    const restartSession = prevPublicKeyHashRef.current !== publicKeyHash;
-    prevPublicKeyHashRef.current = publicKeyHash;
-
     dispatch(
       loadEvmCollectiblesMetadataAction({
         publicKeyHash,
         chains: evmChains.map(({ chainId, rpcBaseURL }) => ({ chainId, rpcBaseURL })),
-        restartSession,
         visibleSlugsByChain: getRequestedEvmCollectibleSlugs(),
         readAllInBackground,
         priorityChainIds: selectedChainIds.filter((chainId): chainId is number => typeof chainId === 'number')

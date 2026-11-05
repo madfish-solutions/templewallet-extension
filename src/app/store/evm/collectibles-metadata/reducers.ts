@@ -19,6 +19,10 @@ import { buildEvmCollectibleMetadataFromFetched } from './utils';
 
 // TODO: figure out how to get rid of unused metadata
 
+const isMissingValue = (value: unknown) => isNil(value) || value === '';
+
+const countFilledFields = (metadata: object) => Object.keys(omitBy(metadata, isMissingValue)).length;
+
 const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
   evmCollectiblesMetadataInitialState,
   builder => {
@@ -39,7 +43,15 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
           const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
 
           const stored = chainTokensMetadata[slug];
-          if (!stored) chainTokensMetadata[slug] = buildEvmCollectibleMetadataFromFetched(collectible, contract);
+          const fetched = buildEvmCollectibleMetadataFromFetched(collectible, contract);
+
+          if (!stored) {
+            chainTokensMetadata[slug] = fetched;
+            continue;
+          }
+
+          const merged = { ...fetched, ...omitBy(stored, isMissingValue) };
+          if (countFilledFields(merged) > countFilledFields(stored)) chainTokensMetadata[slug] = merged;
         }
       }
     });
@@ -55,14 +67,12 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         if (!metadata) continue;
 
         const stored = chainCollectiblesMetadata[slug];
-        chainCollectiblesMetadata[slug] = stored
-          ? { ...metadata, ...omitBy(stored, value => isNil(value) || value === '') }
-          : metadata;
+        chainCollectiblesMetadata[slug] = stored ? { ...metadata, ...omitBy(stored, isMissingValue) } : metadata;
       }
     });
 
-    builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash, restartSession } }) => {
-      if (!restartSession || state.lastFullLoadAccount === publicKeyHash) return;
+    builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash } }) => {
+      if (state.lastFullLoadAccount === publicKeyHash) return;
 
       state.lastFullLoadAccount = publicKeyHash;
       state.seenChainsByAccount[publicKeyHash] = [];

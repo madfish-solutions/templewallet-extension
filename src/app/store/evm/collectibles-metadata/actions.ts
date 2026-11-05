@@ -26,10 +26,9 @@ export const putEvmCollectiblesMetadataAction = createAction<PutEvmCollectiblesM
 export const loadEvmCollectiblesMetadataAction = createAction<{
   publicKeyHash: HexString;
   chains: EvmNetworkEssentials[];
-  restartSession: boolean;
   visibleSlugsByChain: Record<number, string[]>;
   readAllInBackground: boolean;
-  priorityChainIds?: number[];
+  priorityChainIds: number[];
 }>('evm/collectible-metadata/LOAD');
 
 export const cancelEvmCollectiblesMetadataLoadingAction = createAction('evm/collectible-metadata/CANCEL_LOADING');

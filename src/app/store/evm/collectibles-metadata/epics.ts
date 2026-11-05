@@ -313,7 +313,7 @@ const flushReads = (session: Session, settled: SettledRead[]): Observable<Action
 const readRequestedSlugs = (session: Session, requests$: Observable<LoadPayload>): Observable<SettledRead> =>
   requests$.pipe(
     mergeMap(({ chains, visibleSlugsByChain, priorityChainIds }) => {
-      session.priorityChainIds = priorityChainIds ?? EMPTY_FROZEN_ARRAY;
+      session.priorityChainIds = priorityChainIds;
 
       for (const chain of chains) session.chains.set(chain.chainId, chain);
 
@@ -484,7 +484,7 @@ const startLoadingSession = (
       requests$,
       dumpSettled: new Subject<ChainID>(),
       chains: new Map(chains.map(chain => [chain.chainId, chain])),
-      priorityChainIds: initial.priorityChainIds ?? EMPTY_FROZEN_ARRAY,
+      priorityChainIds: initial.priorityChainIds,
       visibleSlugs: new Map(),
       claimed: new Set(),
       droppedInBackground: new Set(),
@@ -531,8 +531,7 @@ export const evmCollectiblesMetadataEpics: Epic<Action, Action, RootState> = (ac
   let runningSessionKey: string | undefined;
 
   const getKey = (payload: LoadPayload) => getSessionKey(payload, state$.value.settings.isTestnetModeEnabled);
-  const feedsSession = (payload: LoadPayload, sessionKey: string | undefined) =>
-    !payload.restartSession && getKey(payload) === sessionKey;
+  const feedsSession = (payload: LoadPayload, sessionKey: string | undefined) => getKey(payload) === sessionKey;
 
   const sessions$ = action$.pipe(
     ofType(loadEvmCollectiblesMetadataAction, cancelEvmCollectiblesMetadataLoadingAction),

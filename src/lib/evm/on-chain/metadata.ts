@@ -98,8 +98,6 @@ const loadEvmCollectibleMetadataFromChain = async (
   fetchMetadataFile: MetadataFileFetcher,
   signal?: AbortSignal
 ) => {
-  if (signal?.aborted) return undefined;
-
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(collectibleSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);

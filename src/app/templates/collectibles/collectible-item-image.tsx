@@ -91,14 +91,14 @@ interface EvmCollectibleItemImageProps {
   metadata?: EvmCollectibleMetadata;
   className?: string;
   shouldUseBlurredBg?: boolean;
-  inView?: boolean;
+  inView: boolean;
 }
 
 export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   metadata,
   className,
   shouldUseBlurredBg = false,
-  inView = true
+  inView
 }) => {
   const sources = useMemoWithCompare(() => buildPrimaryIpfsGatewaySourceStages(metadata?.image), [metadata]);
   const isIpfsImage = Boolean(parseMediaUri(metadata?.image).ipfsAware.ipfs);

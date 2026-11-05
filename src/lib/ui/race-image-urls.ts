@@ -11,8 +11,6 @@ interface RaceImageUrlsOptions {
   timeoutMs?: number;
   signal?: AbortSignal;
   immediate?: boolean;
-  /** Let a rate-limited stage fall through to its delayed fallback stage. */
-  afterRateLimit?: boolean;
 }
 
 interface InternalRaceOptions extends RaceImageUrlsOptions {
@@ -24,8 +22,6 @@ interface InternalRaceOptions extends RaceImageUrlsOptions {
 
 const IMAGE_LOAD_TIMEOUT_MS = 10_000;
 const MAX_CONCURRENT_RACES = 5;
-const FAILURE_BACKOFF_BASE_MS = 5_000;
-const FAILURE_BACKOFF_MAX_MS = 5 * 60_000;
 const RATE_LIMIT_BACKOFF_MS = 30_000;
 const RATE_LIMITED_STATUS = 429;
 const HOST_RESUME_JITTER_MS = 5_000;
@@ -70,14 +66,16 @@ const getBufferedRateLimitTime = (url: string) => {
   return isRateLimitedEntry(entry) ? performance.timeOrigin + entry.responseEnd : 0;
 };
 
-const wasRateLimited = (url: string) =>
-  Date.now() - Math.max(rateLimitedAt.get(url) ?? 0, getBufferedRateLimitTime(url)) < RATE_LIMIT_BACKOFF_MS;
+const getUrlRateLimitedAt = (url: string) => Math.max(rateLimitedAt.get(url) ?? 0, getBufferedRateLimitTime(url));
+
+const wasRateLimited = (url: string) => Date.now() - getUrlRateLimitedAt(url) < RATE_LIMIT_BACKOFF_MS;
 
 const getHostsQuietAt = (urls: string[]) =>
-  Math.max(...urls.map(url => (hostRateLimitedAt.get(getHost(url)) ?? 0) + RATE_LIMIT_BACKOFF_MS));
-
-export const getFailureBackoffMs = (attempts: number, baseMs = FAILURE_BACKOFF_BASE_MS) =>
-  Math.min(baseMs * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS);
+  Math.max(
+    ...urls.map(
+      url => Math.max(hostRateLimitedAt.get(getHost(url)) ?? 0, getUrlRateLimitedAt(url)) + RATE_LIMIT_BACKOFF_MS
+    )
+  );
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 
@@ -199,7 +197,6 @@ const loadOneImage = (url: string, timeoutMs: number, signal: AbortSignal) =>
 export class ImageUrlRacer {
   private readonly winners = new Map<string, string>();
   private readonly inFlight = new Map<string, InFlightRace>();
-  private readonly failures = new Map<string, { until: number; attempts: number; rateLimited: boolean }>();
   private readonly slots: Semaphore;
 
   constructor(
@@ -227,6 +224,18 @@ export class ImageUrlRacer {
       await this.waitForQuietHosts(firstStageUrls, signal);
     }
 
+    const winner = await this.loadStagesInSlot(normalized, options, signal);
+    if (winner) return winner;
+
+    const rateLimitedUrls = normalized.flatMap(({ urls }) => urls).filter(wasRateLimited);
+    if (rateLimitedUrls.length === 0) return null;
+
+    await this.waitForQuietHosts(rateLimitedUrls, signal);
+
+    return this.loadStagesInSlot(normalized, options, signal);
+  }
+
+  private async loadStagesInSlot(normalized: ImageSourceStage[], options: RaceImageUrlsOptions, signal: AbortSignal) {
     const [, release] = await acquireUnlessAborted(this.slots, signal, options.immediate ?? false);
 
     try {
@@ -265,22 +274,6 @@ export class ImageUrlRacer {
     }
   }
 
-  clearFailures() {
-    this.failures.clear();
-  }
-
-  getRateLimitRetryAt(stages: ImageSourceStage[]): number | undefined {
-    const retryTimes = normalizeImageSources(stages).flatMap(({ urls }) => {
-      const failure = this.failures.get(getRaceKey(urls));
-
-      if (!failure?.rateLimited) return [];
-
-      return [Math.max(failure.until, getHostsQuietAt(urls))];
-    });
-
-    return retryTimes.length > 0 ? Math.min(...retryTimes) : undefined;
-  }
-
   private async waitForQuietHosts(urls: string[], signal: AbortSignal) {
     const deadline = Date.now() + RATE_LIMIT_BACKOFF_MS;
 
@@ -309,12 +302,6 @@ export class ImageUrlRacer {
 
     throwIfAborted(signal);
 
-    const failure = this.failures.get(key);
-
-    if (!immediate && failure && failure.until > Date.now()) {
-      return null;
-    }
-
     const existing = this.inFlight.get(key);
 
     if (existing && !existing.controller.signal.aborted) {
@@ -336,18 +323,9 @@ export class ImageUrlRacer {
 
     entry.promise
       .then(winner => {
-        if (winner) {
-          this.winners.set(key, winner);
-          this.failures.delete(key);
-        } else {
-          this.recordFailure(key, uniqueUrls.some(wasRateLimited));
-        }
+        if (winner) this.winners.set(key, winner);
       })
-      .catch(error => {
-        if (!isAbortError(error)) {
-          this.recordFailure(key, uniqueUrls.some(wasRateLimited));
-        }
-      })
+      .catch(() => undefined)
       .finally(() => {
         if (this.inFlight.get(key) === entry) {
           this.inFlight.delete(key);
@@ -359,13 +337,6 @@ export class ImageUrlRacer {
     } catch (error) {
       return this.retryIfDyingRace(error, signal, urls, options);
     }
-  }
-
-  private recordFailure(key: string, rateLimited: boolean) {
-    const attempts = (this.failures.get(key)?.attempts ?? 0) + 1;
-    const backoff = rateLimited ? RATE_LIMIT_BACKOFF_MS : getFailureBackoffMs(attempts);
-
-    this.failures.set(key, { until: Date.now() + backoff, attempts, rateLimited });
   }
 
   private retryIfDyingRace(
@@ -398,11 +369,7 @@ export class ImageUrlRacer {
     }
 
     const nestedOptions: InternalRaceOptions = { ...options, signal: controller.signal };
-    const currentRace = this.raceStage(current, nestedOptions).then(url => {
-      if (!url && !options.afterRateLimit && current.urls.some(wasRateLimited)) controller.abort();
-
-      return url;
-    });
+    const currentRace = this.raceStage(current, nestedOptions);
     const nextRace = delay(next.delayMs ?? 0, controller.signal).then(() => {
       return this.raceStage({ urls: next.urls }, nestedOptions);
     });
@@ -565,15 +532,10 @@ export class ImageUrlRacer {
 
 const defaultRacer = new ImageUrlRacer();
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => defaultRacer.clearFailures());
-  watchRateLimitedResponses();
-}
+if (typeof window !== 'undefined') watchRateLimitedResponses();
 
 export const raceImageUrls = (urls: string[], options?: RaceImageUrlsOptions) =>
   defaultRacer.raceImageUrls(urls, options);
 
 export const loadImageSourceStages = (stages: ImageSourceStage[], options?: RaceImageUrlsOptions) =>
   defaultRacer.loadImageSourceStages(stages, options);
-
-export const getImageStackRateLimitRetryAt = (stages: ImageSourceStage[]) => defaultRacer.getRateLimitRetryAt(stages);

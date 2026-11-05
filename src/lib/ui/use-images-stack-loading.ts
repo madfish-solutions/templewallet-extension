@@ -3,15 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import {
   areImageSourceStagesEqual,
-  getFailureBackoffMs,
-  getImageStackRateLimitRetryAt,
   ImageSourceStage,
   loadImageSourceStages,
   normalizeImageSources
 } from 'lib/ui/race-image-urls';
 
-const RATE_LIMIT_RETRY_JITTER_MS = 5_000;
-const RATE_LIMIT_MAX_WAIT_MS = 2 * 60_000;
+const FAILURE_BACKOFF_BASE_MS = 5_000;
+const FAILURE_BACKOFF_MAX_MS = 5 * 60_000;
 
 interface ImagesStackLoadingOptions {
   immediate?: boolean;
@@ -56,13 +54,16 @@ const findLoadedSrc = (stages: ImageSourceStage[]) => {
 const isStackRecentlyFailed = (stages: ImageSourceStage[], immediate: boolean) =>
   !immediate && (failedStacks.get(getStackKey(stages))?.until ?? 0) > Date.now();
 
-const rememberFailedStack = (stages: ImageSourceStage[], immediate: boolean, backoffMs?: number) => {
+const rememberFailedStack = (stages: ImageSourceStage[], immediate: boolean, backoffMs = FAILURE_BACKOFF_BASE_MS) => {
   if (immediate || stages.length === 0) return;
 
   const key = getStackKey(stages);
   const attempts = (failedStacks.get(key)?.attempts ?? 0) + 1;
 
-  failedStacks.set(key, { until: Date.now() + getFailureBackoffMs(attempts, backoffMs), attempts });
+  failedStacks.set(key, {
+    until: Date.now() + Math.min(backoffMs * 2 ** (attempts - 1), FAILURE_BACKOFF_MAX_MS),
+    attempts
+  });
 };
 
 /**
@@ -102,9 +103,6 @@ export const useImagesStackLoading = (
   const [racedSrc, setRacedSrc] = useState(loadedAtMount?.url);
   const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount && !failedAtMount);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack || failedAtMount);
-  const [rateLimitRetryAt, setRateLimitRetryAt] = useState<number>();
-  const retriedAfterRateLimitRef = useRef(false);
-  const rateLimitWaitStartRef = useRef(0);
 
   const racing = index >= 0 && index >= racedFrom;
 
@@ -114,8 +112,6 @@ export const useImagesStackLoading = (
     }
 
     prevStagesRef.current = stages;
-    retriedAfterRateLimitRef.current = false;
-    setRateLimitRetryAt(undefined);
 
     const loaded = findLoadedSrc(stages);
 
@@ -156,17 +152,7 @@ export const useImagesStackLoading = (
       setIndex(-1);
       setIsLoading(false);
       setIsStackFailed(true);
-
-      const retryAt = retriedAfterRateLimitRef.current ? undefined : getImageStackRateLimitRetryAt(racedStages);
-
-      if (retryAt === undefined) {
-        rememberFailedStack(stages, immediate, failureBackoffMs);
-
-        return;
-      }
-
-      rateLimitWaitStartRef.current = Date.now();
-      setRateLimitRetryAt(retryAt);
+      rememberFailedStack(stages, immediate, failureBackoffMs);
     };
 
     void load
@@ -197,61 +183,6 @@ export const useImagesStackLoading = (
       controller.abort();
     };
   }, [stages, immediate, timeoutMs, racing, racedFrom, paused, failureBackoffMs]);
-
-  useEffect(() => {
-    if (rateLimitRetryAt === undefined || paused) return;
-
-    const controller = new AbortController();
-    const retryDelay = Math.max(0, rateLimitRetryAt - Date.now()) + Math.random() * RATE_LIMIT_RETRY_JITTER_MS;
-    const timeoutId = setTimeout(() => {
-      const racedStages = stages.slice(racedFrom);
-      const dueAt = getImageStackRateLimitRetryAt(racedStages);
-
-      if (
-        dueAt !== undefined &&
-        dueAt > Date.now() &&
-        Date.now() - rateLimitWaitStartRef.current < RATE_LIMIT_MAX_WAIT_MS
-      ) {
-        setRateLimitRetryAt(dueAt);
-
-        return;
-      }
-
-      retriedAfterRateLimitRef.current = true;
-
-      void loadImageSourceStages(racedStages, {
-        signal: controller.signal,
-        immediate,
-        timeoutMs,
-        afterRateLimit: true
-      })
-        .then(winner => {
-          if (controller.signal.aborted) return;
-
-          if (winner) {
-            setRacedSrc(winner);
-            setIndex(racedFrom);
-            setIsLoading(false);
-            setIsStackFailed(false);
-          } else {
-            rememberFailedStack(stages, immediate, failureBackoffMs);
-          }
-
-          setRateLimitRetryAt(undefined);
-        })
-        .catch(() => {
-          if (controller.signal.aborted) return;
-
-          rememberFailedStack(stages, immediate, failureBackoffMs);
-          setRateLimitRetryAt(undefined);
-        });
-    }, retryDelay);
-
-    return () => {
-      clearTimeout(timeoutId);
-      controller.abort();
-    };
-  }, [rateLimitRetryAt, stages, immediate, timeoutMs, racedFrom, paused, failureBackoffMs]);
 
   const shownBeforePause = !isLoading && !isStackFailed;
   const src = index < 0 || (paused && !shownBeforePause) ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
