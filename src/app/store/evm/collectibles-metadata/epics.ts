@@ -457,7 +457,7 @@ const readInBackground = (session: Session): Observable<SettledRead> =>
   concat(
     waitForInitialApiDumps(session),
     session.requests$.pipe(
-      // Picks after the reads this request aborts have released their slugs.
+      // Deferred so the on-screen reads that this request aborts release their slugs before the pick.
       observeOn(asapScheduler),
       filter(() => session.backgroundDone && ['read', 'sleep'].includes(pickBackgroundBatch(session).kind)),
       startWith(undefined),
