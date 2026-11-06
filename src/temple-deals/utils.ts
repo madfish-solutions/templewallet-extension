@@ -1,6 +1,7 @@
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { msg } from 'lib/msg';
 
 const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 15 * 60 * 1000;
 const TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX = 'temple-merchant-offer-suppressed:';
@@ -19,9 +20,6 @@ export const TEMPLE_DEALS_EVENTS = {
 
 export type TempleDealsActivationSource = 'tag' | 'popup';
 
-export const msg = (key: string, substitutions?: string | string[]) =>
-  browser.i18n.getMessage(key, substitutions) || key;
-
 export function trackTempleDealsEvent(
   event: string,
   properties?: object,
@@ -37,13 +35,6 @@ export function trackTempleDealsEvent(
     .catch(() => {});
 }
 
-export function el(tag: string, className: string, text?: string) {
-  const elem = document.createElement(tag);
-  if (className) elem.className = className;
-  if (text) elem.textContent = text;
-
-  return elem;
-}
 function stripSubdomain(hostname: string, subdomain: string) {
   if (hostname.startsWith(`${subdomain}.`)) {
     return hostname.slice(subdomain.length + 1);

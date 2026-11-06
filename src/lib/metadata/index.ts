@@ -438,7 +438,7 @@ export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: st
   useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
 };
 
-export const useTezosGenericAssetsMetadataLoading = () => {
+const useTezosGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
@@ -446,7 +446,10 @@ export const useTezosGenericAssetsMetadataLoading = () => {
   return tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading;
 };
 
-export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[], associatedAccountPkh?: string) => {
+export const useTezosGenericAssetsMetadataCheck = (
+  chainSlugsToCheck?: string[],
+  associatedAccountPkh?: string
+): boolean => {
   const loading = useTezosGenericAssetsMetadataLoading();
   const getCollectibleMetadata = useGetCollectibleMetadata();
   const getTokenMetadata = useGetTokenMetadata();
@@ -458,6 +461,16 @@ export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[],
   );
 
   useTezosAssetsMetadataPresenceCheck(undefined, loading, getAssetMetadata, chainSlugsToCheck, associatedAccountPkh);
+
+  return (
+    loading &&
+    Boolean(
+      chainSlugsToCheck?.some(chainSlug => {
+        const [, , slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+        return !isTezAsset(slug) && !getAssetMetadata(slug);
+      })
+    )
+  );
 };
 
 const useTezosChainAssetsMetadataPresenceCheck = (
@@ -571,7 +584,7 @@ const useTezosAssetsMetadataPresenceCheck = (
   }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains, associatedAccountPkh]);
 };
 
-export const useEvmGenericAssetsMetadataLoading = () => {
+const useEvmGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useEvmNoCategoryAssetsMetadataLoadingSelector();
@@ -582,7 +595,7 @@ export const useEvmGenericAssetsMetadataLoading = () => {
 export const useEvmGenericAssetsMetadataCheck = (
   chainSlugsToCheck?: string[],
   associatedAccountPkh: HexString = '0x'
-) => {
+): boolean => {
   const evmChains = useAllEvmChains();
   const metadataLoading = useEvmGenericAssetsMetadataLoading();
   const getMetadata = useGetEvmGenericAssetMetadata();
@@ -610,4 +623,14 @@ export const useEvmGenericAssetsMetadataCheck = (
       );
     });
   }, [associatedAccountPkh, chainSlugsToCheck, evmChains, getMetadata, metadataLoading]);
+
+  return (
+    metadataLoading &&
+    Boolean(
+      chainSlugsToCheck?.some(chainSlug => {
+        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+        return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId);
+      })
+    )
+  );
 };

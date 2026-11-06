@@ -1,6 +1,9 @@
+import { toastError } from 'app/toaster';
+import { ExolixPairUnavailableError } from 'lib/apis/exolix/pair';
 import { ExchangeData } from 'lib/apis/exolix/types';
 import { createCrossChainExchange } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
 interface ReservationArgs {
@@ -64,6 +67,9 @@ export const useCrossChainExchangeReservation = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       shouldRetryOnError: false,
+      onError: (error: unknown) => {
+        if (error instanceof ExolixPairUnavailableError) toastError(t('pairNotAvailable'));
+      },
       dedupingInterval: 5 * 60 * 1000
     }
   );

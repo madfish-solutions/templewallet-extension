@@ -7,7 +7,6 @@ import { useForm, useWatch } from 'react-hook-form';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
-import { toastError } from 'app/toaster';
 import {
   DisplayedFeeOptions,
   FeeOptionLabel,
@@ -36,7 +35,6 @@ const SEND_TEZ_TO_NON_EMPTY_ESTIMATE = new Estimate(169000, 0, 155, 250, 100);
 
 interface TezosEstimationFormHookParams {
   estimationData: TezosEstimationData | undefined;
-  isEstimationError?: boolean;
   basicParams: WalletParamsWithKind[] | undefined;
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>;
   network: TezosNetworkEssentials;
@@ -52,8 +50,7 @@ export const useTezosEstimationForm = ({
   network,
   simulateOperation,
   sourcePkIsRevealed = true,
-  estimationDataLoading = false,
-  isEstimationError = false
+  estimationDataLoading = false
 }: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -71,6 +68,7 @@ export const useTezosEstimationForm = ({
   const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
   const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>({});
   const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
+  const [simulationError, setSimulationError] = useSafeState<unknown>(null);
 
   const revealFee = useMemo(
     () => estimationData?.revealFee ?? (sourcePkIsRevealed ? ZERO : mutezToTz(getRevealFee(sender))),
@@ -89,10 +87,33 @@ export const useTezosEstimationForm = ({
             console.error(e);
 
             return from(
-              tezos.rpc.simulateOperation({ operation: { contents: operation.contents }, chain_id: network.chainId })
+              tezos.rpc
+                .simulateOperation({
+                  operation: { branch: operation.branch, contents: operation.contents },
+                  chain_id: network.chainId
+                })
+                .catch(() => {
+                  throw e;
+                })
             );
           }),
           switchMap(response => {
+            const errors = response.contents.flatMap(entry => {
+              if (!('metadata' in entry)) return [];
+
+              const { metadata } = entry;
+              const resultErrors = 'operation_result' in metadata ? (metadata.operation_result.errors ?? []) : [];
+              const internalErrors =
+                'internal_operation_results' in metadata
+                  ? (metadata.internal_operation_results ?? []).flatMap(operation => operation.result.errors ?? [])
+                  : [];
+
+              return [...resultErrors, ...internalErrors];
+            });
+            if (errors.length) {
+              throw new TezosOperationError(errors, 'Simulation failed', response.contents);
+            }
+
             if (
               response.contents.some(
                 entry =>
@@ -104,14 +125,13 @@ export const useTezosEstimationForm = ({
               throw new Error('Failed get results by simulation.');
             }
 
+            setSimulationError(null);
             setBalancesChangesLoading(false);
 
             return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
-            if (!isEstimationError) {
-              toastError(e.message);
-            }
+            setSimulationError(e);
 
             try {
               return of(getBalancesChanges(operation.contents, accountPkh));
@@ -139,7 +159,7 @@ export const useTezosEstimationForm = ({
     network.chainId,
     setBalancesChangesLoading,
     setBalancesChanges,
-    isEstimationError
+    setSimulationError
   ]);
 
   const defaultValues = useMemo(() => {
@@ -335,7 +355,7 @@ export const useTezosEstimationForm = ({
         debouncedStorageLimit,
         revealFee,
         displayedFeeOptions
-      ).catch(() => undefined);
+      );
 
       if (bytesToSign && forgeParams) {
         if (simulateOperation) {
@@ -346,8 +366,9 @@ export const useTezosEstimationForm = ({
       } else if (simulateOperation) {
         setBalancesChangesLoading(false);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
+      if (simulateOperation) setSimulationError(err);
       setBalancesChangesLoading(false);
     }
   }, [
@@ -362,6 +383,7 @@ export const useTezosEstimationForm = ({
     revealFee,
     simulateOperation,
     params$,
+    setSimulationError,
     setBalancesChangesLoading
   ]);
 
@@ -411,6 +433,7 @@ export const useTezosEstimationForm = ({
   return {
     balancesChanges,
     balancesChangesLoading,
+    simulationError,
     form,
     tab,
     setTab,

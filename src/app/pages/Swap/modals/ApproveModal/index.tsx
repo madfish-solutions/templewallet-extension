@@ -8,6 +8,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { Logo } from 'app/atoms/Logo';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useEvmGasOnRamp } from 'app/hooks/use-evm-gas-on-ramp';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
@@ -87,12 +88,13 @@ const ApproveModal: FC<ApproveModalProps> = ({
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
-  const { data: estimationData } = useEstimationData({
+  const { data: estimationData, error: estimationError } = useEstimationData({
     assetSlug,
     accountPkh: accountAddress,
     network: inputNetwork,
     txData: finalEvmTransaction?.data ?? txData
   });
+  useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
   const request = useMemo(() => {
     return {

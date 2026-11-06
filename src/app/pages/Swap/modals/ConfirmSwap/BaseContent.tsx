@@ -31,6 +31,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
   latestSubmitError: unknown;
+  estimationError?: unknown;
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
@@ -67,6 +68,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   selectedFeeOption,
   selectedTab,
   latestSubmitError,
+  estimationError,
   onFeeOptionSelect,
   setSelectedTab,
   onSubmit,
@@ -160,6 +162,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           setSelectedTab={setSelectedTab}
           selectedFeeOption={selectedFeeOption}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError}
           onFeeOptionSelect={onFeeOptionSelect}
           onSubmit={onSubmit}
           displayedFeeOptions={displayedFeeOptions}

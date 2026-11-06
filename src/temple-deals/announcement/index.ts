@@ -2,6 +2,7 @@ import type { DealsState } from 'app/store/deals/state';
 import { checkIfAccountExists } from 'content-scripts/utils';
 import { browser } from 'lib/browser';
 import { ContentScriptType, DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY } from 'lib/constants';
+import { el } from 'lib/el';
 import { fetchFromStorage } from 'lib/storage';
 
 import { renderPreActivationState, renderPostActivationState } from './popup';
@@ -33,12 +34,12 @@ const DEALS_STORAGE_KEY = 'persist:root.deals';
 })();
 
 function injectAnnouncement() {
-  const fontLink = document.createElement('link');
+  const fontLink = el('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap';
   document.head.appendChild(fontLink);
 
-  const host = document.createElement('div');
+  const host = el('div');
   host.id = POPUP_HOST_ID;
   host.style.cssText = 'all: initial; position: fixed; top: 16px; right: 16px; z-index: 2147483647;';
   document.body.appendChild(host);
@@ -47,12 +48,11 @@ function injectAnnouncement() {
 
   const shadow = host.attachShadow({ mode: 'closed' });
 
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = getDealsAnnouncementStyles();
   shadow.appendChild(style);
 
-  const container = document.createElement('div');
-  container.className = 'tw-deals-popup';
+  const container = el('div', 'tw-deals-popup');
   shadow.appendChild(container);
 
   browser.runtime.sendMessage({ type: ContentScriptType.MarkDealsAnnouncementSeen }).catch(() => {});
