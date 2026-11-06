@@ -125,24 +125,15 @@ export const BaseContent = <T extends TxParamsFormData>({
                 chain={network}
                 bridgeData={bridgeData}
                 footer={
-                  readOnlyFees && displayedFee === undefined ? (
-                    <div className="flex justify-between py-2 text-grey-1 text-font-description-bold">
-                      <span className="p-1">
-                        <T id="totalFee" />
-                      </span>
-                      <span className="py-1">—</span>
-                    </div>
-                  ) : (
-                    <FeeSummary
-                      network={network}
-                      assetSlug={nativeAssetSlug}
-                      gasFee={displayedFee}
-                      storageFee={displayedStorageFee}
-                      protocolFee={bridgeData?.protocolFee}
-                      onOpenFeeTab={goToFeeTab}
-                      embedded
-                    />
-                  )
+                  <FeeSummary
+                    network={network}
+                    assetSlug={nativeAssetSlug}
+                    gasFee={displayedFee}
+                    storageFee={displayedStorageFee}
+                    protocolFee={bridgeData?.protocolFee}
+                    onOpenFeeTab={goToFeeTab}
+                    embedded
+                  />
                 }
               />
             </FadeTransition>
