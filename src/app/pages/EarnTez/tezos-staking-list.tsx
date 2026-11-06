@@ -18,6 +18,7 @@ import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { StakingCard } from 'app/templates/staking-card';
 import { toPenny } from 'lib/assets';
+import { el } from 'lib/el';
 import { t, T, toShortened } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
@@ -243,12 +244,7 @@ const unstakeInProgressTooltipProps = {
   animation: 'shift-away-subtle'
 };
 
-const unstakeInProgressTooltipWrapperFactory = () => {
-  const element = document.createElement('div');
-  element.className = 'max-w-48';
-
-  return element;
-};
+const unstakeInProgressTooltipWrapperFactory = () => el('div', 'max-w-48');
 
 const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
   ({

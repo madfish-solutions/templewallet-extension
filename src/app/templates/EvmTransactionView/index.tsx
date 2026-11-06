@@ -9,7 +9,6 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmOperationKind, approveAbis, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
-import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
 import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { equalsIgnoreCase } from 'lib/utils';
@@ -99,7 +98,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
     );
 
     const { formState } = form;
-    const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
     const handleSubmit = useCallback(
       ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
@@ -185,7 +183,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           destinationValue={destinationHash ? <HashChip hash={destinationHash} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges || {}}
-          metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading || approvesLoading}
           renderApproveLayout={footer =>
             operationKind === EvmOperationKind.Approval ? (

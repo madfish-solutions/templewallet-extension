@@ -59,6 +59,7 @@ import { isTransientTezosRpcError } from 'lib/tezos';
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { getViemPublicClient } from 'temple/evm';
+import { assertEvmTransactionBalance } from 'temple/evm/assert-transaction-balance';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
@@ -1119,7 +1120,10 @@ export class Vault {
         transport: getViemTransportForNetwork(network)
       });
 
-      return await client.sendTransaction(txParams);
+      const transaction = await client.prepareTransactionRequest(txParams);
+      await assertEvmTransactionBalance(getViemPublicClient(network), account.address, transaction);
+
+      return await client.sendTransaction(transaction);
     });
   }
 }

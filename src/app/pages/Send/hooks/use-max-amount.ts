@@ -39,6 +39,7 @@ export const useEvmMaxAmount = ({
 }: UseEvmMaxAmountInput): MaxAmountResult => {
   const accountPkh = account.address as HexString;
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const estimateFees = isEvmNativeTokenSlug(assetSlug) && balance.gt(0);
 
   const realEst = useEvmEstimationData({
     to: (to ?? VITALIK_ADDRESS) as HexString,
@@ -47,7 +48,8 @@ export const useEvmMaxAmount = ({
     network,
     balance,
     ethBalance,
-    toFilled: Boolean(to)
+    toFilled: Boolean(to) && estimateFees,
+    silent: true
   });
 
   const fallbackEst = useEvmEstimationData({
@@ -57,7 +59,7 @@ export const useEvmMaxAmount = ({
     network,
     balance,
     ethBalance,
-    toFilled: true,
+    toFilled: estimateFees,
     silent: true
   });
 
@@ -91,6 +93,7 @@ export const useTezosMaxAmount = ({
   const assetMetadata = useCategorizedTezosAssetMetadata(assetSlug, network.chainId);
   const tezosGasMetadata = useTezosGasMetadata(network.chainId);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+  const estimateFees = isTezAsset(assetSlug) && balance.gt(0);
 
   const realEst = useTezosEstimationData({
     to: to ?? TEZ_BURN_ADDRESS,
@@ -103,7 +106,7 @@ export const useTezosMaxAmount = ({
     balance,
     tezBalance,
     assetMetadata: assetMetadata ?? { decimals: 0, symbol: '', name: '' },
-    toFilled: Boolean(to) && Boolean(assetMetadata)
+    toFilled: Boolean(to) && Boolean(assetMetadata) && estimateFees
   });
 
   const fallbackEst = useTezosEstimationData({
@@ -117,7 +120,7 @@ export const useTezosMaxAmount = ({
     balance,
     tezBalance,
     assetMetadata: assetMetadata ?? { decimals: 0, symbol: '', name: '' },
-    toFilled: Boolean(assetMetadata)
+    toFilled: Boolean(assetMetadata) && estimateFees
   });
 
   const baseFee = realEst.data?.baseFee ?? fallbackEst.data?.baseFee;
