@@ -7,6 +7,7 @@ import { Anchor, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { useEvmCollectiblesInventorySelector } from 'app/store/evm/collectibles-inventory/selectors';
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem, PlainChartListItemProps } from 'app/templates/chart-list-item';
 import { fromAssetSlug, fromFa2TokenSlug } from 'lib/assets/utils';
@@ -15,10 +16,13 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { formatDate, T, toLocalFormat } from 'lib/i18n';
 import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
+import { equalsIgnoreCase } from 'lib/utils';
 import { EvmChain, TezosChain } from 'temple/front/chains';
 import { useGetEvmActiveBlockExplorer, useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
+
+import { useOwnedNftBalance } from '../hooks/use-owned-nft-balance';
 
 import { InfoContainer } from './InfoContainer';
 
@@ -147,7 +151,20 @@ interface EvmDetailsProps {
 
 export const EvmDetails = memo<EvmDetailsProps>(
   ({ network, accountPkh, assetSlug, metadata, shouldShowEmptyRows = true }) => {
-    const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
+    const { value, rawValue } = useEvmAssetBalance(assetSlug, accountPkh, network);
+    const loadedNft = useEvmCollectiblesInventorySelector(accountPkh)[network.chainId]?.loaded.find(nft =>
+      equalsIgnoreCase(nft.slug, assetSlug)
+    );
+    const storedAmount = value ?? rawValue ?? loadedNft?.balance;
+    const chainAmount = useOwnedNftBalance({
+      chainId: network.chainId,
+      account: accountPkh,
+      assetSlug,
+      knownBalance: storedAmount,
+      storedSlug: loadedNft?.slug,
+      enabled: shouldShowEmptyRows && storedAmount == null
+    });
+    const amount = storedAmount ?? chainAmount;
 
     const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
 
@@ -225,7 +242,7 @@ export const EvmDetails = memo<EvmDetailsProps>(
 
         {shouldShowEmptyRows && (
           <PlainChartListItem title={<T id="amount" />} bottomSeparator={false}>
-            {getValueWithFallback(balance)}
+            {getValueWithFallback(amount)}
           </PlainChartListItem>
         )}
       </InfoContainer>

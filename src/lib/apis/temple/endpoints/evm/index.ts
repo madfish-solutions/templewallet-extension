@@ -7,21 +7,36 @@ import { stripUndefinedProps } from 'lib/utils';
 
 import { templeWalletApi } from '../templewallet.api';
 
-import { AssetTransfersWithMetadataResult, Log } from './alchemy';
+import {
+  AlchemyChainID,
+  AssetTransfersWithMetadataResult,
+  AlchemyNftQueryFilters,
+  ALCHEMY_NFT_EXCLUDE_SPAM,
+  BaseNftsResponse,
+  GetContractsForOwnerResponse,
+  Log,
+  NftsResponse,
+  SomeNftsResponse
+} from './alchemy';
 import {
   BalancesResponse,
-  ChainID,
+  GoldrushChainID,
   NftAddressBalanceNftResponse,
   Route3EvmRouteRequest,
   Route3EvmRoute,
   Route3EvmTokenWithPrice,
-  RouteParams,
-  OpenseaNftDetailed,
-  OpenseaNftRef
+  RouteParams
 } from './api.interfaces';
+import {
+  OpenseaNftDetailed,
+  OpenseaNftRef,
+  OpenseaChainID,
+  OpenseaProfileCollectionResponse,
+  OpenseaSearchResult
+} from './opensea';
 
 export type {
-  ChainID,
+  GoldrushChainID,
   BalancesResponse,
   RouteParams,
   BalanceItem,
@@ -31,46 +46,140 @@ export type {
   NftTokenContractBalanceItem,
   NftData,
   Route3EvmRoute,
-  Route3EvmTokenWithPrice,
-  OpenseaNftDetailed,
-  OpenseaNftRef
+  Route3EvmTokenWithPrice
 } from './api.interfaces';
+export type { OpenseaNftDetailed, OpenseaNftRef } from './opensea';
+export { ALCHEMY_NFT_EXCLUDE_SPAM };
 
-export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId });
+/** May return NFTs that are not owned by the wallet, use only `includeNfts: true` for chains not supported by Alchemy */
+export const getEvmBalances = (walletAddress: string, chainId: GoldrushChainID, includeNfts = false) =>
+  buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId, params: { includeNfts } });
 
 /** Response also contains exchange rates */
-export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
+export const getEvmTokensMetadata = (walletAddress: string, chainId: GoldrushChainID) =>
   buildEvmRequest<BalancesResponse>({ path: '/tokens-metadata', walletAddress, chainId });
 
-export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID, signal?: AbortSignal) =>
+/** May return NFTs the wallet does not own. Used when Alchemy does not support the chain, and when Alchemy's owner list fails the ownership sample. */
+export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: GoldrushChainID, signal?: AbortSignal) =>
   buildEvmRequest<NftAddressBalanceNftResponse>({ path: '/collectibles-metadata', walletAddress, chainId, signal });
 
 /** The multichain OpenSea metadata route rejects requests with more than 30 items. */
 export const OPENSEA_MULTICHAIN_NFTS_LIMIT = 30;
+/** The cache-only multichain OpenSea metadata route rejects requests with more than 1000 items. */
+const OPENSEA_CACHED_MULTICHAIN_NFTS_LIMIT = 1000;
+
+/** In difference to `getOpenseaMultichainNftsMetadata`, this route only returns cached NFTs. */
+export const getOpenseaCachedMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
+  buildEvmRequest<Array<OpenseaNftDetailed | null>>({
+    path: '/collectibles-v2/opensea/by-refs/cached',
+    method: 'post',
+    body: nftRefs.slice(0, OPENSEA_CACHED_MULTICHAIN_NFTS_LIMIT),
+    signal
+  });
 
 export const getOpenseaMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
   buildEvmRequest<Array<OpenseaNftDetailed | null>>({
-    path: '/multichain-collectibles-metadata',
+    path: '/collectibles-v2/opensea/by-refs',
     method: 'post',
     body: nftRefs.slice(0, OPENSEA_MULTICHAIN_NFTS_LIMIT),
     signal
   });
 
 export const getOpenseaChainNftsMetadata = (
-  chainId: number,
+  chainId: OpenseaChainID,
   walletAddress: string,
   collection?: string,
   next?: string,
   signal?: AbortSignal
 ) =>
-  buildEvmRequest<{ nfts: Array<OpenseaNftDetailed>; next?: string | null }>({
-    path: '/opensea-collectibles-metadata',
+  buildEvmRequest<{ nfts: OpenseaNftDetailed[]; next?: string | null }>({
+    path: '/collectibles-v2/opensea/by-account',
     chainId,
     walletAddress,
     params: stripUndefinedProps({ collection, next }),
     signal
   });
+
+/** Maximal limit is 100. */
+export const getOpenseaAccountCollections = (
+  chainIds: OpenseaChainID[],
+  walletAddress: string,
+  limit?: number,
+  after?: string,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ collections: OpenseaProfileCollectionResponse[]; next?: string | null }>({
+    path: '/collectibles-v2/opensea/account-collections',
+    walletAddress,
+    params: stripUndefinedProps({ limit, after, chainIds }),
+    signal
+  });
+
+export const getOpenseaSearchResults = (
+  chainIds: OpenseaChainID[],
+  query: string,
+  limit?: number,
+  assetTypes?: Array<'collection' | 'nft' | 'token' | 'account'>,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ results: OpenseaSearchResult[] }>({
+    path: '/collectibles-v2/opensea/search',
+    params: stripUndefinedProps({ chainIds, query, limit, assetTypes }),
+    signal
+  });
+
+/** `filters` accepts Alchemy's `orderBy`, `excludeFilters`, `includeFilters`, and `spamConfidenceLevel`. */
+export const getNftAlchemyContractsByOwner = (
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  pageKey?: string,
+  signal?: AbortSignal,
+  filters: AlchemyNftQueryFilters = ALCHEMY_NFT_EXCLUDE_SPAM
+) =>
+  buildEvmRequest<GetContractsForOwnerResponse>({
+    path: '/collectibles-v2/alchemy/owner-contracts',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ pageKey, ...filters }),
+    signal
+  });
+
+/** This entrypoint accepts up to 45 contract addresses. `filters` matches `getNftAlchemyContractsByOwner`. */
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: false,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters?: AlchemyNftQueryFilters
+): Promise<BaseNftsResponse>;
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: true,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters?: AlchemyNftQueryFilters
+): Promise<NftsResponse>;
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: boolean,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters: AlchemyNftQueryFilters = ALCHEMY_NFT_EXCLUDE_SPAM
+): Promise<SomeNftsResponse> {
+  return buildEvmRequest<SomeNftsResponse>({
+    path: '/collectibles-v2/alchemy/owner-nfts',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ pageKey, contractAddresses, withMetadata, ...filters }),
+    signal
+  });
+}
 
 export const fetchEvmTransactions = (
   walletAddress: string,

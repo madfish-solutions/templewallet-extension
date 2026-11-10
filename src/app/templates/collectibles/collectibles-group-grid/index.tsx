@@ -20,6 +20,8 @@ import { ShowMore } from './show-more';
 interface CollectiblesGroupGridProps {
   isCollapsed: boolean;
   chainSlugs: string[];
+  /** Owned count when `chainSlugs` is only a loaded page. The cover uses this number. */
+  itemsCount?: number;
   colsCount: 3 | 4;
   isVisible: boolean;
   areDetailsShown?: boolean;
@@ -33,6 +35,7 @@ interface CollectiblesGroupGridProps {
 export const CollectiblesGroupGrid: FC<CollectiblesGroupGridProps> = ({
   isCollapsed,
   chainSlugs,
+  itemsCount,
   colsCount,
   isVisible,
   areDetailsShown = false,
@@ -47,11 +50,13 @@ export const CollectiblesGroupGrid: FC<CollectiblesGroupGridProps> = ({
     [isCollapsed, chainSlugs, colsCount],
     (a, b) => (isCollapsed ? isEqual(a, b) : a === b)
   );
+  const totalCount = Math.max(chainSlugs.length, itemsCount ?? chainSlugs.length);
+  const coveredCount = totalCount - displayedNftsSlugs.length + 1;
 
   return (
     <div className={clsx('grid gap-2', { 'grid-cols-3': colsCount === 3, 'grid-cols-4': colsCount === 4 })}>
       {displayedNftsSlugs.map((chainSlug, i) =>
-        i === displayedNftsSlugs.length - 1 && displayedNftsSlugs.length !== chainSlugs.length ? (
+        i === displayedNftsSlugs.length - 1 && displayedNftsSlugs.length !== totalCount ? (
           <ShowMore
             key={chainSlug}
             chainSlug={chainSlug}
@@ -71,10 +76,10 @@ rgba(19, 115, 228, 0.5) 300.6deg,rgba(107, 106, 142, 0.5) 360deg)`
             {colsCount === 3 ? (
               <>
                 <IconBase Icon={StackIcon} className="text-white" />
-                <span className="text-font-num-12 text-white">{chainSlugs.length - colsCount + 1}</span>
+                <span className="text-font-num-12 text-white">{coveredCount}</span>
               </>
             ) : (
-              <span className="text-font-num-14 text-white">+{chainSlugs.length - colsCount + 1}</span>
+              <span className="text-font-num-14 text-white">+{coveredCount}</span>
             )}
           </ShowMore>
         ) : (

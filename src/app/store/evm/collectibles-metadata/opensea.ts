@@ -1,4 +1,5 @@
 import { AssetSlugStoredAssetRecord, ChainIdTokenSlugsAssetsRecord } from 'app/store/evm/assets/state';
+import { isOpenseaChainId } from 'app/store/evm/collectibles-inventory/chains';
 import {
   getOpenseaChainNftsMetadata,
   NftAddressBalanceNftResponse,
@@ -6,7 +7,6 @@ import {
   OpenseaNftDetailed,
   OpenseaNftRef
 } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { readRetryAfterMs } from 'lib/apis/utils';
 import { fromAssetSlug, parseChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { previewUrlIsOpenseaHosted } from 'lib/metadata/collectible-media';
@@ -82,7 +82,7 @@ export const openseaNftRefsFromVisibleSlugs = (
     if (refs.length >= OPENSEA_MULTICHAIN_NFTS_LIMIT || seen.has(chainAssetSlug)) return;
 
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
-    if (chainKind !== TempleChainKind.EVM || typeof chainId !== 'number') return;
+    if (chainKind !== TempleChainKind.EVM || typeof chainId !== 'number' || !isOpenseaChainId(chainId)) return;
 
     const [contractAddress, tokenId] = fromAssetSlug(assetSlug);
     if (!contractAddress || !tokenId) return;
@@ -205,7 +205,7 @@ const fillDistinctStorefrontCreators = (
 
   for (const chainIdKey in collectiblesByChain) {
     const chainId = Number(chainIdKey);
-    if (!isSupportedChainId(chainId)) continue;
+    if (!isOpenseaChainId(chainId)) continue;
 
     const collectibles = collectiblesByChain[chainId];
     if (!collectibles) continue;
@@ -257,7 +257,7 @@ const fillUnnamedStorefrontTokens = (
     if (batchesAreFull()) break;
 
     const chainId = Number(chainIdKey);
-    if (!isSupportedChainId(chainId)) continue;
+    if (!isOpenseaChainId(chainId)) continue;
 
     const collectibles = collectiblesByChain[chainId];
     if (!collectibles) continue;
@@ -333,7 +333,7 @@ export const buildOpenseaMultichainRefBatches = (
     if (batchesAreFull()) break;
 
     const chainId = Number(chainIdKey);
-    if (!isSupportedChainId(chainId)) continue;
+    if (!isOpenseaChainId(chainId)) continue;
 
     const collectibles: AssetSlugStoredAssetRecord | undefined = collectiblesByChain[chainId];
     if (!collectibles) continue;
@@ -518,6 +518,8 @@ export const loadOpenseaAccountNfts = async (
   collection?: string,
   signal?: AbortSignal
 ): Promise<OpenseaAccountNftLoad> => {
+  if (!isOpenseaChainId(chainId)) return { nfts: [] };
+
   const slugIndex = indexCollectibleSlugs(slugs);
   if (!slugIndex.size) return { nfts: [] };
 

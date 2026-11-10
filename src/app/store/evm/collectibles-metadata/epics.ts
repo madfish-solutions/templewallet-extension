@@ -9,6 +9,7 @@ import {
   setCollectiblesViewAsCollectionsFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
+import { isOpenseaChainId } from 'app/store/evm/collectibles-inventory/chains';
 import { RootState } from 'app/store/root-state.type';
 import {
   getEvmCollectiblesMetadata,
@@ -17,7 +18,7 @@ import {
   OpenseaNftDetailed,
   OpenseaNftRef
 } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isAbortError, readRetryAfterMs } from 'lib/apis/utils';
 import { toTokenSlug } from 'lib/assets';
 import { fetchEvmCollectiblesMetadataFromChain } from 'lib/evm/on-chain/metadata';
@@ -57,7 +58,7 @@ import { EvmCollectibleMetadataRecord } from './state';
 import { getSlugsWithProperCollectibleMetadata } from './utils';
 
 const canFetchCollectiblesMetadataFromApi = (chainId: number, isTestnetMode: boolean) =>
-  isSupportedChainId(chainId) && !isTestnetMode;
+  isGoldrushChainId(chainId) && !isTestnetMode;
 
 const collectChainLoads = (
   publicKeyHash: HexString,
@@ -338,10 +339,10 @@ const fetchChainCollectiblesMetadata = async (
   signal?: AbortSignal
 ) => {
   const { chainId } = chain;
-  const canFetchFromApi = !isTestnetMode && isSupportedChainId(chainId);
+  const fetchOpensea = !isTestnetMode && isOpenseaChainId(chainId);
 
   let goldrushData: NftAddressBalanceNftResponse | undefined;
-  if (canFetchFromApi) {
+  if (!isTestnetMode && isGoldrushChainId(chainId)) {
     try {
       goldrushData = await getEvmCollectiblesMetadata(publicKeyHash, chainId, signal);
     } catch (error) {
@@ -351,7 +352,7 @@ const fetchChainCollectiblesMetadata = async (
     }
   }
 
-  const openseaLoad = canFetchFromApi
+  const openseaLoad = fetchOpensea
     ? await loadOpenseaRecordsForChain(
         publicKeyHash,
         chainId,
@@ -566,7 +567,7 @@ const loadEvmCollectiblesMetadataEpic: Epic<Action, Action, RootState> = (action
           const isTestnetMode = state.settings.isTestnetModeEnabled;
           const requestedOpenseaNftRefsFiltered = isTestnetMode
             ? []
-            : requestedOpenseaNftRefs.filter(ref => isSupportedChainId(ref.chainId));
+            : requestedOpenseaNftRefs.filter(ref => isOpenseaChainId(ref.chainId));
           const openseaBatches = buildOpenseaMultichainRefBatches(
             requestedOpenseaNftRefsFiltered,
             state.evmAssets.collectibles[publicKeyHash],

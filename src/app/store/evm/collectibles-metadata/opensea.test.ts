@@ -1,4 +1,4 @@
-import { OPENSEA_MULTICHAIN_NFTS_LIMIT } from 'lib/apis/temple/endpoints/evm';
+import { OPENSEA_MULTICHAIN_NFTS_LIMIT, OpenseaNftRef } from 'lib/apis/temple/endpoints/evm';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -516,7 +516,7 @@ describe('buildOpenseaMultichainRefBatches', () => {
   beforeEach(() => clearRequestedStorefrontNames());
 
   it('keeps the requested refs first and fills spare slots in one pass', () => {
-    const requested = [{ chainId: 1, contractAddress: contract, tokenId: '1' }];
+    const requested: OpenseaNftRef[] = [{ chainId: 1, contractAddress: contract, tokenId: '1' }];
     const [batch] = buildOpenseaMultichainRefBatches(
       requested,
       {
@@ -539,7 +539,7 @@ describe('buildOpenseaMultichainRefBatches', () => {
   });
 
   it('does not scan once the batch is already full', () => {
-    const requested = Array.from({ length: OPENSEA_MULTICHAIN_NFTS_LIMIT }, (_, index) => ({
+    const requested = Array.from({ length: OPENSEA_MULTICHAIN_NFTS_LIMIT }, (_, index): OpenseaNftRef => ({
       chainId: 1,
       contractAddress: address(index + 1),
       tokenId: String(index)
@@ -551,7 +551,7 @@ describe('buildOpenseaMultichainRefBatches', () => {
   });
 
   it('puts the same contract and token id from another chain in a later request and fills both', () => {
-    const requested = [
+    const requested: OpenseaNftRef[] = [
       { chainId: 1, contractAddress: contract, tokenId: '1' },
       { chainId: 137, contractAddress: contract.toUpperCase(), tokenId: '1' }
     ];
@@ -582,7 +582,7 @@ describe('buildOpenseaMultichainRefBatches', () => {
     const creatorA = storefrontTokenId(1);
     const creatorAAgain = storefrontTokenId(1, 2);
     const creatorB = storefrontTokenId(2);
-    const requested = [{ chainId: 1, contractAddress: contract, tokenId: '1' }];
+    const requested: OpenseaNftRef[] = [{ chainId: 1, contractAddress: contract, tokenId: '1' }];
     const collectibles = {
       1: {
         [`${storefront}_${creatorA}`]: enabled,
@@ -623,7 +623,7 @@ describe('buildOpenseaMultichainRefBatches', () => {
     const storefront = address(9);
     const creatorA = storefrontTokenId(3);
     const creatorB = storefrontTokenId(4);
-    const requested = [{ chainId: 1, contractAddress: storefront, tokenId: creatorA }];
+    const requested: OpenseaNftRef[] = [{ chainId: 1, contractAddress: storefront, tokenId: creatorA }];
 
     const [batch] = buildOpenseaMultichainRefBatches(
       requested,

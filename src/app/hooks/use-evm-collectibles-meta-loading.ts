@@ -6,6 +6,7 @@ import {
   useCollectiblesListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
 import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/assets/selectors';
+import { isAlchemyChainId } from 'app/store/evm/collectibles-inventory/chains';
 import {
   loadEvmCollectiblesMetadataAction,
   propagateEvmContractCollectionNamesAction
@@ -61,12 +62,13 @@ export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
   const startLoadRef = useUpdatableRef(() => {
     const loadAllChains = prevPublicKeyHashRef.current !== publicKeyHash;
     const collectibles = storedCollectiblesRecord[publicKeyHash];
+    const chains = evmChains.filter(chain => !isAlchemyChainId(chain.chainId));
     const openseaNftRefs = openseaNftRefsFromVisibleSlugs(
       visibleSlugs,
       metadataRef.current,
       deadEvmCollectiblePreviewSlugs(),
       collectionNameRequestedSlugs
-    );
+    ).filter(ref => !isAlchemyChainId(ref.chainId));
     const openseaRefsKey = openseaNftRefs.map(ref => `${ref.chainId}:${ref.contractAddress}:${ref.tokenId}`).join('|');
     const contextKey = `${publicKeyHash}:${isTestnetMode}:${evmChains
       .map(chain => `${chain.chainId}:${chain.rpcBaseURL}`)
@@ -89,10 +91,12 @@ export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
     prevContextRef.current = contextKey;
     prevOpenseaRefsKeyRef.current = openseaRefsKey;
 
+    if (!chains.length && !openseaNftRefs.length) return;
+
     dispatch(
       loadEvmCollectiblesMetadataAction({
         publicKeyHash,
-        chains: evmChains.map(({ chainId, rpcBaseURL }) => ({ chainId, rpcBaseURL })),
+        chains: chains.map(({ chainId, rpcBaseURL }) => ({ chainId, rpcBaseURL })),
         loadAllChains,
         openseaNftRefs
       })

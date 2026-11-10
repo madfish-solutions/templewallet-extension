@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
@@ -12,12 +12,14 @@ import {
   useEvmAccountBalancesTimestampsSelector,
   useEvmBalancesInitiallyLoadedChainsSelector
 } from 'app/store/evm/balances/selectors';
+import { loadEvmCollectiblesInventoryAction } from 'app/store/evm/collectibles-inventory/actions';
+import { isAlchemyChainId } from 'app/store/evm/collectibles-inventory/chains';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
-import { BalancesResponse, ChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { BalancesResponse, GoldrushChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
@@ -37,7 +39,7 @@ import {
 
 type Loaders =
   | [OnchainDataLoader<StringRecord>]
-  | [ApiDataLoader<BalancesResponse, ChainID>, OnchainDataLoader<StringRecord>];
+  | [ApiDataLoader<BalancesResponse, GoldrushChainID>, OnchainDataLoader<StringRecord>];
 
 export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const isTestnetMode = useTestnetModeEnabledSelector();
@@ -48,6 +50,21 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const storedTokens = useRawEvmAccountTokensSelector(publicKeyHash);
   const storedCollectibles = useRawEvmAccountCollectiblesSelector(publicKeyHash);
   const enabledEvmChains = useEnabledEvmChains();
+  const inventoryChainKey = enabledEvmChains
+    .map(chain => chain.chainId)
+    .filter(isAlchemyChainId)
+    .join();
+
+  useEffect(() => {
+    if (!inventoryChainKey) return;
+
+    dispatch(
+      loadEvmCollectiblesInventoryAction({
+        account: publicKeyHash,
+        chainIds: inventoryChainKey.split(',').map(Number)
+      })
+    );
+  }, [inventoryChainKey, publicKeyHash]);
   const enabledEvmChainsByIds = useMemo(
     () => Object.fromEntries(enabledEvmChains.map(chain => [chain.chainId, chain])),
     [enabledEvmChains]
@@ -184,7 +201,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleOnchainError = useMemo(() => handleErrorFactory('onchain'), [handleErrorFactory]);
 
   const getEvmBalancesFromApi = useCallback(
-    (walletAddress: string, chainId: ChainID) =>
+    (walletAddress: string, chainId: GoldrushChainID) =>
       getEvmBalances(walletAddress, chainId)
         .then(async data => {
           if (!(await shouldUseGoldrushData(data, chainId))) {
@@ -198,7 +215,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         .catch(error => ({ error })),
     [shouldUseGoldrushData]
   );
-  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isSupportedChainId);
+  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isGoldrushChainId);
 
   const onChainLoader = useMemo<OnchainDataLoader<StringRecord>>(
     () => ({
@@ -225,7 +242,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
               getData: getEvmBalancesFromApi,
               handleSuccess: handleApiSuccess,
               handleError: handleApiError,
-              isApplicable: isSupportedChainId
+              isApplicable: isGoldrushChainId
             },
             onChainLoader
           ],

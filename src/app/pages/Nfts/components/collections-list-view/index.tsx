@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import type InfiniteScroll from 'react-infinite-scroll-component';
@@ -6,11 +6,12 @@ import type InfiniteScroll from 'react-infinite-scroll-component';
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { t } from 'lib/i18n';
 import { CollectiblesListItemElement, makeGetCollectionsElementsIndexesFunction } from 'lib/ui/collectibles-list';
+import { useAccountAddressForEvm } from 'temple/front';
 
 import { CollectiblesCollection } from '../../types';
 import { ListView } from '../list-view';
 
-import { CollectionsListItem } from './item';
+import { CollectionsListItem, requestEvmCollectionTokens } from './item';
 import { isStorefrontPseudocollection, orderCollections } from './order-collections';
 
 interface CollectionsListViewProps {
@@ -30,6 +31,7 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   openCustomTokenModal,
   tezDetailsReady
 }) => {
+  const accountEvmAddress = useAccountAddressForEvm();
   const [openedCollections, setOpenedCollections] = useState<string[]>([]);
   const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
   const listRef = useRef<InfiniteScroll>(null);
@@ -38,6 +40,7 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
     collections.map(([collection, chainSlugs]) => ({
       collectionSlug: collection.collectionSlug,
       chainSlugs,
+      size: collection.ownedCount,
       pinnedToBottom: isStorefrontPseudocollection(collection.title, t('unknownCollection'), chainSlugs)
     }))
   ).flatMap(slug => {
@@ -46,11 +49,26 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
     return entry ? [entry] : [];
   });
 
-  const toggleCollectionOpened = useCallback((collectionSlug: string) => {
+  const toggleCollectionOpened = (collectionSlug: string) => {
+    const opening = !openedCollections.includes(collectionSlug);
+    const collection = collectionsBySlug.get(collectionSlug)?.[0];
+
+    if (
+      opening &&
+      accountEvmAddress &&
+      collection &&
+      typeof collection.chainId === 'number' &&
+      collection.contractAddresses?.length
+    )
+      requestEvmCollectionTokens(accountEvmAddress, collection.chainId, collection.contractAddresses, {
+        collectionSlug: collection.collectionSlug,
+        title: collection.title
+      });
+
     setOpenedCollections(prev =>
       prev.includes(collectionSlug) ? prev.filter(slug => slug !== collectionSlug) : prev.concat(collectionSlug)
     );
-  }, []);
+  };
 
   const getElementsIndexes = useMemo(
     () =>

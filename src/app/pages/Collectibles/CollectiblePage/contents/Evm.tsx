@@ -2,6 +2,8 @@ import React, { memo, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
+import { collectionImageForToken } from 'app/store/evm/collectibles-inventory/place-collections';
+import { useEvmCollectiblesInventorySelector } from 'app/store/evm/collectibles-inventory/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { evmStoredCollectionName, isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
 import { fromAssetSlug } from 'lib/assets/utils';
@@ -29,6 +31,8 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   const network = useEvmChainByChainId(chainId);
   const accountPkh = useAccountAddressForEvm();
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
+  const inventory = useEvmCollectiblesInventorySelector(accountPkh)[chainId];
+  const collectionImage = collectionImageForToken(inventory, assetSlug);
 
   const onSendButtonClick = useCallback(
     () => navigate(buildSendPagePath(TempleChainKind.EVM, String(chainId), assetSlug)),
@@ -51,7 +55,12 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
       headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
       imageElement={<EvmCollectiblePageImage chainId={chainId} assetSlug={assetSlug} metadata={metadata} />}
       collectibleName={collectibleName}
-      collectionDetailsElement={<CollectionDetails title={collectionName} />}
+      collectionDetailsElement={
+        <CollectionDetails
+          title={collectionName}
+          logoSources={collectionImage ? [{ urls: [collectionImage] }] : undefined}
+        />
+      }
       onSend={onSendButtonClick}
       description={metadata.description}
       showSegmentControl={showSegmentControl}

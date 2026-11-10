@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { NftAddressBalanceNftResponse, OpenseaNftRef } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { NftAddressBalanceNftResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { OpenseaNftRef } from 'lib/apis/temple/endpoints/evm/opensea';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 

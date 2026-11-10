@@ -25,6 +25,8 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
   immediate?: boolean;
   /** Load the leading single-URL stages through the `<img>` element and race only the rest off-DOM. */
   progressive?: boolean;
+  /** Draw the first frame once. An animated cover then does not restart when the tile renders again. */
+  still?: boolean;
   size?: number;
   loader?: ReactNode;
   fallback?: ReactNode;
@@ -36,6 +38,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
   immediate = false,
   progressive = false,
+  still = false,
   size,
   loader,
   fallback,
@@ -46,6 +49,10 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 }) => {
   const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate, progressive);
   const [preventLoadImage, setPreventLoadImage] = useState(isLoading);
+  const [frozenSrc, setFrozenSrc] = useState<string | undefined>();
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const frozen = Boolean(still && src && frozenSrc === src);
 
   useDidMount(() => startTransition(() => setPreventLoadImage(false)));
 
@@ -72,7 +79,24 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   const onLoadLocal = useCallback(() => {
     onSuccess();
     onStackLoadedRef.current?.();
-  }, [onSuccess]);
+
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!still || !src || !img || !canvas || img.naturalWidth <= 0) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    try {
+      context.drawImage(img, 0, 0);
+    } catch {
+      return;
+    }
+
+    setFrozenSrc(src);
+  }, [onSuccess, still, src]);
 
   const onStackFailedRef = useUpdatableRef(onStackFailed);
 
@@ -85,9 +109,26 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   return (
     <>
       {isLoading ? (loader ?? null) : null}
-      {src ? (
+      {still && src ? (
+        <canvas
+          ref={canvasRef}
+          className={imgProps.className}
+          aria-label={imgProps.alt}
+          style={
+            frozen
+              ? {
+                  width: size,
+                  height: size,
+                  ...style
+                }
+              : { display: 'none' }
+          }
+        />
+      ) : null}
+      {src && !frozen ? (
         <img
           {...imgProps}
+          ref={imgRef}
           alt={isLoading ? '' : imgProps.alt}
           src={src}
           style={styleMemo}

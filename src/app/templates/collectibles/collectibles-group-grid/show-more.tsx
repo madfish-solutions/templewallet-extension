@@ -144,12 +144,14 @@ const TezosShowMoreLayout = ShowMoreLayoutHOC<
   TempleChainKind.Tezos,
   DefaultShowMoreLayoutProps<TempleChainKind.Tezos> & { mime: string | nullish; extraSrc?: string }
 >(
-  props => <TezosCollectibleItemImage {...props} adultBlur={false} areDetailsLoading={false} containerElemRef={null} />,
+  props => (
+    <TezosCollectibleItemImage {...props} adultBlur={false} areDetailsLoading={false} containerElemRef={null} still />
+  ),
   'items-center justify-center'
 );
 
 const EvmShowMoreLayout = ShowMoreLayoutHOC<TempleChainKind.EVM, DefaultShowMoreLayoutProps<TempleChainKind.EVM>>(
-  EvmCollectibleItemImage
+  props => <EvmCollectibleItemImage {...props} still />
 );
 
 interface ShowMoreContentProps {

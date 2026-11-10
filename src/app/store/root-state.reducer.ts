@@ -12,6 +12,7 @@ import { currencyPersistedReducer } from './currency/reducers';
 import { dealsPersistedReducer } from './deals/reducers';
 import { evmAssetsPersistedReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
+import { evmCollectiblesInventoryPersistedReducer } from './evm/collectibles-inventory/reducers';
 import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-metadata/reducers';
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
@@ -61,6 +62,7 @@ const rootStateReducersMap = {
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
+  evmCollectiblesInventory: evmCollectiblesInventoryPersistedReducer,
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
   assetsFilterOptions: assetsFilterOptionsReducer,
   accountsInitialization: accountsInitializationReducer,

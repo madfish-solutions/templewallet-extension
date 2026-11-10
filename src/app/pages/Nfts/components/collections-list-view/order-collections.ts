@@ -4,6 +4,8 @@ import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
 interface CollectionPlacement {
   collectionSlug: string;
   chainSlugs: readonly string[];
+  /** Owned count when the loaded slugs are only one page of the collection. */
+  size?: number;
   /** Unnamed OpenSea Shared Storefront group. It stays after every real collection. */
   pinnedToBottom?: boolean;
 }
@@ -20,7 +22,10 @@ export const orderCollections = (collections: readonly CollectionPlacement[]): s
         return left.collection.pinnedToBottom ? 1 : -1;
       }
 
-      return right.collection.chainSlugs.length - left.collection.chainSlugs.length || left.index - right.index;
+      const rightSize = right.collection.size ?? right.collection.chainSlugs.length;
+      const leftSize = left.collection.size ?? left.collection.chainSlugs.length;
+
+      return rightSize - leftSize || left.index - right.index;
     })
     .map(({ collection }) => collection.collectionSlug);
 
