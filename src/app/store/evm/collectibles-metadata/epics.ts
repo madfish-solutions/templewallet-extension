@@ -107,7 +107,7 @@ type MetadataLoadEvent =
   | { kind: 'cancel' }
   | { kind: 'load'; action: ReturnType<typeof loadEvmCollectiblesMetadataAction>; id: number };
 
-export const loadEvmCollectiblesMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+const loadEvmCollectiblesMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     filter(action => loadEvmCollectiblesMetadataAction.match(action) || isCollectiblesListingChange(action)),
     map((action): MetadataLoadEvent => {

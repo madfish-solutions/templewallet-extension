@@ -23,7 +23,7 @@ import {
   splitOnChainCollectibleBatch
 } from './on-chain-queue';
 
-export const loadEvmCollectiblesMetadataFromChain = async (slugsWithoutMeta: string[], chain: EvmNetworkEssentials) => {
+const loadEvmCollectiblesMetadataFromChain = async (slugsWithoutMeta: string[], chain: EvmNetworkEssentials) => {
   try {
     const records = await fetchEvmCollectiblesMetadataFromChain(chain, slugsWithoutMeta);
 
