@@ -11,7 +11,7 @@ import {
   loadEvmCollectiblesMetadataAction,
   propagateEvmContractCollectionNamesAction
 } from 'app/store/evm/collectibles-metadata/actions';
-import { openseaNftRefsFromVisibleSlugs } from 'app/store/evm/collectibles-metadata/opensea';
+import { openseaNftRefsFromVisibleSlugs } from 'app/store/evm/collectibles-metadata/opensea-batches';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';

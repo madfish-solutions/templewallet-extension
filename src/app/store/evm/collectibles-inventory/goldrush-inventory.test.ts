@@ -85,4 +85,37 @@ describe('withoutProvenUnowned', () => {
     expect(trimmed.contracts[0]?.distinctTokensOwned).toBe(1);
     expect(trimmed.collected.records[unowned]).toBeUndefined();
   });
+
+  it('removes every token of a contract whose balance is zero', () => {
+    const inventory = inventoryFromGoldrush(
+      response([
+        contract([
+          {
+            token_id: '1',
+            token_url: '',
+            original_owner: '',
+            current_owner: '',
+            external_data: null,
+            asset_cached: false,
+            image_cached: false
+          },
+          {
+            token_id: '2',
+            token_url: '',
+            original_owner: '',
+            current_owner: '',
+            external_data: null,
+            asset_cached: false,
+            image_cached: false
+          }
+        ])
+      ])
+    );
+    const trimmed = withoutProvenUnowned(inventory.collected, inventory.contracts, [], [CONTRACT]);
+
+    expect(trimmed.collected.loaded).toEqual([]);
+    expect(trimmed.contracts).toEqual([]);
+    expect(trimmed.removed).toBe(2);
+    expect(trimmed.droppedContracts).toBe(1);
+  });
 });

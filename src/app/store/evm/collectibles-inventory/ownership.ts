@@ -11,6 +11,11 @@ interface ReconcileOwnershipInput {
   candidates: readonly OwnershipCandidate[];
   /** Sources that were actually asked. A source that was not asked is not silence. */
   queriedSources: readonly OwnershipSource[];
+  /**
+   * Sources that listed some tokens and were not asked about the rest.
+   * A token they listed is evidence it is owned. A token they skipped is not evidence it is not.
+   */
+  partialSources?: readonly OwnershipSource[];
   chain: ChainOwnershipFacts | null;
 }
 
@@ -43,7 +48,11 @@ export const tokenIdKey = (tokenId: string) => {
 };
 
 /** Posterior that the account owns the token, before any chain call. Prior is even. */
-const ownershipPosterior = (sources: readonly OwnershipSource[], queriedSources: readonly OwnershipSource[]) => {
+const ownershipPosterior = (
+  sources: readonly OwnershipSource[],
+  queriedSources: readonly OwnershipSource[],
+  partialSources: readonly OwnershipSource[] = []
+) => {
   const reported = new Set(sources);
   let odds = 1;
 
@@ -53,6 +62,13 @@ const ownershipPosterior = (sources: readonly OwnershipSource[], queriedSources:
       ? rates.whenOwned / rates.whenNot
       : (1 - rates.whenOwned) / (1 - rates.whenNot);
     odds *= likelihood;
+  }
+
+  for (const source of partialSources) {
+    if (!reported.has(source)) continue;
+
+    const rates = SOURCE_REPORT[source];
+    odds *= rates.whenOwned / rates.whenNot;
   }
 
   return odds / (1 + odds);
@@ -80,6 +96,7 @@ const unique = (tokenIds: readonly string[]) => Array.from(new Set(tokenIds));
 export const reconcileOwnership = ({
   candidates,
   queriedSources,
+  partialSources = [],
   chain
 }: ReconcileOwnershipInput): ReconciledOwnership => {
   const merged = new Map<string, Set<OwnershipSource>>();
@@ -126,7 +143,9 @@ export const reconcileOwnership = ({
   if (!chainAnswered) {
     const ownedTokenIds = unique(
       normalized
-        .filter(candidate => ownershipPosterior(candidate.sources, queriedSources) >= OWNED_CHANCE_CUTOFF)
+        .filter(
+          candidate => ownershipPosterior(candidate.sources, queriedSources, partialSources) >= OWNED_CHANCE_CUTOFF
+        )
         .map(candidate => candidate.tokenId)
     );
 
@@ -139,7 +158,7 @@ export const reconcileOwnership = ({
       .filter(candidate => !ownedTokenIds.includes(candidate.tokenId))
       .map(candidate => ({
         tokenId: candidate.tokenId,
-        score: ownershipPosterior(candidate.sources, queriedSources)
+        score: ownershipPosterior(candidate.sources, queriedSources, partialSources)
       }))
       .sort((a, b) => b.score - a.score || (a.tokenId < b.tokenId ? -1 : 1));
 
@@ -156,7 +175,7 @@ export const reconcileOwnership = ({
   }
 
   for (const candidate of unknown) {
-    if (ownershipPosterior(candidate.sources, queriedSources) >= OWNED_CHANCE_CUTOFF)
+    if (ownershipPosterior(candidate.sources, queriedSources, partialSources) >= OWNED_CHANCE_CUTOFF)
       ownedTokenIds.push(candidate.tokenId);
   }
 
@@ -246,11 +265,33 @@ export const alchemyOwnerSampleRejectsList = (
   return reportedTokenOwnedChance(source, confirmedOwned, confirmedUnowned) < OWNED_CHANCE_CUTOFF;
 };
 
-/** Sampled tokens the chain says this account does not own. An owned answer is kept. */
-export const provenUnownedSlugs = (answers: readonly (AlchemyOwnerSampleAnswer & { slug?: string })[]) =>
-  answers.flatMap(answer => {
-    if (!answer.slug || answer.owned === true) return [];
-    if (answer.owned === false || answer.balanceOf === 0) return [answer.slug];
+interface SampledUnowned {
+  /** One token the chain rejected while the account still has a balance on its contract. */
+  slugs: string[];
+  /** Contracts whose ERC-721 `balanceOf` is 0. Every token of that contract is unowned. */
+  contractAddresses: string[];
+}
 
-    return [];
-  });
+/**
+ * Tokens and contracts the sample proved unowned.
+ * `balanceOf` of 0 covers the whole contract. `ownerOf` of one token does not.
+ */
+export const unownedFromOwnerSample = (
+  answers: readonly (AlchemyOwnerSampleAnswer & { slug?: string; contractAddress?: string })[]
+): SampledUnowned => {
+  const slugs: string[] = [];
+  const contractAddresses: string[] = [];
+
+  for (const answer of answers) {
+    if (answer.owned === true) continue;
+
+    if (answer.balanceOf === 0 && answer.contractAddress) {
+      contractAddresses.push(answer.contractAddress);
+      continue;
+    }
+
+    if (answer.slug && (answer.owned === false || answer.balanceOf === 0)) slugs.push(answer.slug);
+  }
+
+  return { slugs, contractAddresses };
+};

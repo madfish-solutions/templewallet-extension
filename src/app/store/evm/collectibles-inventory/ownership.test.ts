@@ -3,9 +3,9 @@ import {
   alchemyOwnerSampleRejectsList,
   attributeOwnedToken,
   collectionOwnedCount,
-  provenUnownedSlugs,
   reconcileOwnership,
-  reportedTokenOwnedChance
+  reportedTokenOwnedChance,
+  unownedFromOwnerSample
 } from './ownership';
 
 const chain = (
@@ -84,6 +84,28 @@ describe('reconcileOwnership', () => {
 
     expect(reconciled.ownedTokenIds).toEqual(['1', '2']);
     expect(reconciled.ownedCount).toBe(2);
+  });
+
+  it('keeps an Alchemy token that one OpenSea page did not include', () => {
+    const reconciled = reconcileOwnership({
+      candidates: [alchemyOnly('1'), both('2')],
+      queriedSources: ['alchemy'],
+      partialSources: ['opensea'],
+      chain: null
+    });
+
+    expect(reconciled.chainSettled).toBe(false);
+    expect(reconciled.ownedTokenIds).toEqual(['1', '2']);
+  });
+
+  it('drops an Alchemy token when OpenSea was asked about that token and stayed silent', () => {
+    const reconciled = reconcileOwnership({
+      candidates: [alchemyOnly('1')],
+      queriedSources: ['alchemy', 'opensea'],
+      chain: null
+    });
+
+    expect(reconciled.ownedTokenIds).toEqual([]);
   });
 
   it('adds an id the listing left out when ownerOf confirms it', () => {
@@ -167,15 +189,21 @@ describe('alchemyOwnerSampleRejectsList', () => {
     expect(alchemyOwnerSampleRejectsList([{ balanceOf: 0 }])).toBe(true);
   });
 
-  it('names the sampled token that is unowned while the page stays', () => {
+  it('names the sampled token that is unowned while its contract still has a balance', () => {
     const answers = [
-      { slug: 'owned', owned: true, balanceOf: 1 },
-      { slug: 'owned-too', owned: true, balanceOf: 1 },
-      { slug: 'not-owned', owned: false, balanceOf: 0 }
+      { slug: 'owned', contractAddress: '0x01', owned: true, balanceOf: 1 },
+      { slug: 'owned-too', contractAddress: '0x02', owned: true, balanceOf: 1 },
+      { slug: 'not-owned', contractAddress: '0x03', owned: false, balanceOf: 2 }
     ];
 
     expect(alchemyOwnerSampleRejectsList(answers)).toBe(false);
-    expect(provenUnownedSlugs(answers)).toEqual(['not-owned']);
+    expect(unownedFromOwnerSample(answers)).toEqual({ slugs: ['not-owned'], contractAddresses: [] });
+  });
+
+  it('drops the whole contract when its ERC-721 balance is zero', () => {
+    expect(
+      unownedFromOwnerSample([{ slug: 'not-owned', contractAddress: '0x03', owned: false, balanceOf: 0 }])
+    ).toEqual({ slugs: [], contractAddresses: ['0x03'] });
   });
 });
 

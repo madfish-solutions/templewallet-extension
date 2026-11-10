@@ -10,8 +10,8 @@ import {
   OwnershipSource,
   alchemyOwnerSample,
   alchemyOwnerSampleRejectsList,
-  provenUnownedSlugs,
-  tokenIdKey
+  tokenIdKey,
+  unownedFromOwnerSample
 } from './ownership';
 import { InventoryLoadedNft } from './place-collections';
 
@@ -28,9 +28,11 @@ interface OwnerListSample {
   rejectsList: boolean;
   /** Tokens in the sample the chain says this account does not own. */
   unownedSlugs: string[];
+  /** Contracts whose ERC-721 balance is zero. Every loaded token of these contracts is unowned. */
+  unownedContracts: string[];
 }
 
-const keptList = (): OwnerListSample => ({ rejectsList: false, unownedSlugs: [] });
+const keptList = (): OwnerListSample => ({ rejectsList: false, unownedSlugs: [], unownedContracts: [] });
 
 /**
  * Balances for a few reported tokens.
@@ -65,14 +67,17 @@ export const readOwnerListSample = async (
 
       return {
         slug: query.slug,
+        contractAddress: query.contract,
         owned: facts?.perTokenOwned.get(tokenId),
         balanceOf: facts?.balanceOf ?? null
       };
     });
+    const unowned = unownedFromOwnerSample(answers);
 
     return {
       rejectsList: alchemyOwnerSampleRejectsList(answers, source),
-      unownedSlugs: provenUnownedSlugs(answers)
+      unownedSlugs: unowned.slugs,
+      unownedContracts: unowned.contractAddresses
     };
   } catch (error) {
     if (isAbortError(error)) throw error;

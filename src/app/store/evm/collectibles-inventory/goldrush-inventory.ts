@@ -89,41 +89,70 @@ export const inventoryFromGoldrush = (data: NftAddressBalanceNftResponse): Goldr
 export const withoutProvenUnowned = (
   collected: CollectedInventoryNfts,
   contracts: readonly InventoryContractRef[],
-  unownedSlugs: readonly string[]
+  unownedSlugs: readonly string[],
+  unownedContracts: readonly string[] = []
 ) => {
   const unowned = new Set(unownedSlugs);
-  if (!unowned.size) return { collected, contracts: contracts.slice(), removed: 0, droppedContracts: 0 };
+  const emptyContracts = new Set(unownedContracts.map(address => address.toLowerCase()));
+  if (!unowned.size && !emptyContracts.size)
+    return { collected, contracts: contracts.slice(), removed: 0, droppedContracts: 0 };
+
+  const loadedByContract = new Map<string, number>();
+  for (const nft of collected.loaded) {
+    const key = nft.contractAddress.toLowerCase();
+    loadedByContract.set(key, (loadedByContract.get(key) ?? 0) + 1);
+  }
 
   const removedByContract = new Map<string, number>();
+  const removedSlugs = new Set<string>();
   const loaded = collected.loaded.filter(nft => {
-    if (!unowned.has(nft.slug)) return true;
-
     const key = nft.contractAddress.toLowerCase();
-    removedByContract.set(key, (removedByContract.get(key) ?? 0) + 1);
+    if (emptyContracts.has(key) || unowned.has(nft.slug)) {
+      removedSlugs.add(nft.slug);
+      if (!emptyContracts.has(key)) removedByContract.set(key, (removedByContract.get(key) ?? 0) + 1);
 
-    return false;
+      return false;
+    }
+
+    return true;
   });
   const records = { ...collected.records };
-  for (const slug of unowned) delete records[slug];
+  for (const slug of removedSlugs) delete records[slug];
 
+  let removed = 0;
+  const seenContracts = new Set<string>();
   const nextContracts = contracts.flatMap(contract => {
-    const removed = removedByContract.get(contract.address.toLowerCase()) ?? 0;
-    if (!removed) return [contract];
+    const key = contract.address.toLowerCase();
+    seenContracts.add(key);
 
-    const distinctTokensOwned = contract.distinctTokensOwned - removed;
+    if (emptyContracts.has(key)) {
+      removed += Math.max(contract.distinctTokensOwned, loadedByContract.get(key) ?? 0);
+
+      return [];
+    }
+
+    const slugRemovals = removedByContract.get(key) ?? 0;
+    if (!slugRemovals) return [contract];
+
+    removed += slugRemovals;
+    const distinctTokensOwned = contract.distinctTokensOwned - slugRemovals;
     if (distinctTokensOwned <= 0) return [];
 
     return [{ ...contract, distinctTokensOwned }];
   });
 
+  for (const [key, count] of loadedByContract) {
+    if (emptyContracts.has(key) && !seenContracts.has(key)) removed += count;
+  }
+
   return {
     collected: {
       records,
       loaded,
-      slugs: collected.slugs.filter(slug => !unowned.has(slug))
+      slugs: collected.slugs.filter(slug => !removedSlugs.has(slug))
     },
     contracts: nextContracts,
-    removed: collected.loaded.length - loaded.length,
+    removed,
     droppedContracts: contracts.length - nextContracts.length
   };
 };

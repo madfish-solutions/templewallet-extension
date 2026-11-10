@@ -354,6 +354,29 @@ it('leaves a failed bytecode read unverified and still checks the other contract
   expect(recorded[0].every(call => call.address.toLowerCase() !== plain.toLowerCase())).toBe(true);
 });
 
+it('splits a long ownerOf list across multicalls', async () => {
+  mockCode(new Map([[plain.toLowerCase(), erc721Code]]));
+  balances.set(plain.toLowerCase(), 90n);
+  const tokenIds = Array.from({ length: 90 }, (_, index) => String(index + 1));
+  owners.set(`${plain.toLowerCase()}:1`, account);
+  owners.set(`${plain.toLowerCase()}:90`, other);
+  mockMulticall();
+
+  const read = await readContractNftOwnership(
+    network,
+    account,
+    [{ contract: plain, tokenIds }],
+    new AbortController().signal
+  );
+
+  expect(recorded).toHaveLength(2);
+  expect(recorded[0]).toHaveLength(80);
+  expect(recorded[1]).toHaveLength(11);
+  expect(read.facts.get(plain.toLowerCase())?.balanceOf).toBe(90);
+  expect(read.facts.get(plain.toLowerCase())?.perTokenOwned.get('1')).toBe(true);
+  expect(read.facts.get(plain.toLowerCase())?.perTokenOwned.get('90')).toBe(false);
+});
+
 it('stops before bytecode reads when the signal is already aborted', async () => {
   await expect(
     readContractNftOwnership(network, account, [{ contract: plain, tokenIds: ['1'] }], AbortSignal.abort())

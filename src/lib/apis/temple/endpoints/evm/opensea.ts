@@ -39,6 +39,13 @@ export interface OpenseaNftDetailed {
   /** Format: int32 */
   decimals?: number | null;
   animationUrl?: string | null;
+  /**
+   * How many of this NFT the requested account owns.
+   * Set by `/opensea/by-account`. The single-NFT route sends `owners` instead.
+   */
+  quantity?: number;
+  /** Decimal form of `quantity`. */
+  quantityString?: string;
   isSuspicious?: boolean;
   creator?: string;
   owners?: Array<{

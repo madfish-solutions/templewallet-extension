@@ -10,14 +10,16 @@ import {
   tokenIdKey
 } from 'app/store/evm/collectibles-inventory/ownership';
 import { InventoryCollectionRef, InventoryLoadedNft } from 'app/store/evm/collectibles-inventory/place-collections';
+import { collectiblePreviewIsLastResort } from 'app/store/evm/collectibles-metadata/opensea-preview';
 import {
   isSharedStorefrontTokenId,
   buildEvmCollectibleMetadataFromOpensea
 } from 'app/store/evm/collectibles-metadata/utils';
 import { getOpenseaMultichainNftsMetadata, OPENSEA_MULTICHAIN_NFTS_LIMIT } from 'lib/apis/temple/endpoints/evm';
-import { isAbortError } from 'lib/apis/utils';
+import { isAbortError, withRateLimitRetry } from 'lib/apis/utils';
 import { fromAssetSlug, toTokenSlug } from 'lib/assets';
 import { readContractNftOwnership } from 'lib/evm/on-chain/nft-ownership';
+import { previewUrlIsOpenseaHosted } from 'lib/metadata/collectible-media';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { getEvmChainsActiveRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { EVM_DEFAULT_NETWORKS, EvmNetworkEssentials } from 'temple/networks';
@@ -31,6 +33,8 @@ export interface ReportedCollectible {
   openseaCollection?: string;
   /** Slug a source already stored. Kept only when it is one of this account's collections. */
   collectionSlug?: string;
+  /** Balance the API already reported. Used when the chain call does not return one. */
+  balance?: string;
 }
 
 interface VerifiedCollectionOwnership {
@@ -79,6 +83,8 @@ export const verifyCollectionOwnership = async (
   contractAddresses: readonly string[],
   reported: readonly ReportedCollectible[],
   queriedSources: readonly OwnershipSource[],
+  /** OpenSea account page: a listed token counts, a missing token does not count against it. */
+  partialSources: readonly OwnershipSource[],
   stored: readonly InventoryLoadedNft[],
   collections: readonly InventoryCollectionRef[],
   signal: AbortSignal
@@ -133,6 +139,7 @@ export const verifyCollectionOwnership = async (
     const reconciled = reconcileOwnership({
       candidates,
       queriedSources,
+      partialSources,
       chain: facts
     });
     ownedByContract.set(contract, {
@@ -140,6 +147,14 @@ export const verifyCollectionOwnership = async (
       balanceOf: facts.balanceOf,
       settled: reconciled.chainSettled
     });
+  }
+
+  const reportedBalanceByIdentity = new Map<string, string>();
+  for (const report of reported) {
+    if (!report.balance) continue;
+
+    const id = identityOf(report.contractAddress, report.tokenId);
+    if (!reportedBalanceByIdentity.has(id)) reportedBalanceByIdentity.set(id, report.balance);
   }
 
   const openseaSlugByIdentity = new Map<string, string>();
@@ -174,7 +189,7 @@ export const verifyCollectionOwnership = async (
           contractAddress: getAddress(contract),
           tokenId
         }));
-        const nfts = await getOpenseaMultichainNftsMetadata(refs, signal);
+        const nfts = await withRateLimitRetry(() => getOpenseaMultichainNftsMetadata(refs, signal), signal);
         nfts.forEach((nft, index) => {
           const ref = refs[index];
           if (!nft?.collection || !ref) return;
@@ -217,7 +232,7 @@ export const verifyCollectionOwnership = async (
       const record = metadataByIdentity.get(id);
       if (record) metadata[slug] = record;
       const reportedSlug = (hintedSlugsByIdentity.get(id) ?? []).find(hint => accountSlugs.includes(hint));
-      const balance = read.facts.get(contract)?.perTokenBalance.get(tokenId);
+      const balance = read.facts.get(contract)?.perTokenBalance.get(tokenId) ?? reportedBalanceByIdentity.get(id);
       upsert.push({
         slug,
         contractAddress: checksum,
@@ -255,6 +270,41 @@ export const verifyCollectionOwnership = async (
   });
 
   return { upsert, removeSlugs, collectionCounts, metadata };
+};
+
+const previewUrl = (metadata: EvmCollectibleMetadata) => metadata.images?.[0] ?? metadata.image;
+
+/**
+ * Keeps an Alchemy record and fills what it does not have from OpenSea.
+ * An OpenSea CDN image is kept. Any other OpenSea image is used only when Alchemy's preview is a last resort.
+ */
+export const mergeCollectibleMetadata = (
+  reported: EvmCollectibleMetadata | undefined,
+  opensea: EvmCollectibleMetadata | undefined
+): EvmCollectibleMetadata | undefined => {
+  if (!opensea) return reported;
+  if (!reported) return opensea;
+
+  const openseaUrl = previewUrl(opensea);
+  const openseaIsPreferred = Boolean(openseaUrl) && !collectiblePreviewIsLastResort(opensea);
+  const useOpenseaPreview = Boolean(
+    openseaUrl &&
+    (previewUrlIsOpenseaHosted(openseaUrl) || (openseaIsPreferred && collectiblePreviewIsLastResort(reported)))
+  );
+
+  return {
+    ...reported,
+    description: reported.description || opensea.description,
+    collectibleName: reported.collectibleName || opensea.collectibleName,
+    metadataUri: reported.metadataUri || opensea.metadataUri,
+    animationUrl: reported.animationUrl || opensea.animationUrl,
+    artifactUrl: reported.artifactUrl || opensea.artifactUrl,
+    attributes: reported.attributes?.length ? reported.attributes : opensea.attributes,
+    openseaCollection: reported.openseaCollection || opensea.openseaCollection,
+    name: reported.name || opensea.name,
+    image: useOpenseaPreview ? opensea.image || openseaUrl : reported.image,
+    images: useOpenseaPreview ? opensea.images || (openseaUrl ? [openseaUrl] : reported.images) : reported.images
+  };
 };
 
 const candidatesFor = (group: readonly ReportedCollectible[]): OwnershipCandidate[] => {
