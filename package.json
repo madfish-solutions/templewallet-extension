@@ -71,7 +71,6 @@
     "@svgr/webpack": "^8",
     "@tailwindcss/postcss": "^4.3.3",
     "@tanstack/react-virtual": "^3.14.13",
-    "@taquito/beacon-wallet": "25.1.1",
     "@taquito/ledger-signer": "25.1.1",
     "@taquito/local-forging": "25.1.1",
     "@taquito/michel-codec": "25.1.1",
