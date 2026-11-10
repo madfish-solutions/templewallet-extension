@@ -65,17 +65,6 @@ export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: Goldr
 
 /** The multichain OpenSea metadata route rejects requests with more than 30 items. */
 export const OPENSEA_MULTICHAIN_NFTS_LIMIT = 30;
-/** The cache-only multichain OpenSea metadata route rejects requests with more than 1000 items. */
-const OPENSEA_CACHED_MULTICHAIN_NFTS_LIMIT = 1000;
-
-/** In difference to `getOpenseaMultichainNftsMetadata`, this route only returns cached NFTs. */
-export const getOpenseaCachedMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
-  buildEvmRequest<Array<OpenseaNftDetailed | null>>({
-    path: '/collectibles-v2/opensea/by-refs/cached',
-    method: 'post',
-    body: nftRefs.slice(0, OPENSEA_CACHED_MULTICHAIN_NFTS_LIMIT),
-    signal
-  });
 
 export const getOpenseaMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
   buildEvmRequest<Array<OpenseaNftDetailed | null>>({

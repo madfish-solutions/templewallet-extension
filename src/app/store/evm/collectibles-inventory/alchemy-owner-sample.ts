@@ -23,7 +23,7 @@ const contractKey = (address: string) => {
   }
 };
 
-export interface OwnerListSample {
+interface OwnerListSample {
   /** The source's report rates, updated by this sample, fall below the owned-chance cutoff. */
   rejectsList: boolean;
   /** Tokens in the sample the chain says this account does not own. */

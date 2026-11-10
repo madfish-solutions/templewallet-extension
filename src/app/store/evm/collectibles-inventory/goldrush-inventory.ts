@@ -10,13 +10,13 @@ import { buildEvmCollectibleMetadataFromFetched } from '../collectibles-metadata
 
 import { InventoryContractRef, InventoryLoadedNft } from './place-collections';
 
-export interface CollectedInventoryNfts {
+interface CollectedInventoryNfts {
   records: StringRecord<EvmCollectibleMetadata>;
   loaded: InventoryLoadedNft[];
   slugs: string[];
 }
 
-export interface GoldrushInventory {
+interface GoldrushInventory {
   collected: CollectedInventoryNfts;
   contracts: InventoryContractRef[];
 }

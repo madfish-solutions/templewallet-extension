@@ -197,7 +197,7 @@ export const attributeOwnedToken = (
 };
 
 /** How many of Alchemy's tokens are checked before the owner list is trusted. One token per contract. */
-export const ALCHEMY_OWNER_SAMPLE_LIMIT = 3;
+const ALCHEMY_OWNER_SAMPLE_LIMIT = 3;
 
 /** The first tokens of distinct contracts, up to the sample limit. */
 export const alchemyOwnerSample = <T extends { contractAddress: string }>(
@@ -219,7 +219,7 @@ export const alchemyOwnerSample = <T extends { contractAddress: string }>(
 };
 
 /** One token from an Alchemy owner page, after its balance was read. */
-export interface AlchemyOwnerSampleAnswer {
+interface AlchemyOwnerSampleAnswer {
   /** Missing when that token's call did not return. */
   owned?: boolean;
   /** ERC-721 `balanceOf`. Zero means this account owns no token of that contract. */
