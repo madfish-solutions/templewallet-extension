@@ -11,6 +11,6 @@ The shared SWR query coordinates page bootstrap. A persisted registration flag d
 
 Readiness is cached within a window. It does not guarantee authentication after cookies change later. Failed initialization currently requires a window reload. A broader recovery change needs cached-remount and explicit-retry tests.
 
-Keep payout and update checks independent of session readiness. Preserve the original payout scan window while the authenticated referral check is pending. There is no new persisted badge field or migration in this fix.
+Keep payout and update checks independent of session readiness. Preserve the original payout scan window while the authenticated referral check is pending. Changes to persisted badge fields require a migration.
 
-Run `yarn test src/app/hooks/use-conversion-verification.test.tsx --runInBand` and `yarn ts`. Browser verification needs a separately identified source-built artifact and valid build configuration; do not overwrite the pinned public wallet archive.
+Run `yarn test src/app/hooks/use-conversion-verification.test.tsx --runInBand` and `yarn ts`. Browser verification must use the tested source build and check that authenticated reads wait for a valid session.
