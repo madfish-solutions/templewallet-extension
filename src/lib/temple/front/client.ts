@@ -437,6 +437,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSignConfirmationResponse);
   }, []);
 
+  const confirmDAppHandshake = useCallback(async (id: string, confirmed: boolean) => {
+    const res = await request({
+      type: TempleMessageType.DAppHandshakeConfirmationRequest,
+      id,
+      confirmed
+    });
+    assertResponse(res.type === TempleMessageType.DAppHandshakeConfirmationResponse);
+  }, []);
+
   const silentSign = useCallback(async (accountPkh: string, message: string, watermark?: string) => {
     const res = await request({
       type: TempleMessageType.SilentSignRequest,
@@ -593,6 +602,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmTezosDAppOperation,
     confirmEvmDAppOperation,
     confirmDAppSign,
+    confirmDAppHandshake,
     silentSign,
     removeDAppSession,
     confirmDAppEvmAssetAdding,

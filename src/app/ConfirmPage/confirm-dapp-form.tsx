@@ -339,6 +339,15 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
               : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
             declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
           };
+        case 'handshake':
+          return {
+            title: <T id="newHandshake" />,
+            confirmButtonName: <T id={error ? 'retry' : 'confirm'} />,
+            confirmTestID: error
+              ? ConfirmPageSelectors.ConfirmOperationsAction_RetryButton
+              : ConfirmPageSelectors.ConfirmOperationsAction_ConfirmButton,
+            declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
+          };
         default:
           return {
             title:

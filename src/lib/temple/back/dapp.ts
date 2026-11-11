@@ -384,7 +384,7 @@ export async function requestBroadcast(
   }
 }
 
-async function getDApp(origin: string) {
+export async function getDApp(origin: string) {
   return genericGetDApp(TempleChainKind.Tezos, origin);
 }
 
