@@ -80,6 +80,8 @@ export enum MessageType {
   HandshakeResponse = 'postmessage-pairing-response'
 }
 
+export type ResponseBase = Omit<BaseMessage, 'type'>;
+
 interface BaseMessage {
   type: MessageType;
   version: string;
@@ -141,6 +143,21 @@ interface SignRequest extends BaseMessage {
 interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
+  /** Legacy requests without a signing mode keep their original response shape. */
+  signingType?: SigningType;
+}
+
+export function createSignPayloadResponse(
+  request: SignRequest,
+  signature: string,
+  envelope: ResponseBase
+): SignResponse {
+  return {
+    ...envelope,
+    type: MessageType.SignPayloadResponse,
+    signature,
+    ...(request.signingType === undefined ? {} : { signingType: request.signingType })
+  };
 }
 
 interface BroadcastRequest extends BaseMessage {
