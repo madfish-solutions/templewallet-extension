@@ -33,7 +33,9 @@ export function preparseTezosOperationsGroup(
   const lastOperation = groupOperations[groupOperations.length - 1]!;
   const addedAt = lastOperation.timestamp;
   const operations = groupOperations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
-  const status = deriveActivityStatus(operations);
+  const status = deriveActivityStatus(
+    operations.length ? operations : groupOperations.map(op => ({ status: stringToActivityStatus(op.status) }))
+  );
 
   return {
     hash,

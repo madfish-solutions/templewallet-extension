@@ -45,6 +45,7 @@ export const ETHERLINK_ITEMS_PER_PAGE = 50;
 
 const ETHERLINK_XTZ_PRECOMPILE_ADDRESS = '0xff00000000000000000000000000000000000001';
 const ETHERLINK_DEPOSIT_SENDER_ADDRESS = '0x000000000000000000000000000000000000FEeD';
+const ETHERLINK_LEGACY_DEPOSIT_SENDER_ADDRESS = EVM_ZERO_ADDRESS;
 
 export const getBlockNumberFromEtherlinkOlderThan = (olderThan: AllEtherlinkActivitiesPageParams | undefined) => {
   const { operationsPageParams, tokensTransfersPageParams } = olderThan ?? {};
@@ -475,7 +476,9 @@ const makeGasTokenTransfer = (
   const isSending = equalsIgnoreCase(fromAddress, accountAddress);
   const isBridge = isSending
     ? equalsIgnoreCase(to?.hash, ETHERLINK_XTZ_PRECOMPILE_ADDRESS)
-    : equalsIgnoreCase(fromAddress, ETHERLINK_DEPOSIT_SENDER_ADDRESS);
+    : [ETHERLINK_DEPOSIT_SENDER_ADDRESS, ETHERLINK_LEGACY_DEPOSIT_SENDER_ADDRESS].some(sender =>
+        equalsIgnoreCase(fromAddress, sender)
+      );
 
   return {
     kind: ActivityOperKindEnum.transfer,

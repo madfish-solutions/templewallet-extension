@@ -12,7 +12,7 @@ import { TempleChainKind } from 'temple/types';
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
 import { EvmActivityOperationComponent, buildEvmOperationAsset } from './EvmActivityOperation';
-import { getEvmBundleFace, getEvmNftTransfersCount } from './utils';
+import { getEvmBundleFace, getEvmNftUnitsSigned } from './utils';
 
 interface Props {
   activity: EvmActivity;
@@ -81,11 +81,9 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
     const { slug, asset, amountSigned } = face;
 
     if (asset.nft) {
-      const count = getEvmNftTransfersCount(operations);
-
       return {
         ...asset,
-        amountSigned: amountSigned.startsWith('-') ? `-${count}` : String(count),
+        amountSigned: getEvmNftUnitsSigned(operations, amountSigned.startsWith('-')),
         decimals: 0,
         symbol: 'NFT'
       };

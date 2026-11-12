@@ -27,9 +27,12 @@ export function parseTezosOperationsGroup(
 
   const { hash, addedAt, operations: preOperations, oldestTzktOperation, status } = preActivity;
 
-  const operations = withoutBridgeInternalCalls(
+  const parsedOperations = withoutBridgeInternalCalls(
     withoutUnshieldingCall(preOperations.map(oper => parseTezosPreActivityOperation(oper, address)))
   );
+  const operations: TezosOperation[] = parsedOperations.length
+    ? parsedOperations
+    : [{ kind: ActivityOperKindEnum.interaction }];
 
   return {
     hash,
@@ -91,8 +94,10 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
   const isShielded =
     withAddress === SAPLING_CONTRACT_ADDRESS || preOperation.sender.address === SAPLING_CONTRACT_ADDRESS;
 
-  if (withAddress === SAPLING_CONTRACT_ADDRESS && new BigNumber(preOperation.amountSigned).isZero()) {
-    return { kind: ActivityOperKindEnum.interaction, withAddress, isShielded: true };
+  const hasNoAmount = new BigNumber(preOperation.amountSigned).isZero();
+
+  if (hasNoAmount && (withAddress === SAPLING_CONTRACT_ADDRESS || !preOperation.subtype)) {
+    return { kind: ActivityOperKindEnum.interaction, withAddress, isShielded: isShielded || undefined };
   }
 
   const firstTo = preOperation.to.at(0);
@@ -102,7 +107,11 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
   const assetSlug = toTezosAssetSlug(preOperation.contract ?? TEZ_TOKEN_SLUG, preOperation.tokenId);
   const { amountSigned } = preOperation;
 
+  const fromAddress = preOperation.from.address;
+
   if (preOperation.subtype === 'approve') {
+    if (fromAddress !== address) return { kind: ActivityOperKindEnum.interaction, withAddress };
+
     return {
       kind: ActivityOperKindEnum.approve,
       spenderAddress: firstTo.address,
@@ -111,7 +120,6 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
     };
   }
 
-  const fromAddress = preOperation.from.address;
   const toAddress = firstTo.address;
 
   if (fromAddress === address) {

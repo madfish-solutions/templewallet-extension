@@ -5,7 +5,13 @@ import BigNumber from 'bignumber.js';
 import { useAllCollectiblesMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { useAllNoCategoryTezosAssetsMetadataSelector } from 'app/store/tezos/no-category-assets-metadata/selectors';
 import { useAllTokensMetadataSelector } from 'app/store/tezos/tokens-metadata/selectors';
-import { ActivityOperKindEnum, EvmActivityAsset, EvmOperation, TezosOperation } from 'lib/activity';
+import {
+  ActivityOperKindEnum,
+  ActivityOperTransferType,
+  EvmActivityAsset,
+  EvmOperation,
+  TezosOperation
+} from 'lib/activity';
 import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
 import { AssetMetadataBase, useGetTezosGasMetadata } from 'lib/metadata';
@@ -77,6 +83,7 @@ export const getEvmBundleFace = (
   );
   const preferredContract = preferredSlug && fromAssetSlug(preferredSlug)[0];
   const face = pickBundleFace(netBySlug(transfers), [
+    transfers.find(({ slug }) => equalsIgnoreCase(slug, preferredSlug))?.slug,
     ...transfers.filter(({ asset }) => equalsIgnoreCase(asset.contract, preferredContract)).map(({ slug }) => slug),
     ...transfers.filter(({ slug, asset }) => asset.nft || hasDecimals(slug, asset)).map(({ slug }) => slug)
   ]);
@@ -85,5 +92,18 @@ export const getEvmBundleFace = (
   return face && transfer ? { ...face, asset: transfer.asset } : undefined;
 };
 
-export const getEvmNftTransfersCount = (operations: EvmOperation[]) =>
-  operations.filter(({ kind, asset }) => kind === ActivityOperKindEnum.transfer && asset?.nft).length;
+export const getEvmNftUnitsSigned = (operations: EvmOperation[], outgoing: boolean) => {
+  const nftTransfers = operations.flatMap(operation => {
+    if (operation.kind !== ActivityOperKindEnum.transfer || !operation.asset?.nft) return [];
+
+    const { contract, tokenId, amountSigned } = operation.asset;
+    const oneUnitSigned = operation.type === ActivityOperTransferType.sendToAccount ? '-1' : '1';
+
+    return [{ slug: toEvmAssetSlug(contract, tokenId), amountSigned: amountSigned ?? oneUnitSigned }];
+  });
+
+  return [...netBySlug(nftTransfers).values()]
+    .filter(net => net.isNegative() === outgoing)
+    .reduce((sum, net) => sum.plus(net), ZERO)
+    .toFixed();
+};
