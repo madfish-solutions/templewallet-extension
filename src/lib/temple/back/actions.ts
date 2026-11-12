@@ -203,7 +203,7 @@ export async function init() {
   }
 
   initEvm();
-  initTezos();
+  await initTezos();
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -797,7 +797,13 @@ function confirmHandshakeRequest(origin: string, req: Beacon.PostMessagePairingR
         },
         publicKey: req.publicKey
       },
-      onDecline: () => finish(false),
+      onDecline: async () => {
+        const connectedDApp = await getTezosDApp(origin).catch(() => null);
+        if (connectedDApp === undefined) {
+          Beacon.removeDAppPublicKey(origin);
+        }
+        finish(false);
+      },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type !== TempleMessageType.DAppHandshakeConfirmationRequest || confirmReq.id !== id) {
           return undefined;
@@ -816,6 +822,19 @@ function confirmHandshakeRequest(origin: string, req: Beacon.PostMessagePairingR
       }
     }).catch(() => finish(false));
   });
+}
+
+async function acceptHandshakePairing(origin: string, req: Beacon.PostMessagePairingRequest) {
+  const storedPublicKey = await Beacon.getDAppPublicKey(origin);
+
+  if (!storedPublicKey) return true;
+
+  const sameKey = storedPublicKey === req.publicKey;
+  const connectedDApp = await getTezosDApp(origin);
+
+  if (sameKey && !connectedDApp) return true;
+
+  return withInited(() => confirmHandshakeRequest(origin, req));
 }
 
 async function makeOptionallyEncryptedResponse(payload: string, encrypted: boolean, recipientPubKey: string | null) {
@@ -869,14 +888,16 @@ export async function processBeacon(
 
   // Process handshake
   if (req.type === Beacon.MessageType.HandshakeRequest) {
-    const storedPublicKey = await Beacon.getDAppPublicKey(origin);
-    const shouldWriteKeys =
-      !storedPublicKey ||
-      !(await getTezosDApp(origin)) ||
-      (await withInited(() => dAppQueue.enqueue(() => confirmHandshakeRequest(origin, req))));
+    const keysHaveBeenWritten = await dAppQueue.enqueue(async () => {
+      const accepted = await acceptHandshakePairing(origin, req);
 
-    if (shouldWriteKeys) {
+      if (!accepted) return false;
+
       await Beacon.saveDAppPublicKey(origin, req.publicKey);
+      return true;
+    });
+
+    if (keysHaveBeenWritten) {
       const keyPair = await Beacon.getOrCreateKeyPair();
 
       return {

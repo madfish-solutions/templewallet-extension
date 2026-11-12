@@ -28,6 +28,7 @@ import {
   getAllDApps as genericGetAllDApps,
   removeDApps as genericRemoveDApps
 } from 'app/storage/dapps';
+import { browser } from 'lib/browser';
 import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, TEZOS_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -102,7 +103,11 @@ export async function requestPermission(
         network,
         appMeta: req.appMeta
       },
-      onDecline: () => {
+      onDecline: async () => {
+        const connectedDApp = await getDApp(origin).catch(() => null);
+        if (connectedDApp === undefined) {
+          Beacon.removeDAppPublicKey(origin);
+        }
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: async (confirmReq, decline) => {
@@ -558,7 +563,7 @@ function removeLastSlash(str: string) {
   return str.endsWith('/') ? str.slice(0, -1) : str;
 }
 
-export function init() {
+export async function init() {
   Vault.subscribeToRemoveAccounts(async addresses => {
     const removedAccounts = new Set(addresses.map(({ tezosAddress }) => tezosAddress).filter(isTruthy));
     const tezosDApps = await getAllDApps();
@@ -574,4 +579,17 @@ export function init() {
       await removeDApps(dAppsToRemoveOrigins);
     }
   });
+
+  try {
+    const tezosDApps = await getAllDApps();
+    const orphanedStoredPubKeyHosts = (await browser.storage.local.getKeys())
+      .filter(Beacon.isPubKeyStorageKey)
+      .map(Beacon.extractPubKeyStorageKey)
+      .filter(host => !tezosDApps[host]);
+    if (orphanedStoredPubKeyHosts.length) {
+      await Beacon.removeDAppPublicKey(orphanedStoredPubKeyHosts);
+    }
+  } catch (error) {
+    console.error('Error removing orphaned stored public key hosts', error);
+  }
 }

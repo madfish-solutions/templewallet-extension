@@ -6545,17 +6545,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webextension-polyfill@npm:^0.12.6":
+  version: 0.12.6
+  resolution: "@types/webextension-polyfill@npm:0.12.6"
+  checksum: 10c0/bed10401f84bcb2530362174c7307e1dc5e869a3dd950ef3cdcfc50543aefc4736185a136349bb9b129e47fca4e488bc9adb7d77a4dcf6eaee5336a6e83bf9e4
+  languageName: node
+  linkType: hard
+
 "@types/webextension-polyfill@npm:^0.8.3":
   version: 0.8.3
   resolution: "@types/webextension-polyfill@npm:0.8.3"
   checksum: 10c0/f2849c04d9d64f01dc1d654b42107a47f81e19c1cf804b8f7135fa3675b643b1ef3cebe2db30fe303296897e7d094c9283c5dbcaad087d743e9460daa722a507
-  languageName: node
-  linkType: hard
-
-"@types/webextension-polyfill@npm:^0.9.1":
-  version: 0.9.1
-  resolution: "@types/webextension-polyfill@npm:0.9.1"
-  checksum: 10c0/385a0a997400b5be3fce40ead97fbde9c043c0bede495b33736ac62fa75cd12437033221806f568a54d49c0cc1924dd0ce2c8ed0fc128b9ee5df9d664c7f721a
   languageName: node
   linkType: hard
 
@@ -17735,7 +17735,7 @@ __metadata:
     "@types/scryptsy": "npm:^2.0.0"
     "@types/typedarray-to-buffer": "npm:^4.0.0"
     "@types/w3c-web-hid": "npm:^1.0.3"
-    "@types/webextension-polyfill": "npm:^0.9.1"
+    "@types/webextension-polyfill": "npm:^0.12.6"
     "@types/webpack": "npm:^5"
     "@types/ws": "npm:^7.4.6"
     assert: "npm:1.5.0"
