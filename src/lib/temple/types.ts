@@ -375,7 +375,7 @@ export interface TempleTezosDAppSignPayload extends TempleTezosDAppPayloadBase {
   preview: any;
 }
 
-export interface TempleHandshakeDAppPayload extends TempleDAppPayloadBase {
+interface TempleHandshakeDAppPayload extends TempleDAppPayloadBase {
   type: 'handshake';
   /** Beacon public key from the handshake that will replace the stored pairing key. */
   publicKey: string;
