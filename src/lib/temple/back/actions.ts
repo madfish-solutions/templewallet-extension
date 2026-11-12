@@ -132,6 +132,11 @@ const onFocusLocationError = (error: unknown) => {
   focusLocationChanged(null);
 };
 
+let resolveInitedPromise: EmptyFn;
+let initedPromise = new Promise<void>(resolve => {
+  resolveInitedPromise = () => resolve();
+});
+
 export async function init() {
   const vaultExist = await Vault.isExist();
   inited(vaultExist);
@@ -204,6 +209,7 @@ export async function init() {
 
   initEvm();
   await initTezos();
+  resolveInitedPromise();
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -737,12 +743,7 @@ export async function getBeaconMessage(origin: string, msg: string, encrypted = 
     try {
       if (!recipientPubKey) throw new Error('<stub>');
 
-      try {
-        msg = await Beacon.decryptMessage(msg, recipientPubKey);
-      } catch (err: any) {
-        await Beacon.removeDAppPublicKey(origin);
-        throw err;
-      }
+      msg = await Beacon.decryptMessage(msg, recipientPubKey);
     } catch {
       payload = {
         payload: Beacon.encodeMessage<Beacon.Response>({
@@ -826,11 +827,11 @@ function confirmHandshakeRequest(origin: string, req: Beacon.PostMessagePairingR
 
 async function acceptHandshakePairing(origin: string, req: Beacon.PostMessagePairingRequest) {
   const storedPublicKey = await Beacon.getDAppPublicKey(origin);
+  const connectedDApp = await getTezosDApp(origin);
 
-  if (!storedPublicKey) return true;
+  if (!storedPublicKey) return !connectedDApp;
 
   const sameKey = storedPublicKey === req.publicKey;
-  const connectedDApp = await getTezosDApp(origin);
 
   if (sameKey && !connectedDApp) return true;
 
@@ -866,6 +867,8 @@ export async function processBeacon(
   msg: string,
   encrypted = false
 ): Promise<ProcessedBeaconMessage | undefined> {
+  await initedPromise;
+
   const { req, recipientPubKey, payload } = await getBeaconMessage(origin, msg, encrypted);
   if (payload) {
     return payload;
@@ -888,6 +891,16 @@ export async function processBeacon(
 
   // Process handshake
   if (req.type === Beacon.MessageType.HandshakeRequest) {
+    const newKeyPair = await Beacon.getOrCreateKeyPair();
+    const newCryptobox = await Beacon.sealCryptobox(
+      JSON.stringify({
+        ...resBase,
+        ...Beacon.PAIRING_RESPONSE_BASE,
+        publicKey: Beacon.toHex(newKeyPair.publicKey)
+      }),
+      Beacon.fromHex(req.publicKey)
+    );
+
     const keysHaveBeenWritten = await dAppQueue.enqueue(async () => {
       const accepted = await acceptHandshakePairing(origin, req);
 
@@ -898,18 +911,7 @@ export async function processBeacon(
     });
 
     if (keysHaveBeenWritten) {
-      const keyPair = await Beacon.getOrCreateKeyPair();
-
-      return {
-        payload: await Beacon.sealCryptobox(
-          JSON.stringify({
-            ...resBase,
-            ...Beacon.PAIRING_RESPONSE_BASE,
-            publicKey: Beacon.toHex(keyPair.publicKey)
-          }),
-          Beacon.fromHex(req.publicKey)
-        )
-      };
+      return { payload: newCryptobox };
     }
 
     const errorMsg = Beacon.encodeMessage<Beacon.Response>({
