@@ -208,14 +208,8 @@ function fetchIncomingOperTransactions_Fa_2(
 /**
  * @return groups[number].operations // sorted new-to-old
  */
-export async function fetchOperGroupsForOperations(
-  chainId: TzktApiChainId,
-  hashes: string[],
-  olderThan?: TezosActivityOlderThan
-) {
+export async function fetchOperGroupsForOperations(chainId: TzktApiChainId, hashes: string[]) {
   const uniqueHashes = filterUnique(hashes);
-
-  if (olderThan && uniqueHashes[0] === olderThan.hash) uniqueHashes.shift();
 
   const groups: TempleTzktOperationsGroup[] = [];
   for (const hash of uniqueHashes) {
@@ -261,5 +255,7 @@ const withRestOfOldestBlock = async (
 ) => {
   const oldest = operations.at(-1);
 
-  return oldest && operations.length >= limit ? operations.concat(await fetchRest(oldest)) : operations;
+  return oldest && operations.length >= limit
+    ? operations.concat(await refetchOnce429(() => fetchRest(oldest), 1000))
+    : operations;
 };

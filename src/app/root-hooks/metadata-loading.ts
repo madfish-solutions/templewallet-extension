@@ -7,9 +7,8 @@ import { putTokensMetadataAction, setTokensMetadataLoadingAction } from 'app/sto
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { useGetTokenMetadata } from 'lib/metadata';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
+import { useMetadataLoadAttempts } from 'lib/metadata/load-attempts';
 import { useEnabledTezosChains } from 'temple/front';
-
-import { useMetadataLoadAttempts } from './metadata-load-attempts';
 
 export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const tezosChains = useEnabledTezosChains();

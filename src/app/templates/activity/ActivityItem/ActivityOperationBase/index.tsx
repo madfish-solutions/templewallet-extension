@@ -10,7 +10,6 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { EvmAssetImage, TezosAssetImage } from 'app/templates/AssetImage';
 import InFiat from 'app/templates/InFiat';
 import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
-import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { BasicChain } from 'temple/front/chains';
@@ -62,7 +61,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
     addressChip
   }) => {
     const isForEvm = chain.kind === TempleChainKind.EVM;
-    const bridgeChainKind = isBridge ? chain.kind : undefined;
+    const bridgeCounterpart = isBridge ? (isForEvm ? 'Tezos' : 'Etherlink') : undefined;
 
     const assetSlug = asset
       ? isForEvm
@@ -109,7 +108,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       if (!assetSlug) return null;
 
       const amountForFiat =
-        kind === 'bundle' || isTransferActivityOperKind(kind)
+        kind === 'bundle' || kind === ActivityOperKindEnum.transfer
           ? atomsToTokens(asset.amountSigned, asset.decimals)
           : null;
 
@@ -162,7 +161,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       if (withoutAssetIcon || !assetSlug)
         return (
           <div className="w-full h-full flex items-center justify-center bg-grey-4">
-            <IconBase Icon={getIconByKind(kind, transferType, bridgeChainKind)} className="text-grey-1" />
+            <IconBase Icon={getIconByKind(kind, transferType, isBridge)} className="text-grey-1" />
           </div>
         );
 
@@ -195,7 +194,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       withoutAssetIcon,
       kind,
       transferType,
-      bridgeChainKind,
+      isBridge,
       asset?.iconURL,
       asset?.symbol,
       isNFT,
@@ -225,7 +224,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
             <div className="shrink-0 flex items-center gap-x-1">
               {isShielded && <IconBase Icon={LockShieldSvg} size={16} className="-m-1 text-grey-1" />}
 
-              <span className="text-font-medium">{getTitleByKind(kind, transferType, bridgeChainKind)}</span>
+              <span className="text-font-medium">{getTitleByKind(kind, transferType, bridgeCounterpart)}</span>
 
               <StatusTag status={status} />
             </div>

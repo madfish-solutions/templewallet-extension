@@ -2,8 +2,8 @@ import React, { memo, useMemo } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { TezosActivity } from 'lib/activity';
-import { getTezosOperationIsShielded } from 'lib/activity/utils';
-import { useBooleanState } from 'lib/ui/hooks';
+import { isShieldedTezosOperation } from 'lib/activity/utils';
+import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
 import { BasicTezosChain } from 'temple/front/chains';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
@@ -71,8 +71,8 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSl
 
   const getMetadata = useGetAssetMetadataForTezosBatch(chain.chainId);
 
-  const batchAsset = useMemo(() => {
-    const face = getTezosBundleFace(operations, assetSlug);
+  const batchAsset = useMemoWithCompare(() => {
+    const face = getTezosBundleFace(operations, assetSlug, slug => Boolean(getMetadata(slug)));
 
     return face && buildTezosOperationAsset(face.slug, getMetadata(face.slug), face.amountSigned);
   }, [getMetadata, operations, assetSlug]);
@@ -87,7 +87,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSl
         status={status}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={Boolean(assetSlug)}
-        isShielded={operations.some(getTezosOperationIsShielded)}
+        isShielded={operations.some(isShieldedTezosOperation)}
         onClick={toggleExpanded}
       />
 

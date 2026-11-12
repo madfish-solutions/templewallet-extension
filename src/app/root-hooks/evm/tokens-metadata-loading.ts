@@ -19,11 +19,10 @@ import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';
+import { useMetadataLoadAttempts } from 'lib/metadata/load-attempts';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { useMetadataLoadAttempts } from '../metadata-load-attempts';
 
 export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();

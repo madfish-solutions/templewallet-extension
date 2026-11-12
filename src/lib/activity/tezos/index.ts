@@ -14,7 +14,7 @@ import {
   ActivityStatus,
   ActivityOperTransferType
 } from '../types';
-import { getOperationIsBridge, getTezosOperationIsShielded } from '../utils';
+import { isBridgeOperation, isShieldedTezosOperation } from '../utils';
 
 import { preparseTezosOperationsGroup, SAPLING_CONTRACT_ADDRESS } from './pre-parse';
 
@@ -49,11 +49,11 @@ export function parseTezosOperationsGroup(
 }
 
 const isShieldedInteraction = (operation: TezosOperation) =>
-  operation.kind === ActivityOperKindEnum.interaction && getTezosOperationIsShielded(operation);
+  operation.kind === ActivityOperKindEnum.interaction && isShieldedTezosOperation(operation);
 
 const isShieldedPayout = (operation: TezosOperation) =>
   operation.kind === ActivityOperKindEnum.transfer &&
-  getTezosOperationIsShielded(operation) &&
+  isShieldedTezosOperation(operation) &&
   operation.toAddress !== SAPLING_CONTRACT_ADDRESS;
 
 const withoutUnshieldingCall = (operations: TezosOperation[]) =>
@@ -62,11 +62,14 @@ const withoutUnshieldingCall = (operations: TezosOperation[]) =>
     : operations;
 
 const ETHERLINK_BRIDGE_HELPER_ADDRESS = 'KT1Wj8SUGmnEPFqyahHAcjcNQwe6YGhEXJb5';
+const ETHERLINK_BRIDGE_EXCHANGER_ADDRESS = 'KT1CeFqjJRJPNVvhvznQrWfHad2jCiDZ6Lyj';
+const ETHERLINK_ROLLUP_ADDRESS = 'sr1Ghq66tYK9y3r8CC1Tf8i8m5nxh8nTvZEf';
+const ETHERLINK_FAST_WITHDRAWAL_CONTRACT_ADDRESS = 'KT1BGwyCrnJ6HuEYP7X8Q2UooTdxmEYHiK6j';
 const ETHERLINK_BRIDGE_CONTRACTS = new Set([
   ETHERLINK_BRIDGE_HELPER_ADDRESS,
-  'KT1CeFqjJRJPNVvhvznQrWfHad2jCiDZ6Lyj',
-  'sr1Ghq66tYK9y3r8CC1Tf8i8m5nxh8nTvZEf',
-  'KT1BGwyCrnJ6HuEYP7X8Q2UooTdxmEYHiK6j'
+  ETHERLINK_BRIDGE_EXCHANGER_ADDRESS,
+  ETHERLINK_ROLLUP_ADDRESS,
+  ETHERLINK_FAST_WITHDRAWAL_CONTRACT_ADDRESS
 ]);
 
 const isBridgeContractInteraction = (operation: TezosOperation) =>
@@ -75,7 +78,7 @@ const isBridgeContractInteraction = (operation: TezosOperation) =>
   ETHERLINK_BRIDGE_CONTRACTS.has(operation.withAddress);
 
 const withoutBridgeInternalCalls = (operations: TezosOperation[]) =>
-  operations.some(getOperationIsBridge)
+  operations.some(isBridgeOperation)
     ? operations.filter(operation => !isBridgeContractInteraction(operation))
     : operations;
 
@@ -100,7 +103,12 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
   const { amountSigned } = preOperation;
 
   if (preOperation.subtype === 'approve') {
-    return { kind: ActivityOperKindEnum.approve, spenderAddress: firstTo.address, assetSlug, amountSigned };
+    return {
+      kind: ActivityOperKindEnum.approve,
+      spenderAddress: firstTo.address,
+      assetSlug,
+      amountSigned: preOperation.entrypoint === 'update_operators' ? null : amountSigned
+    };
   }
 
   const fromAddress = preOperation.from.address;

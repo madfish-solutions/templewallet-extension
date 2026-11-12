@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, EvmOperation, ActivityStatus, EvmActivityAsset } from 'lib/activity';
-import { getOperationIsBridge } from 'lib/activity/utils';
+import { isBridgeOperation } from 'lib/activity/utils';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmGenericAssetMetadata } from 'lib/metadata';
 import { EvmAssetMetadata } from 'lib/metadata/types';
@@ -49,7 +49,7 @@ export const EvmActivityOperationComponent = memo<Props>(
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={withoutAssetIcon}
-        isBridge={getOperationIsBridge(operation)}
+        isBridge={isBridgeOperation(operation)}
         addressChip={addressChip}
       />
     );

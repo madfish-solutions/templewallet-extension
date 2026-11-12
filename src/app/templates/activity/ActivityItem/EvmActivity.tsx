@@ -3,7 +3,7 @@ import React, { memo, useMemo } from 'react';
 import { PageModal } from 'app/atoms/PageModal';
 import { EvmActivity } from 'lib/activity';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
-import { useBooleanState } from 'lib/ui/hooks';
+import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
 import { BasicEvmChain } from 'temple/front/chains';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
@@ -71,7 +71,7 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
 
   const getMetadata = useGetEvmChainAssetMetadata(chain.chainId);
 
-  const batchAsset = useMemo<ActivityItemBaseAssetProp | undefined>(() => {
+  const batchAsset = useMemoWithCompare<ActivityItemBaseAssetProp | undefined>(() => {
     const face = getEvmBundleFace(operations, assetSlug, (slug, asset) =>
       Boolean(buildEvmOperationAsset(asset, getMetadata(slug)))
     );

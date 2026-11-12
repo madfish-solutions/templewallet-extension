@@ -2,20 +2,29 @@ import { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { useAllCollectiblesMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { useAllNoCategoryTezosAssetsMetadataSelector } from 'app/store/tezos/no-category-assets-metadata/selectors';
+import { useAllTokensMetadataSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { ActivityOperKindEnum, EvmActivityAsset, EvmOperation, TezosOperation } from 'lib/activity';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
-import { useGetCategorizedAssetMetadata, useGetNoCategoryAssetMetadata } from 'lib/metadata';
+import { AssetMetadataBase, useGetTezosGasMetadata } from 'lib/metadata';
 import { equalsIgnoreCase } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
+// Changes identity with the metadata, unlike the ref-based getters of `lib/metadata`, a mounted bundle row follows it
 export const useGetAssetMetadataForTezosBatch = (chainId: string) => {
-  const getCategorizedAssetMetadata = useGetCategorizedAssetMetadata(chainId);
-  const getNoCategoryAssetMetadata = useGetNoCategoryAssetMetadata();
+  const tokensMetadata = useAllTokensMetadataSelector();
+  const collectiblesMetadata = useAllCollectiblesMetadataSelector();
+  const noCategoryMetadata = useAllNoCategoryTezosAssetsMetadataSelector();
+  const getTezosGasMetadata = useGetTezosGasMetadata();
 
   return useCallback(
-    (assetSlug: string) => getCategorizedAssetMetadata(assetSlug) ?? getNoCategoryAssetMetadata(assetSlug),
-    [getNoCategoryAssetMetadata, getCategorizedAssetMetadata]
+    (assetSlug: string): AssetMetadataBase | undefined =>
+      isTezAsset(assetSlug)
+        ? getTezosGasMetadata(chainId)
+        : (tokensMetadata[assetSlug] ?? collectiblesMetadata.get(assetSlug) ?? noCategoryMetadata[assetSlug]),
+    [chainId, tokensMetadata, collectiblesMetadata, noCategoryMetadata, getTezosGasMetadata]
   );
 };
 
@@ -40,7 +49,11 @@ const pickBundleFace = (nets: Map<string, BigNumber>, candidateSlugs: Iterable<s
   return undefined;
 };
 
-export const getTezosBundleFace = (operations: TezosOperation[], preferredSlug?: string) => {
+export const getTezosBundleFace = (
+  operations: TezosOperation[],
+  preferredSlug: string | undefined,
+  hasMetadata: (slug: string) => boolean
+) => {
   const nets = netBySlug(
     operations.flatMap(operation =>
       operation.kind === ActivityOperKindEnum.transfer && operation.assetSlug && operation.amountSigned
@@ -49,7 +62,7 @@ export const getTezosBundleFace = (operations: TezosOperation[], preferredSlug?:
     )
   );
 
-  return pickBundleFace(nets, [preferredSlug, TEZ_TOKEN_SLUG, ...nets.keys()]);
+  return pickBundleFace(nets, [preferredSlug, ...[TEZ_TOKEN_SLUG, ...nets.keys()].filter(slug => hasMetadata(slug))]);
 };
 
 export const getEvmBundleFace = (
