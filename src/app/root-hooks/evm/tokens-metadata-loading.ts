@@ -58,28 +58,26 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
       dispatchSetEvmTokensMetadataLoadingToTrue();
 
-      const fetcher =
-        isSupportedChainId(chainId) && !isTestnetMode
-          ? getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
-              dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
+      const attemptKeys = slugsWithoutMeta.map(slug => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
 
-              const slugsLeftWithoutMeta = data.items
-                .filter(item => !isValidFetchedEvmMetadata(item))
-                .map(item => toTokenSlug(ViemUtils.getAddress(item.contract_address)))
-                .filter(slug => slugsWithoutMeta.includes(slug));
+      if (isSupportedChainId(chainId) && !isTestnetMode) {
+        const fetcher = getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
+          dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
 
-              if (!slugsLeftWithoutMeta.length) return;
+          const slugsLeftWithoutMeta = data.items
+            .filter(item => !isValidFetchedEvmMetadata(item))
+            .map(item => toTokenSlug(ViemUtils.getAddress(item.contract_address)))
+            .filter(slug => slugsWithoutMeta.includes(slug));
 
-              return loadEvmTokensMetadataFromChain(slugsLeftWithoutMeta, chain);
-            })
-          : loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain);
+          if (!slugsLeftWithoutMeta.length) return;
 
-      return [
-        attempts.track(
-          slugsWithoutMeta.map(slug => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
-          fetcher
-        )
-      ];
+          return loadEvmTokensMetadataFromChain(slugsLeftWithoutMeta, chain);
+        });
+
+        return [attempts.track(attemptKeys, fetcher)];
+      }
+
+      return [attempts.track(attemptKeys, loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain))];
     });
 
     Promise.allSettled(fetchers).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
