@@ -133,7 +133,7 @@ const onFocusLocationError = (error: unknown) => {
 };
 
 let resolveInitedPromise: EmptyFn;
-let initedPromise = new Promise<void>(resolve => {
+const initedPromise = new Promise<void>(resolve => {
   resolveInitedPromise = () => resolve();
 });
 
