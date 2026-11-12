@@ -2,6 +2,7 @@ import Dexie from 'dexie';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation, TezosActivity } from 'lib/activity';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
+import { COMMON_TESTNET_CHAIN_IDS, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 enum Table {
   tezosActivities = 'tezosActivities',
@@ -50,17 +51,19 @@ const v1Stores = {
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
 };
 db.version(1).stores(v1Stores);
+
+const v2Stores = {
+  ...v1Stores,
+  [Table.evmActivities]: indexes(
+    '++id',
+    'account',
+    '[chainId+account+hash]',
+    '[chainId+account+blockHeight]',
+    '[chainId+account+contract+blockHeight]'
+  )
+};
 db.version(2)
-  .stores({
-    ...v1Stores,
-    [Table.evmActivities]: indexes(
-      '++id',
-      'account',
-      '[chainId+account+hash]',
-      '[chainId+account+blockHeight]',
-      '[chainId+account+contract+blockHeight]'
-    )
-  })
+  .stores(v2Stores)
   .upgrade(tx =>
     tx
       .table<DbEvmActivity>(Table.evmActivities)
@@ -70,6 +73,26 @@ db.version(2)
         activity.fee = null;
         activity.value = null;
       })
+  );
+db.version(3)
+  .stores(v2Stores)
+  .upgrade(tx =>
+    Promise.all([
+      tx.table(Table.tezosActivities).clear(),
+      tx.table(Table.tezosActivitiesIntervals).clear(),
+      ...[ETHERLINK_MAINNET_CHAIN_ID, COMMON_TESTNET_CHAIN_IDS.etherlink].flatMap(chainId => [
+        tx
+          .table(Table.evmActivities)
+          .where('[chainId+account+hash]')
+          .between([chainId], [chainId, Dexie.maxKey])
+          .delete(),
+        tx
+          .table(Table.evmActivitiesIntervals)
+          .where('[chainId+account+oldestBlockHeight]')
+          .between([chainId], [chainId, Dexie.maxKey])
+          .delete()
+      ])
+    ])
   );
 
 export interface TezosActivitiesInterval extends EntityWithId {

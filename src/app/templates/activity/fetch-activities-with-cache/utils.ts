@@ -43,6 +43,9 @@ export interface AllEtherlinkActivitiesPageParams {
 
 export const ETHERLINK_ITEMS_PER_PAGE = 50;
 
+const ETHERLINK_XTZ_PRECOMPILE_ADDRESS = '0xff00000000000000000000000000000000000001';
+const ETHERLINK_DEPOSIT_SENDER_ADDRESS = '0x000000000000000000000000000000000000FEeD';
+
 export const getBlockNumberFromEtherlinkOlderThan = (olderThan: AllEtherlinkActivitiesPageParams | undefined) => {
   const { operationsPageParams, tokensTransfersPageParams } = olderThan ?? {};
   const { block_number: blockNumber } = operationsPageParams ?? tokensTransfersPageParams ?? {};
@@ -404,6 +407,11 @@ const toUnorderedOperations = async (
 
   const operationKind = getOperationKind({ data: raw_input, to: toAddress, value: BigInt(value) });
   const gasTokenTransfer = makeGasTokenTransfer(tx, chainId, accountAddress);
+
+  if (equalsIgnoreCase(toAddress, ETHERLINK_XTZ_PRECOMPILE_ADDRESS) && BigInt(value) > 0n) {
+    return [gasTokenTransfer];
+  }
+
   const fallbackOperations: EvmOperation[] = [
     {
       kind: ActivityOperKindEnum.interaction,
@@ -465,6 +473,9 @@ const makeGasTokenTransfer = (
   const { from, to, value } = tx;
   const { hash: fromAddress } = from;
   const isSending = equalsIgnoreCase(fromAddress, accountAddress);
+  const isBridge = isSending
+    ? equalsIgnoreCase(to?.hash, ETHERLINK_XTZ_PRECOMPILE_ADDRESS)
+    : equalsIgnoreCase(fromAddress, ETHERLINK_DEPOSIT_SENDER_ADDRESS);
 
   return {
     kind: ActivityOperKindEnum.transfer,
@@ -472,7 +483,8 @@ const makeGasTokenTransfer = (
     toAddress: to?.hash ?? EVM_ZERO_ADDRESS,
     asset: { ...makeGasAsset(chainId), amountSigned: isSending ? `-${value}` : value },
     logIndex: 'position' in tx ? tx.position : tx.index,
-    type: isSending ? ActivityOperTransferType.sendToAccount : ActivityOperTransferType.receiveFromAccount
+    type: isSending ? ActivityOperTransferType.sendToAccount : ActivityOperTransferType.receiveFromAccount,
+    isBridge: isBridge || undefined
   };
 };
 

@@ -61,11 +61,14 @@ interface TezosTransferOperation extends TezosOperationBase {
   type: ActivityOperTransferType;
   fromAddress: string;
   toAddress: string;
+  isShielded?: boolean;
+  isBridge?: boolean;
 }
 
 interface TezosInteractionOperation extends TezosOperationBase {
   kind: ActivityOperKindEnum.interaction;
   withAddress?: string;
+  isShielded?: boolean;
 }
 
 export type TezosOperation = TezosApproveOperation | TezosTransferOperation | TezosInteractionOperation;
@@ -95,6 +98,7 @@ interface EvmTransferOperation extends EvmOperationBase {
   type: ActivityOperTransferType;
   toAddress: string;
   fromAddress: string;
+  isBridge?: boolean;
 }
 
 interface EvmInteractionOperation extends EvmOperationBase {

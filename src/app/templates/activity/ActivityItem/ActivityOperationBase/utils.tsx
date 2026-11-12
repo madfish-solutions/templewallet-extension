@@ -3,11 +3,13 @@ import React, { FC, memo } from 'react';
 import clsx from 'clsx';
 
 import { IdenticonInitials } from 'app/atoms/Identicon';
+import { ReactComponent as ArrowUpArrowDownSvg } from 'app/icons/base/arrow_up_arrow_down.svg';
 import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
 import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
 import { ReactComponent as SendSvg } from 'app/icons/base/send.svg';
 import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
+import { TempleChainKind } from 'temple/types';
 
 import { FaceKind } from '../../utils';
 import { ReactComponent as PendingSpinSvg } from '../pending-spin.svg';
@@ -79,14 +81,25 @@ const StatusTagPending = (
   </span>
 );
 
-export function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+export function getTitleByKind(
+  kind: FaceKind,
+  transferType?: ActivityOperTransferType,
+  bridgeChainKind?: TempleChainKind
+) {
   if (kind === 'bundle') return 'Bundle';
 
   if (kind === ActivityOperKindEnum.interaction) return 'Interaction';
 
   if (kind === ActivityOperKindEnum.approve) return 'Approve';
 
-  return transferType == null ? 'Interaction' : TransferTypeTitle[transferType];
+  if (transferType == null) return 'Interaction';
+
+  if (!bridgeChainKind) return TransferTypeTitle[transferType];
+
+  const isOutgoing =
+    transferType === ActivityOperTransferType.send || transferType === ActivityOperTransferType.sendToAccount;
+
+  return `Bridge ${isOutgoing ? 'to' : 'from'} ${bridgeChainKind === TempleChainKind.Tezos ? 'Etherlink' : 'Tezos'}`;
 }
 
 const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
@@ -96,14 +109,20 @@ const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
   [ActivityOperTransferType.receive]: 'Transfer'
 };
 
-export function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+export function getIconByKind(
+  kind: FaceKind,
+  transferType?: ActivityOperTransferType,
+  bridgeChainKind?: TempleChainKind
+) {
   if (kind === 'bundle') return DocumentsSvg;
 
   if (kind === ActivityOperKindEnum.interaction) return DocumentsSvg;
 
   if (kind === ActivityOperKindEnum.approve) return OkSvg;
 
-  return transferType == null ? DocumentsSvg : TransferTypeIconSvg[transferType];
+  if (transferType == null) return DocumentsSvg;
+
+  return bridgeChainKind ? ArrowUpArrowDownSvg : TransferTypeIconSvg[transferType];
 }
 
 const TransferTypeIconSvg: Record<ActivityOperTransferType, ImportedSVGComponent> = {

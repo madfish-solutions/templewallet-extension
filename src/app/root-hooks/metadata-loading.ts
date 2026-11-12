@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect } from 'react';
 
 import { dispatch } from 'app/store';
 import { useAllTokensSelector } from 'app/store/tezos/assets/selectors';
@@ -9,19 +9,20 @@ import { useGetTokenMetadata } from 'lib/metadata';
 import { loadTokensMetadata } from 'lib/metadata/fetch';
 import { useEnabledTezosChains } from 'temple/front';
 
+import { useMetadataLoadAttempts } from './metadata-load-attempts';
+
 export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const tezosChains = useEnabledTezosChains();
   const allTokens = useAllTokensSelector();
   const getMetadata = useGetTokenMetadata();
   const isLoading = useTokensMetadataLoadingSelector();
+  const { attempts, retryTick } = useMetadataLoadAttempts();
 
   useEffect(() => {
     if (isLoading) dispatch(setTokensMetadataLoadingAction(false));
 
     return () => void dispatch(setTokensMetadataLoadingAction(false));
   }, []);
-
-  const checkedRef = useRef<string[]>([]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -32,11 +33,9 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
       const key = getAccountAssetsStoreKey(publicKeyHash, chain.chainId);
       const tokensRecord = allTokens[key];
       const slugs = tokensRecord ? Object.keys(tokensRecord) : [];
-      const slugsWithoutMeta = slugs.filter(slug => !getMetadata(slug) && !checkedRef.current.includes(slug));
+      const slugsWithoutMeta = slugs.filter(slug => !getMetadata(slug) && attempts.isDue(slug));
 
       if (!slugsWithoutMeta.length) return [];
-
-      checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
 
       if (!willLoad) {
         willLoad = true;
@@ -44,15 +43,14 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
       }
 
       const fetcher = loadTokensMetadata(chain, slugsWithoutMeta).then(
-        fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
-        error => void console.error(error)
+        fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata }))
       );
 
-      return [fetcher];
+      return [attempts.track(slugsWithoutMeta, fetcher)];
     });
 
     Promise.allSettled(fetchers).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
-  }, [tezosChains, allTokens, publicKeyHash]);
+  }, [tezosChains, allTokens, publicKeyHash, attempts, retryTick]);
 
   return null;
 });
