@@ -2,7 +2,6 @@ import Dexie from 'dexie';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation, TezosActivity } from 'lib/activity';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
-import { COMMON_TESTNET_CHAIN_IDS, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 enum Table {
   tezosActivities = 'tezosActivities',
@@ -80,18 +79,8 @@ db.version(3)
     Promise.all([
       tx.table(Table.tezosActivities).clear(),
       tx.table(Table.tezosActivitiesIntervals).clear(),
-      ...[ETHERLINK_MAINNET_CHAIN_ID, COMMON_TESTNET_CHAIN_IDS.etherlink].flatMap(chainId => [
-        tx
-          .table(Table.evmActivities)
-          .where('[chainId+account+hash]')
-          .between([chainId], [chainId, Dexie.maxKey])
-          .delete(),
-        tx
-          .table(Table.evmActivitiesIntervals)
-          .where('[chainId+account+oldestBlockHeight]')
-          .between([chainId], [chainId, Dexie.maxKey])
-          .delete()
-      ])
+      tx.table(Table.evmActivities).clear(),
+      tx.table(Table.evmActivitiesIntervals).clear()
     ])
   );
 

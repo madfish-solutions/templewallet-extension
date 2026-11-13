@@ -6,7 +6,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { EvmActivity } from '../types';
 
-import { parseApprovalLog, parseTransfer } from './parse';
+import { parseApprovalLog, parseTransfer, splitErc1155Batch } from './parse';
 
 export async function getEvmActivities(
   chainId: number,
@@ -37,6 +37,7 @@ export async function getEvmActivities(
     const approvals = allApprovals.filter(a => a.transactionHash === hash).map(approval => parseApprovalLog(approval));
 
     const operations = transfers
+      .flatMap(splitErc1155Batch)
       .map(transfer => parseTransfer(transfer, accAddressLowercased, chainId))
       .concat(approvals)
       .sort((a, b) => a.logIndex - b.logIndex);
