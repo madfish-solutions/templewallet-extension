@@ -40,6 +40,8 @@ export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: stri
 
 export const METADATA_API_LOAD_CHUNK_SIZE = 50;
 
+export const TOKENS_METADATA_MEMO_MAX_AGE = 10_000;
+
 export const fetchTokensMetadata = (
   chainId: MetadataApiChainId,
   slugs: string[]
@@ -75,7 +77,7 @@ const fetchTokensMetadataChunk = memoizee(
     return result;
   },
   {
-    maxAge: 10_000,
+    maxAge: TOKENS_METADATA_MEMO_MAX_AGE,
     normalizer: ([chainId, slugs]) => `${chainId}:${slugs.join()}`,
     promise: true
   }

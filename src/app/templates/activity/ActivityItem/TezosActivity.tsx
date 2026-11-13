@@ -2,9 +2,8 @@ import React, { memo, useMemo } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { TezosActivity } from 'lib/activity';
-import { isTransferActivityOperKind } from 'lib/activity/utils';
-import { useBooleanState } from 'lib/ui/hooks';
-import { ZERO } from 'lib/utils/numbers';
+import { isShieldedTezosOperation } from 'lib/activity/utils';
+import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
 import { BasicTezosChain } from 'temple/front/chains';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
@@ -13,7 +12,7 @@ import { TempleChainKind } from 'temple/types';
 import { ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
 import { TezosActivityOperationComponent, buildTezosOperationAsset } from './TezosActivityOperation';
-import { getBatchActivityFaceSlugsCandidates, useGetAssetMetadataForTezosBatch } from './utils';
+import { getTezosBundleFace, useGetAssetMetadataForTezosBatch } from './utils';
 
 interface Props {
   activity: TezosActivity;
@@ -72,20 +71,10 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSl
 
   const getMetadata = useGetAssetMetadataForTezosBatch(chain.chainId);
 
-  const batchAsset = useMemo(() => {
-    const faceSlug =
-      assetSlug || getBatchActivityFaceSlugsCandidates(operations).find(assetSlug => getMetadata(assetSlug));
+  const batchAsset = useMemoWithCompare(() => {
+    const face = getTezosBundleFace(operations, assetSlug, slug => Boolean(getMetadata(slug)));
 
-    if (!faceSlug) return;
-
-    let faceAmount = ZERO;
-
-    for (const { kind, assetSlug, amountSigned } of operations) {
-      if (assetSlug === faceSlug && amountSigned && isTransferActivityOperKind(kind))
-        faceAmount = faceAmount.plus(amountSigned);
-    }
-
-    return buildTezosOperationAsset(faceSlug, getMetadata(faceSlug), faceAmount.toFixed());
+    return face && buildTezosOperationAsset(face.slug, getMetadata(face.slug), face.amountSigned);
   }, [getMetadata, operations, assetSlug]);
 
   return (
@@ -98,6 +87,7 @@ const TezosActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSl
         status={status}
         blockExplorerUrl={blockExplorerUrl}
         withoutAssetIcon={Boolean(assetSlug)}
+        isShielded={operations.some(isShieldedTezosOperation)}
         onClick={toggleExpanded}
       />
 

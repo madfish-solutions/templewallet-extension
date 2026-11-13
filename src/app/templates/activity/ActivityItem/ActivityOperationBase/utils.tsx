@@ -3,6 +3,7 @@ import React, { FC, memo } from 'react';
 import clsx from 'clsx';
 
 import { IdenticonInitials } from 'app/atoms/Identicon';
+import { ReactComponent as ArrowUpArrowDownSvg } from 'app/icons/base/arrow_up_arrow_down.svg';
 import { ReactComponent as DocumentsSvg } from 'app/icons/base/documents.svg';
 import { ReactComponent as IncomeSvg } from 'app/icons/base/income.svg';
 import { ReactComponent as OkSvg } from 'app/icons/base/ok.svg';
@@ -79,14 +80,21 @@ const StatusTagPending = (
   </span>
 );
 
-export function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+export function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType, bridgeCounterpart?: string) {
   if (kind === 'bundle') return 'Bundle';
 
   if (kind === ActivityOperKindEnum.interaction) return 'Interaction';
 
   if (kind === ActivityOperKindEnum.approve) return 'Approve';
 
-  return transferType == null ? 'Interaction' : TransferTypeTitle[transferType];
+  if (transferType == null) return 'Interaction';
+
+  if (!bridgeCounterpart) return TransferTypeTitle[transferType];
+
+  const isOutgoing =
+    transferType === ActivityOperTransferType.send || transferType === ActivityOperTransferType.sendToAccount;
+
+  return `Bridge ${isOutgoing ? 'to' : 'from'} ${bridgeCounterpart}`;
 }
 
 const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
@@ -96,14 +104,16 @@ const TransferTypeTitle: Record<ActivityOperTransferType, string> = {
   [ActivityOperTransferType.receive]: 'Transfer'
 };
 
-export function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
+export function getIconByKind(kind: FaceKind, transferType?: ActivityOperTransferType, isBridge?: boolean) {
   if (kind === 'bundle') return DocumentsSvg;
 
   if (kind === ActivityOperKindEnum.interaction) return DocumentsSvg;
 
   if (kind === ActivityOperKindEnum.approve) return OkSvg;
 
-  return transferType == null ? DocumentsSvg : TransferTypeIconSvg[transferType];
+  if (transferType == null) return DocumentsSvg;
+
+  return isBridge ? ArrowUpArrowDownSvg : TransferTypeIconSvg[transferType];
 }
 
 const TransferTypeIconSvg: Record<ActivityOperTransferType, ImportedSVGComponent> = {

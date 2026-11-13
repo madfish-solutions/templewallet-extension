@@ -89,23 +89,30 @@ export const getClosestTezosActivitiesInterval = async ({
     let lowerLimit = interval.lowerLimit;
     const { upperLimit, assetSlug: intervalAssetSlug } = interval;
     const searchUpperLimit = olderThan && compareLimits(olderThan, upperLimit) < 0 ? olderThan : upperLimit;
-    const allRawActivitiesCollection = tezosActivities
-      .where(['chainId', 'account', 'assetSlug', activityTsPath])
-      .between(
-        [chainId, account, intervalAssetSlug, getPointerTimestamp(lowerLimit)],
-        [chainId, account, intervalAssetSlug, getPointerTimestamp(searchUpperLimit)],
-        true,
-        false
-      )
-      .reverse();
+    const queryRawActivities = (lowerPointer: TezosActivityOlderThan) =>
+      tezosActivities
+        .where(['chainId', 'account', 'assetSlug', activityTsPath])
+        .between(
+          [chainId, account, intervalAssetSlug, getPointerTimestamp(lowerPointer)],
+          [chainId, account, intervalAssetSlug, getPointerTimestamp(searchUpperLimit)],
+          true,
+          false
+        )
+        .reverse();
     let rawActivities: DbTezosActivity[];
     if (Number.isInteger(maxItems) && maxItems > 0) {
-      rawActivities = await allRawActivitiesCollection.limit(maxItems).sortBy(activityTsPath);
-      if (rawActivities.length > 0) {
-        lowerLimit = getIntervalLimit(rawActivities.at(-1)!);
+      rawActivities = await queryRawActivities(lowerLimit).limit(maxItems).sortBy(activityTsPath);
+      const oldestActivity = rawActivities.at(-1);
+
+      if (oldestActivity) {
+        if (rawActivities.length === maxItems) {
+          rawActivities = await queryRawActivities(oldestActivity).sortBy(activityTsPath);
+        }
+
+        lowerLimit = getIntervalLimit(oldestActivity);
       }
     } else {
-      rawActivities = await allRawActivitiesCollection.sortBy(activityTsPath);
+      rawActivities = await queryRawActivities(lowerLimit).sortBy(activityTsPath);
     }
 
     return {

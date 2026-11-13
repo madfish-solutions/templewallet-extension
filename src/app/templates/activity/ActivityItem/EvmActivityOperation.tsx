@@ -1,8 +1,10 @@
 import React, { memo, useMemo } from 'react';
 
-import { ActivityOperKindEnum, EvmOperation, ActivityStatus } from 'lib/activity';
+import { ActivityOperKindEnum, EvmOperation, ActivityStatus, EvmActivityAsset } from 'lib/activity';
+import { isBridgeOperation } from 'lib/activity/utils';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { useEvmGenericAssetMetadata } from 'lib/metadata';
+import { EvmAssetMetadata } from 'lib/metadata/types';
 import { BasicEvmChain } from 'temple/front/chains';
 
 import { getActivityOperTransferType } from '../utils';
@@ -27,23 +29,10 @@ export const EvmActivityOperationComponent = memo<Props>(
 
     const assetMetadata = useEvmGenericAssetMetadata(assetSlug ?? '', chain.chainId);
 
-    const asset = useMemo(() => {
-      if (!assetBase) return;
-
-      const decimals = assetBase.amountSigned === null ? NaN : (assetMetadata?.decimals ?? assetBase.decimals);
-
-      if (decimals == null) return;
-
-      const symbol = assetMetadata?.symbol || assetBase.symbol;
-
-      const asset: ActivityItemBaseAssetProp = {
-        ...assetBase,
-        decimals,
-        symbol
-      };
-
-      return asset;
-    }, [assetMetadata, assetBase]);
+    const asset = useMemo(
+      () => (assetBase ? buildEvmOperationAsset(assetBase, assetMetadata) : undefined),
+      [assetMetadata, assetBase]
+    );
 
     const addressChip = useMemo(
       () => (withoutOperHashChip && operation ? <OperAddressChip operation={operation} /> : null),
@@ -60,8 +49,20 @@ export const EvmActivityOperationComponent = memo<Props>(
         blockExplorerUrl={blockExplorerUrl}
         status={status}
         withoutAssetIcon={withoutAssetIcon}
+        isBridge={isBridgeOperation(operation)}
         addressChip={addressChip}
       />
     );
   }
 );
+
+export function buildEvmOperationAsset(
+  assetBase: EvmActivityAsset,
+  assetMetadata: EvmAssetMetadata | undefined
+): ActivityItemBaseAssetProp | undefined {
+  const decimals = assetBase.amountSigned === null ? NaN : (assetMetadata?.decimals ?? assetBase.decimals);
+
+  if (decimals == null) return;
+
+  return { ...assetBase, decimals, symbol: assetMetadata?.symbol || assetBase.symbol };
+}

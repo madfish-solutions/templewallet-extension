@@ -5,11 +5,11 @@ import clsx from 'clsx';
 import { Anchor, Button, HashShortView, IconBase, Money } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightSvg } from 'app/icons/base/chevron_right.svg';
+import { ReactComponent as LockShieldSvg } from 'app/icons/base/lock_shield.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { EvmAssetImage, TezosAssetImage } from 'app/templates/AssetImage';
 import InFiat from 'app/templates/InFiat';
 import { ActivityOperKindEnum, ActivityOperTransferType, ActivityStatus } from 'lib/activity';
-import { isTransferActivityOperKind } from 'lib/activity/utils';
 import { toEvmAssetSlug, toTezosAssetSlug } from 'lib/assets/utils';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { BasicChain } from 'temple/front/chains';
@@ -28,6 +28,8 @@ interface Props {
   blockExplorerUrl?: string;
   status?: ActivityStatus;
   withoutAssetIcon?: boolean;
+  isShielded?: boolean;
+  isBridge?: boolean;
   onClick?: EmptyFn;
   addressChip?: ReactElement | null;
 }
@@ -44,8 +46,22 @@ export interface ActivityItemBaseAssetProp {
 }
 
 export const ActivityOperationBaseComponent = memo<Props>(
-  ({ kind, transferType, hash, chain, asset, blockExplorerUrl, status, withoutAssetIcon, onClick, addressChip }) => {
+  ({
+    kind,
+    transferType,
+    hash,
+    chain,
+    asset,
+    blockExplorerUrl,
+    status,
+    withoutAssetIcon,
+    isShielded,
+    isBridge,
+    onClick,
+    addressChip
+  }) => {
     const isForEvm = chain.kind === TempleChainKind.EVM;
+    const bridgeCounterpart = isBridge ? (isForEvm ? 'Tezos' : 'Etherlink') : undefined;
 
     const assetSlug = asset
       ? isForEvm
@@ -92,7 +108,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       if (!assetSlug) return null;
 
       const amountForFiat =
-        kind === 'bundle' || isTransferActivityOperKind(kind)
+        kind === 'bundle' || kind === ActivityOperKindEnum.transfer
           ? atomsToTokens(asset.amountSigned, asset.decimals)
           : null;
 
@@ -145,7 +161,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
       if (withoutAssetIcon || !assetSlug)
         return (
           <div className="w-full h-full flex items-center justify-center bg-grey-4">
-            <IconBase Icon={getIconByKind(kind, transferType)} className="text-grey-1" />
+            <IconBase Icon={getIconByKind(kind, transferType, isBridge)} className="text-grey-1" />
           </div>
         );
 
@@ -172,7 +188,18 @@ export const ActivityOperationBaseComponent = memo<Props>(
           fallback={placeholderJsx}
         />
       );
-    }, [chain, isForEvm, withoutAssetIcon, kind, transferType, asset?.iconURL, asset?.symbol, isNFT, assetSlug]);
+    }, [
+      chain,
+      isForEvm,
+      withoutAssetIcon,
+      kind,
+      transferType,
+      isBridge,
+      asset?.iconURL,
+      asset?.symbol,
+      isNFT,
+      assetSlug
+    ]);
 
     return (
       <div className="z-1 relative group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
@@ -195,7 +222,9 @@ export const ActivityOperationBaseComponent = memo<Props>(
         <div className="flex-grow flex flex-col gap-y-1 whitespace-nowrap overflow-hidden">
           <div className="flex gap-x-2 justify-between">
             <div className="shrink-0 flex items-center gap-x-1">
-              <span className="text-font-medium">{getTitleByKind(kind, transferType)}</span>
+              {isShielded && <IconBase Icon={LockShieldSvg} size={16} className="-m-1 text-grey-1" />}
+
+              <span className="text-font-medium">{getTitleByKind(kind, transferType, bridgeCounterpart)}</span>
 
               <StatusTag status={status} />
             </div>

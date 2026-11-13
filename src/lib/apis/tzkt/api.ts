@@ -72,6 +72,7 @@ type GetOperationsBaseParams = {
   offset?: number;
   entrypoint?: 'transfer' | 'mintOrBurn';
   lastId?: number;
+  'id.lt'?: number;
 } & {
   [key in `timestamp.${'lt' | 'ge'}`]?: string;
 } & {
@@ -84,19 +85,21 @@ type GetOperationsBaseParams = {
   [key in `initiator${'' | '.ne'}`]?: string;
 };
 
+export type GetAccountOperationsParams = {
+  limit?: number;
+  lastId?: number;
+  roles?: TzktOperationRole[];
+  types?: TzktOperationType[];
+  sort?: 0 | 1;
+  quote?: TzktQuoteCurrency[];
+} & {
+  [key in `timestamp.${'lt' | 'ge'}`]?: string;
+};
+
 export const fetchGetAccountOperations = (
   chainId: TzktApiChainId,
   accountAddress: string,
-  params: {
-    limit?: number;
-    lastId?: number;
-    roles?: TzktOperationRole[];
-    types?: TzktOperationType[];
-    sort?: 0 | 1;
-    quote?: TzktQuoteCurrency[];
-  } & {
-    [key in `timestamp.${'lt' | 'ge'}`]?: string;
-  }
+  params: GetAccountOperationsParams
 ) =>
   fetchGet<TzktOperation[]>(chainId, '/accounts/activity', {
     ...params,
@@ -120,7 +123,7 @@ type OperationSortParams = {
   [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
 };
 
-type GetOperationsTransactionsParams = GetOperationsBaseParams & {
+export type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;
 } & {
   [key in `amount${'' | '.ne'}`]?: string;
