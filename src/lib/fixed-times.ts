@@ -22,6 +22,9 @@ export const NO_CATEGORY_ASSETS_METADATA_SYNC_INTERVAL = LONG_INTERVAL;
 
 export const LIFI_SUPPORTED_CHAIN_IDS_INTERVAL = LONG_INTERVAL * 12;
 
+/** Full EVM swap-token catalogue (`/evm/swap-tokens`). Too large to refetch on every popup. */
+export const LIFI_TOKENS_CATALOGUE_SYNC_INTERVAL = LONG_INTERVAL * 12;
+
 export const REFERRERS_COUNTER_SYNC_INTERVAL = LONG_INTERVAL;
 
 export const DEALS_PENDING_BALANCE_SYNC_INTERVAL = LONG_INTERVAL;

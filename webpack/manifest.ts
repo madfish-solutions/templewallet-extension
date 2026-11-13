@@ -20,6 +20,8 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
+  // For Objkt notification fallback icon in the website overlay
+  'misc/objkt-notification-fallback.svg',
   // For the web-widgets fonts loaded via the FontFace API on third-party pages
   'fonts/*.woff2',
   // For iFrames access
@@ -192,6 +194,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/main.js'],
         run_at: 'document_start' as const,
         all_frames: true
+      },
+      {
+        matches: ['https://*/*', 'http://*/*'],
+        js: ['scripts/accountNotificationsPopup.js'],
+        run_at: 'document_idle' as const,
+        all_frames: false
       },
       !shouldDisableAds && {
         matches: ['https://*/*', 'http://*/*'],

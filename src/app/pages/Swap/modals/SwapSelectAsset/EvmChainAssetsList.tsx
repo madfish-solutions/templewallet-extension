@@ -23,6 +23,7 @@ import { TempleChainKind } from 'temple/types';
 import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 
+import { BridgeCard, BridgeDirection } from './bridge-card';
 import { use3RouteEvmTokensSlugs, useFirstValue, useLifiEvmTokensSlugs } from './hooks';
 
 interface Props {
@@ -30,73 +31,80 @@ interface Props {
   activeField: SwapFieldName;
   publicKeyHash: HexString;
   searchValue: string;
+  bridgeDirection?: BridgeDirection;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
-export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
-  const network = useEvmChainByChainId(chainId);
-  if (!network) throw new DeadEndBoundaryError();
+export const EvmChainAssetsList = memo<Props>(
+  ({ chainId, activeField, publicKeyHash, searchValue, bridgeDirection, onAssetSelect }) => {
+    const network = useEvmChainByChainId(chainId);
+    if (!network) throw new DeadEndBoundaryError();
 
-  const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
-  const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
-  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+    const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
+    const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
+    const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
 
-  const isEvmNonZeroBalance = useCallback(
-    (assetSlug: string) => {
-      return isDefined(getEvmBalance(chainId, assetSlug));
-    },
-    [chainId, getEvmBalance]
-  );
-  const showFavoritesMark = activeField === 'output';
-  const filterZeroBalances = activeField === 'input';
+    const isEvmNonZeroBalance = useCallback(
+      (assetSlug: string) => {
+        return isDefined(getEvmBalance(chainId, assetSlug));
+      },
+      [chainId, getEvmBalance]
+    );
+    const showFavoritesMark = activeField === 'output';
+    const filterZeroBalances = activeField === 'input';
 
-  const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+    const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
-  const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
-  const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
+    const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
-  const evmChainAssetsSlugs = useMemo(() => {
-    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+    const evmChainAssetsSlugs = useMemo(() => {
+      const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-    return filterZeroBalances
-      ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
-      : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
-  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
+      return filterZeroBalances
+        ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
+        : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
+    }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
 
-  const evmChainAssetsSlugsSorted = useMemoWithCompare(
-    () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
-    [evmChainAssetsSlugs, tokensSortPredicate]
-  );
+    const evmChainAssetsSlugsSorted = useMemoWithCompare(
+      () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
+      [evmChainAssetsSlugs, tokensSortPredicate]
+    );
 
-  const metadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
-  const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
+    const metadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
-  const getMetadata = useCallback(
-    (slug: string) =>
-      slug === EVM_TOKEN_SLUG
-        ? network?.currency
-        : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
-    [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
-  );
+    const getMetadata = useCallback(
+      (slug: string) =>
+        slug === EVM_TOKEN_SLUG
+          ? network?.currency
+          : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
+      [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
+    );
 
-  const searchedSlugs = useMemo(
-    () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
-    [evmChainAssetsSlugsSorted, getMetadata, searchValue]
-  );
+    const searchedSlugs = useMemo(
+      () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
+      [evmChainAssetsSlugsSorted, getMetadata, searchValue]
+    );
 
-  if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
-  return (
-    <TokensListView slugs={searchedSlugs} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
-      {slug => (
-        <EvmTokenListItem
-          assetSlug={slug}
-          publicKeyHash={publicKeyHash}
-          network={network}
-          showFavoritesMark={showFavoritesMark}
-          onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
-        />
-      )}
-    </TokensListView>
-  );
-});
+    if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
+    return (
+      <>
+        {bridgeDirection && <BridgeCard direction={bridgeDirection} className="mb-2 shrink-0" />}
+
+        <TokensListView slugs={searchedSlugs} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
+          {slug => (
+            <EvmTokenListItem
+              assetSlug={slug}
+              publicKeyHash={publicKeyHash}
+              network={network}
+              showFavoritesMark={showFavoritesMark}
+              onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
+            />
+          )}
+        </TokensListView>
+      </>
+    );
+  }
+);

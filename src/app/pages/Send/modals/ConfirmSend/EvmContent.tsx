@@ -4,6 +4,7 @@ import { omit } from 'lodash';
 import { FormProvider, useFormState } from 'react-hook-form';
 import { TransactionRequest } from 'viem';
 
+import { useEvmGasOnRamp } from 'app/hooks/use-evm-gas-on-ramp';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
@@ -45,7 +46,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   onClose,
   onSuccess,
   detailsContent,
-  silentEstimation,
+  silentEstimation = true,
   suppressSubmitToast,
   onSubmittingChange
 }) => {
@@ -75,6 +76,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     amount,
     silent: silentEstimation
   });
+  useEvmGasOnRamp(network.chainId, latestSubmitError || estimationError);
 
   const {
     form,
@@ -84,6 +86,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     handleFeeOptionSelect,
     feeOptions,
     displayedFee,
+    getDisplayedFee,
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
   } = useEvmEstimationForm(estimationData, null, account, network.chainId);
@@ -136,7 +139,7 @@ export const EvmContent: FC<EvmContentProps> = ({
         } as TransactionRequest);
 
         onConfirm();
-        onSuccess({ txHash, displayedFee });
+        onSuccess({ txHash, displayedFee: getDisplayedFee(gasPrice, gasLimit) });
 
         const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
@@ -189,6 +192,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           setSelectedTab={setTab}
           selectedFeeOption={selectedFeeOption}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError}
           displayedFee={displayedFee}
           onFeeOptionSelect={handleFeeOptionSelect}
           onCancel={onClose}

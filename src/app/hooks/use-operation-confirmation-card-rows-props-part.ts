@@ -27,7 +27,7 @@ export function useOperationConfirmationCardRowsPropsPart<
   useTokenOrGasMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | undefined,
   useCollectibleMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => CM | undefined,
   useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
-  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void,
+  useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => boolean,
   unlimitedAtomicAmountThreshold = DEFAULT_UNLIMITED_THRESHOLD
 ) {
   const getTokenOrGasMetadata = useTokenOrGasMetadataGetter(chain.chainId);
@@ -38,7 +38,7 @@ export function useOperationConfirmationCardRowsPropsPart<
     () => Object.keys(assetsAmounts).map(slug => toChainAssetSlug(chain.kind, chain.chainId, slug)),
     [assetsAmounts, chain.chainId, chain.kind]
   );
-  useGenericAssetsMetadataCheck(chainAssetsSlugs);
+  const metadataLoading = useGenericAssetsMetadataCheck(chainAssetsSlugs);
 
   const allAssetsAreCollectibles = useMemo(
     () => Object.entries(assetsAmounts).every(([slug, { isNft }]) => Boolean(getCollectibleMetadata(slug)) || isNft),
@@ -54,8 +54,9 @@ export function useOperationConfirmationCardRowsPropsPart<
   );
 
   return useMemo(
-    () =>
-      Object.entries(assetsAmounts).map(([assetSlug, { atomicAmount, isNft }]) => {
+    () => ({
+      metadataLoading,
+      rows: Object.entries(assetsAmounts).map(([assetSlug, { atomicAmount, isNft }]) => {
         const tokenOrGasMetadata = getTokenOrGasMetadata(assetSlug);
         const collectibleMetadata = getCollectibleMetadata(assetSlug);
         const noCategoryAssetMetadata = getNoCategoryMetadata(assetSlug);
@@ -100,7 +101,8 @@ export function useOperationConfirmationCardRowsPropsPart<
               ? OperationConfirmationCardRowVariant.Collectible
               : OperationConfirmationCardRowVariant.Token
         };
-      }),
+      })
+    }),
     [
       allAssetsAreCollectibles,
       assetsAmounts,
@@ -108,7 +110,8 @@ export function useOperationConfirmationCardRowsPropsPart<
       castVolume,
       getCollectibleMetadata,
       getTokenOrGasMetadata,
-      getNoCategoryMetadata
+      getNoCategoryMetadata,
+      metadataLoading
     ]
   );
 }

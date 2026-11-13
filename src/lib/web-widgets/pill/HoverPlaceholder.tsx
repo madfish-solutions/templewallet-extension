@@ -3,6 +3,8 @@ import React, { memo, useEffect, useLayoutEffect, useRef, useState } from 'react
 import clsx from 'clsx';
 import { createPortal } from 'react-dom';
 
+import { el } from 'lib/el';
+
 import type { TagData } from '../engine/types';
 
 import { NftCard } from './card/NftCard';
@@ -32,15 +34,15 @@ const FALLBACK_CARD_WIDTH = 452;
 const FADE_OUT_MS = 160;
 
 const createCardHost = (): CardHost => {
-  const host = document.createElement('div');
+  const host = el('div');
   host.style.position = 'fixed';
   host.style.zIndex = '2147483647';
   host.style.pointerEvents = 'none';
 
   const shadow = host.attachShadow({ mode: 'open' });
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = PILL_STYLES;
-  const mount = document.createElement('div');
+  const mount = el('div');
   shadow.append(style, mount);
 
   return { host, mount };

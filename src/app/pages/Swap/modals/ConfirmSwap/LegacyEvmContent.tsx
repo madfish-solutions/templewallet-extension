@@ -5,6 +5,7 @@ import retry from 'async-retry';
 import { FormProvider } from 'react-hook-form';
 import { FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest, isAddress } from 'viem';
 
+import { useEvmGasOnRamp } from 'app/hooks/use-evm-gas-on-ramp';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
@@ -111,6 +112,7 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
     amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
     silent: true
   });
+  useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
   const providerEstimationData = useMemo(() => {
     let gas: bigint | undefined;
@@ -429,6 +431,7 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError}
           selectedFeeOption={selectedFeeOption}
           onFeeOptionSelect={handleFeeOptionSelect}
           displayedFee={displayedFee}
