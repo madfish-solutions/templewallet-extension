@@ -1,3 +1,11 @@
+import {
+  AppMetadata,
+  BeaconErrorType as ErrorType,
+  Network,
+  NetworkType,
+  PermissionScope,
+  SigningType
+} from '@airgap/beacon-types';
 import bs58check from 'bs58check';
 import { Buffer } from 'buffer';
 import {
@@ -24,25 +32,8 @@ import browser from 'webextension-polyfill';
 import { APP_TITLE } from 'lib/constants';
 import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 
-interface AppMetadata {
-  senderId: string;
-  name: string;
-  icon?: string;
-}
-
-type NetworkType = 'mainnet' | 'custom' | 'rionet' | 'seoulnet';
-
-interface Network {
-  type: NetworkType;
-  name?: string;
-  rpcUrl?: string;
-}
-
-export enum SigningType {
-  RAW = 'raw', // Arbitrary payload (string), which will be hashed before signing
-  OPERATION = 'operation', // "03" prefix
-  MICHELINE = 'micheline' // "05" prefix
-}
+export { ErrorType, NetworkType, PermissionScope, SigningType };
+export type { AppMetadata, Network };
 
 export type Request =
   | PermissionRequest
@@ -88,12 +79,6 @@ interface BaseMessage {
   senderId?: string; // ID of the sender. This is used to identify the sender of the message
 }
 
-export enum PermissionScope {
-  SIGN = 'sign',
-  OPERATION_REQUEST = 'operation_request',
-  THRESHOLD = 'threshold'
-}
-
 export interface PermissionRequest extends BaseMessage {
   type: MessageType.PermissionRequest;
   appMetadata: AppMetadata;
@@ -103,6 +88,7 @@ export interface PermissionRequest extends BaseMessage {
 
 interface PermissionResponse extends BaseMessage {
   type: MessageType.PermissionResponse;
+  walletType?: 'implicit';
   network: Network; // Network on which the permissions have been granted
   publicKey: string; // Public Key, because it can be used to verify signatures
   scopes: PermissionScope[]; // Permissions that have been granted for this specific address / account
@@ -131,7 +117,7 @@ interface OperationResponse extends BaseMessage {
   transactionHash: string;
 }
 
-interface SignRequest extends BaseMessage {
+export interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
@@ -140,6 +126,7 @@ interface SignRequest extends BaseMessage {
 
 interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
+  signingType?: SigningType;
   signature: string;
 }
 
@@ -152,19 +139,6 @@ interface BroadcastRequest extends BaseMessage {
 interface BroadcastResponse extends BaseMessage {
   type: MessageType.BroadcastResponse;
   transactionHash: string; // Hash of the broadcast transaction
-}
-
-export enum ErrorType {
-  BROADCAST_ERROR = 'BROADCAST_ERROR', // Broadcast | Operation Request: Will be returned if the user chooses that the transaction is broadcast but there is an error (eg. node not available).
-  NETWORK_NOT_SUPPORTED = 'NETWORK_NOT_SUPPORTED', // Permission: Will be returned if the selected network is not supported by the wallet / extension.
-  NO_ADDRESS_ERROR = 'NO_ADDRESS_ERROR', // Permission: Will be returned if there is no address present for the protocol / network requested.
-  NO_PRIVATE_KEY_FOUND_ERROR = 'NO_PRIVATE_KEY_FOUND_ERROR', // Sign: Will be returned if the private key matching the sourceAddress could not be found.
-  NOT_GRANTED_ERROR = 'NOT_GRANTED_ERROR', // Sign: Will be returned if the signature was blocked // (Not needed?) Permission: Will be returned if the permissions requested by the App were not granted.
-  PARAMETERS_INVALID_ERROR = 'PARAMETERS_INVALID_ERROR', // Operation Request: Will be returned if any of the parameters are invalid.
-  TOO_MANY_OPERATIONS = 'TOO_MANY_OPERATIONS', // Operation Request: Will be returned if too many operations were in the request and they were not able to fit into a single operation group.
-  TRANSACTION_INVALID_ERROR = 'TRANSACTION_INVALID_ERROR', // Broadcast: Will be returned if the transaction is not parsable or is rejected by the node.
-  ABORTED_ERROR = 'ABORTED_ERROR', // Permission | Operation Request | Sign Request | Broadcast: Will be returned if the request was aborted by the user or the wallet.
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR' // Used as a wildcard if an unexpected error occured.
 }
 
 interface ErrorResponse extends BaseMessage {

@@ -1,6 +1,5 @@
-import { localForger, Uint8ArrayConsumer } from '@taquito/local-forging';
-import { valueDecoder } from '@taquito/local-forging/dist/lib/michelson/codec';
-import { emitMicheline } from '@taquito/michel-codec';
+import { localForger, Uint8ArrayConsumer, valueDecoder } from '@taquito/local-forging';
+import { emitMicheline, Expr } from '@taquito/michel-codec';
 import { TezosOperationError } from '@taquito/taquito';
 import {
   TempleDAppMessageType,
@@ -294,12 +293,18 @@ const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppS
       }
     } else {
       const value = valueDecoder(Uint8ArrayConsumer.fromHexString(req.payload.slice(2)));
-      const parsed = emitMicheline(value, {
+      const parsed = emitMicheline(value as Expr, {
         indent: '  ',
         newline: '\n'
       }).slice(1, -1);
 
-      if (req.payload.match(TEZ_MSG_SIGN_PATTERN)) {
+      if (
+        req.payload.match(TEZ_MSG_SIGN_PATTERN) &&
+        typeof value === 'object' &&
+        value !== null &&
+        'string' in value &&
+        typeof value.string === 'string'
+      ) {
         preview = value.string;
       } else if (parsed.length > 0) {
         preview = parsed;

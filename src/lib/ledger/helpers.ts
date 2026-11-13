@@ -1,4 +1,4 @@
-import { PublicKeyHashRetrievalError, PublicKeyRetrievalError } from '@taquito/ledger-signer/dist/types/errors';
+import { PublicKeyHashRetrievalError, PublicKeyRetrievalError } from '@taquito/ledger-signer';
 
 import { PublicError } from 'lib/temple/back/PublicError';
 

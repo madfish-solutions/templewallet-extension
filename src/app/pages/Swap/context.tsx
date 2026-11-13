@@ -1,6 +1,6 @@
 import { createContext, RefObject, useContext } from 'react';
 
-import type { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import type { BatchWalletOperation } from '@taquito/taquito';
 
 import type { SwapFieldName } from './form/interfaces';
 

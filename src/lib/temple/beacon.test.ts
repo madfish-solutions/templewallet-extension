@@ -28,6 +28,7 @@ import {
   formatOpParams,
   encodeMessage,
   MessageType,
+  NetworkType,
   PostMessagePairingRequest,
   OperationRequest,
   openBeaconMessage
@@ -333,6 +334,13 @@ describe('Beacon', () => {
         id: 'pair-1',
         publicKey: MOCK_PUBLIC_KEY
       });
+    });
+
+    it('re-exports NetworkType enum from @ecadlabs/beacon-types including shadownet and tallinnnet', () => {
+      expect(NetworkType.MAINNET).toBe('mainnet');
+      expect(NetworkType.GHOSTNET).toBe('ghostnet');
+      expect(NetworkType.SHADOWNET).toBe('shadownet');
+      expect(NetworkType.TALLINNNET).toBe('tallinnnet');
     });
   });
   describe('formatOpParams', () => {
