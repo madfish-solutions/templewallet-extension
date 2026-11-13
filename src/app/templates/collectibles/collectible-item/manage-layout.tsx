@@ -1,10 +1,11 @@
-import { FC, Ref } from 'react';
+import { FC, Ref, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
+import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
@@ -12,7 +13,9 @@ import { setTezosCollectibleStatusAction } from 'app/store/tezos/assets/actions'
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setTestID } from 'lib/analytics';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useBooleanState } from 'lib/ui/hooks';
+import { combineRefs } from 'lib/ui/utils';
 import { ChainId, ChainOfKind, PublicKeyHash, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -41,7 +44,8 @@ const ManageCollectibleListItemLayoutHOC = <
 >(
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
   >,
   toggleTokenStatus: (
     newStatus: 'enabled' | 'disabled',
@@ -75,6 +79,11 @@ const ManageCollectibleListItemLayoutHOC = <
     const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
+    const visibilityElemRef = useRef<HTMLDivElement>(null);
+    useReportEvmCollectibleVisibility(
+      typeof chainId === 'number' ? toChainAssetSlug(TempleChainKind.EVM, chainId, assetSlug) : undefined,
+      visibilityElemRef
+    );
 
     const handleCollectibleStatusSwitch = () =>
       toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash);
@@ -89,7 +98,7 @@ const ManageCollectibleListItemLayoutHOC = <
             'focus:bg-secondary-low',
             scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low'
           )}
-          ref={ref as Ref<HTMLDivElement>}
+          ref={combineRefs(visibilityElemRef, ref)}
           {...setTestID(testID)}
         >
           <div className="flex items-center gap-x-1.5">
@@ -99,7 +108,7 @@ const ManageCollectibleListItemLayoutHOC = <
               className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
             >
               {isVisible ? (
-                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
               ) : (
                 <div className="w-full h-full z-1 bg-grey-3" />
               )}
@@ -187,7 +196,9 @@ export const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
 
 export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage metadata={metadata} className="object-cover" />,
+  ({ metadata, assetSlug, chainId }) => (
+    <EvmCollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} className="object-cover" />
+  ),
   (status, assetSlug, chainId, account) =>
     void dispatch(setEvmCollectibleStatusAction({ account, chainId, slug: assetSlug, status })),
   (assetSlug, chainId, account) =>

@@ -5,9 +5,8 @@ import { setEvmTokensExchangeRatesLoading } from 'app/store/evm/actions';
 import { useEvmChainsTokensExchangeRatesLoadingSelector } from 'app/store/evm/selectors';
 import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
 import { useEvmUsdToTokenRatesTimestampsSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
-import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
-import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { BalancesResponse, GoldrushChainID, getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { RATES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
@@ -41,14 +40,14 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
   }, []);
 
   const getEvmTokensMetadataWrapped = useCallback(
-    (walletAddress: string, chainId: ChainID) =>
+    (walletAddress: string, chainId: GoldrushChainID) =>
       getEvmTokensMetadata(walletAddress, chainId)
         .then(data => ({ data }))
         .catch(error => ({ error })),
     []
   );
 
-  const loaders = useMemo<[ApiDataLoader<BalancesResponse, ChainID>]>(
+  const loaders = useMemo<[ApiDataLoader<BalancesResponse, GoldrushChainID>]>(
     () => [
       {
         type: 'api',
@@ -57,7 +56,7 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
         getData: getEvmTokensMetadataWrapped,
         handleSuccess,
         handleError,
-        isApplicable: isSupportedChainId
+        isApplicable: isGoldrushChainId
       }
     ],
     [getEvmTokensMetadataWrapped, handleError, handleSuccess, isLoading, setLoading]

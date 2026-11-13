@@ -14,7 +14,7 @@ import { processLoadedEvmTokensMetadataAction } from 'app/store/evm/tokens-metad
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import {
@@ -146,7 +146,7 @@ export const useEnableAutodisabledNetworks = () => {
               return { balances: { type: 'etherlink', value: balances } } as const;
             }
 
-            if (isSupportedChainId(chainId)) {
+            if (isGoldrushChainId(chainId)) {
               await waitForRequestsLimit();
               const balancesResponse = await getEvmTokensMetadata(accountAddress, chainId);
 

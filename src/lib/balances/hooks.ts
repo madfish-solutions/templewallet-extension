@@ -20,7 +20,7 @@ import {
   useBalancesAtomicRecordSelector
 } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { evmBalanceOnChainRequestedAt, getEvmBalanceOnChainRequestKey } from 'lib/evm/on-chain/balance';
 import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscriptions';
@@ -212,7 +212,7 @@ function useEvmAssetRawBalance(
   const loadingFromApiError = isTruthy(loadingFromApiState?.error);
 
   const usingOnchainRequests = useMemo(() => {
-    if (!isSupportedChainId(chainId) || currentAccountAddress !== address) {
+    if (!isGoldrushChainId(chainId) || currentAccountAddress !== address) {
       return true;
     }
 

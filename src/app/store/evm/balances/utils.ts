@@ -1,7 +1,7 @@
 import { Draft } from '@reduxjs/toolkit';
 import { getAddress } from 'viem';
 
-import { BalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalanceItem } from 'lib/apis/temple/endpoints/evm';
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';

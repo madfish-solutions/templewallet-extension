@@ -37,4 +37,19 @@ describe('parseMediaUri', () => {
       search: ''
     });
   });
+
+  it('should recover IPFS info from the Covalent gateway and its image proxy', () => {
+    const direct = parseMediaUri(`https://ipfs.covalenthq.com/ipfs/${CID_V0}`);
+    const proxied = parseMediaUri(
+      `https://image-proxy.svc.prod.covalenthq.com/cdn-cgi/image/width=256,fit/https://ipfs.covalenthq.com/ipfs/${CID_V0}/file.png`
+    );
+
+    expect(direct.ipfsAware.ipfs?.id).toBe(CID_V0);
+    expect(proxied.ipfsAware.ipfs).toEqual({
+      id: CID_V0,
+      idV1: CID_V1,
+      pathWithoutCid: 'file.png',
+      search: ''
+    });
+  });
 });

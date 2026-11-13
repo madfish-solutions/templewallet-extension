@@ -26,6 +26,12 @@ export const putNewEvmCollectibleAction = createAction<putNewEvmAssetActionPaylo
   'evm/assets/PUT_NEW_COLLECTIBLE_ACTION'
 );
 
+export const enableEvmCollectiblesAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+  slugs: string[];
+}>('evm/assets/ENABLE_COLLECTIBLES');
+
 type SetAssetStatusPayload = EvmAccountAssetForStore;
 
 export const setEvmTokenStatusAction = createAction<SetAssetStatusPayload>('evm/assets/SET_TOKEN_STATUS');

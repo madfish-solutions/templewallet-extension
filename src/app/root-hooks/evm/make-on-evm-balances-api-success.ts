@@ -1,7 +1,7 @@
 import { dispatch } from 'app/store';
 import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
 import { processLoadedEvmAssetsBalancesAction } from 'app/store/evm/balances/actions';
-import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalancesResponse } from 'lib/apis/temple/endpoints/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { SuccessPayload } from './use-refresh-if-active';

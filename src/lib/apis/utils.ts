@@ -1,6 +1,74 @@
 import { AxiosResponse, isAxiosError } from 'axios';
 
 import { delay } from 'lib/utils';
+import { delayUnlessAborted } from 'lib/utils/delay-unless-aborted';
+
+const DEFAULT_RETRY_AFTER_MS = 1000;
+
+/** Delay from a `Retry-After` value. Seconds and HTTP-dates are both accepted. */
+export const retryDelayMsFromHeaderValue = (header: unknown, now = Date.now()): number => {
+  const value = Array.isArray(header) ? header[0] : header;
+
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, value * 1000);
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed) {
+      const seconds = Number(trimmed);
+      if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+
+      const dateMs = Date.parse(trimmed);
+      if (Number.isFinite(dateMs)) return Math.max(0, dateMs - now);
+    }
+  }
+
+  return DEFAULT_RETRY_AFTER_MS;
+};
+
+const retryAfterHeader = (headers: AxiosResponse['headers'] | undefined) => {
+  if (!headers) return undefined;
+
+  if ('get' in headers && typeof headers.get === 'function') {
+    const value = headers.get('retry-after');
+    if (value != null && value !== '') return value;
+  }
+
+  return headers['retry-after'];
+};
+
+/** True for an aborted fetch (`AbortController` or Axios cancel). */
+export const isAbortError = (error: unknown) => {
+  if (!error || typeof error !== 'object') return false;
+
+  const name = 'name' in error && typeof error.name === 'string' ? error.name : '';
+  const code = 'code' in error && typeof error.code === 'string' ? error.code : '';
+
+  return name === 'CanceledError' || name === 'AbortError' || code === 'ERR_CANCELED';
+};
+
+/** Milliseconds to wait after HTTP 429, or `undefined` when the error is not a rate limit. */
+export const readRetryAfterMs = (error: unknown, now = Date.now()): number | undefined => {
+  if (!isAxiosError(error) || error.response?.status !== 429) return undefined;
+
+  return retryDelayMsFromHeaderValue(retryAfterHeader(error.response.headers), now);
+};
+
+/**
+ * Runs `run` again after HTTP 429, up to `retries` extra times.
+ * Each wait follows that response's `Retry-After` header and stops when `signal` aborts.
+ */
+export const withRateLimitRetry = async <T>(run: () => Promise<T>, signal: AbortSignal, retries = 3): Promise<T> => {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await run();
+    } catch (error) {
+      const delayMs = readRetryAfterMs(error);
+      if (delayMs === undefined || attempt >= retries) throw error;
+
+      await delayUnlessAborted(delayMs, signal);
+    }
+  }
+};
 
 export const withAxiosDataExtract =
   <A extends unknown[], T>(fn: (...args: A) => Promise<AxiosResponse<T>>) =>

@@ -5,7 +5,9 @@ import { isTruthy } from 'lib/utils';
 
 import chainIdsMapping from './chain-id-to-image-chain-name.json';
 import { EvmAssetStandard } from './evm/types';
+import { collectibleImagePreviewUrl, seadnVideoFrameUrl } from './metadata/collectible-media';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
+import { patchRetiredSeadnImageUrl } from './metadata/utils';
 import {
   buildLastResortIpfsGatewayUrl,
   buildPrimaryIpfsGatewayUrls,
@@ -147,7 +149,7 @@ const buildIpfsMediaUriByInfo = (
   return;
 };
 
-export const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] => {
+const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] => {
   const primaryUrls = buildPrimaryIpfsGatewayUrls(uri);
   if (primaryUrls.length === 0) return [];
 
@@ -215,11 +217,25 @@ export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId
   return fallbacks.filter(isTruthy).map(url => getCompressedImageUrl(url, COMPRESSED_TOKEN_ICON_SIZE));
 };
 
+/**
+ * Still URLs for a collectible, small video frame first.
+ * An animated cover such as an EulerBeats gif is kept behind that frame so the grid
+ * does not wait for the animation or the media file.
+ */
+const collectiblePreviewUrls = (metadata?: EvmCollectibleMetadata) => {
+  const stored = metadata?.images?.length ? metadata.images : metadata?.image ? [metadata.image] : [];
+  const frame = metadata?.artifactUrl ? seadnVideoFrameUrl(metadata.artifactUrl) : undefined;
+  if (!frame) return stored;
+
+  return [frame, ...stored.filter(url => url !== frame)];
+};
+
 export const buildEvmCollectibleIconSources = (
   metadata: EvmCollectibleMetadata,
   { includeCompressed = true }: { includeCompressed?: boolean } = {}
 ): ImageSourceStage[] => {
-  const originalUrl = metadata.image;
+  const storedUrl = collectiblePreviewUrls(metadata)[0];
+  const originalUrl = storedUrl ? displayCollectibleImageUrl(storedUrl) : undefined;
   if (!originalUrl) return [];
 
   const gatewayStages = buildIpfsGatewaySourceStages(originalUrl);
@@ -241,6 +257,16 @@ export const buildEvmCollectibleIconSources = (
     })),
     gatewayStages
   );
+};
+
+/** Preview fallbacks: each stored variant, with IPFS gateway stages for IPFS URLs. */
+export const buildEvmCollectiblePreviewSources = (metadata?: EvmCollectibleMetadata): ImageSourceStage[] =>
+  collectiblePreviewUrls(metadata).flatMap(url => buildIpfsGatewaySourceStages(displayCollectibleImageUrl(url)));
+
+const displayCollectibleImageUrl = (url: string) => {
+  const patched = patchRetiredSeadnImageUrl(url) ?? url;
+
+  return collectibleImagePreviewUrl(patched);
 };
 
 export const buildHttpLinkFromUri = (uri?: string, ipfsGate = DEFAULT_IPFS_GATE) => {

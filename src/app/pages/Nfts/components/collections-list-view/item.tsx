@@ -1,8 +1,8 @@
-import { FC, Ref } from 'react';
+import { FC, Ref, useEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, IconBase } from 'app/atoms';
+import { Anchor, IconBase, Loader } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
@@ -10,6 +10,9 @@ import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
+import { dispatch } from 'app/store';
+import { loadEvmCollectionTokensAction } from 'app/store/evm/collectibles-inventory/actions';
+import { openseaCollectionSlugFromCard } from 'app/store/evm/collectibles-inventory/collection-load';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { setTestID } from 'lib/analytics';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
@@ -18,6 +21,7 @@ import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { NftsPageSelectors } from '../../selectors';
 import { CollectiblesCollection } from '../../types';
@@ -30,6 +34,62 @@ interface CollectionsListItemProps {
   onToggleOpened: (collectionSlug: string) => void;
   firstItemRef?: Ref<CollectiblesListItemElement>;
 }
+
+export const requestEvmCollectionTokens = (
+  account: HexString,
+  chainId: number,
+  contractAddresses: readonly string[],
+  card?: { collectionSlug: string; title?: string }
+) => {
+  if (!contractAddresses.length) return;
+
+  dispatch(
+    loadEvmCollectionTokensAction({
+      account,
+      chainId,
+      contractAddresses: contractAddresses.slice(),
+      openseaCollection: openseaCollectionSlugFromCard(card?.collectionSlug),
+      collectionName: card?.title
+    })
+  );
+};
+
+/** Collapsed cards show one row of this many tokens. */
+const COLLAPSED_COLLECTION_PREVIEW_COUNT = 4 as const;
+
+/**
+ * Last preview row for a collection, kept while a reload has not returned tokens yet.
+ * Keyed by account so one account never keeps another's NFTs.
+ */
+const retainedCollectionPreviewSlugs = new Map<string, string[]>();
+
+const collectionPreviewSlugs = (chainSlugs: string[], retainedSlugs: string[], itemsCount: number) => {
+  if (chainSlugs.length > 0 || itemsCount < 1) return chainSlugs;
+
+  return retainedSlugs;
+};
+
+const CollectionPreviewPlaceholder: FC<{ count: number; isVisible: boolean }> = ({ count, isVisible }) => (
+  <div className="grid grid-cols-4 gap-2">
+    {Array.from({ length: count }, (_, index) => (
+      <div key={index} className="flex flex-col overflow-hidden">
+        <div
+          className={clsx(
+            'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
+            isVisible && 'border-2 border-transparent'
+          )}
+        >
+          {isVisible ? (
+            <Loader size="L" trackVariant="dark" className="text-secondary" />
+          ) : (
+            <div className="w-full h-full bg-grey-3" />
+          )}
+        </div>
+        <div className="pt-1 w-full h-5">{!isVisible && <div className="w-full h-4 bg-grey-3 rounded" />}</div>
+      </div>
+    ))}
+  </div>
+);
 
 const collectionImgStyle = { width: '2.5rem', height: '2.5rem' };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
@@ -50,12 +110,77 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   onToggleOpened
 }) => {
   const { collectionSlug, title = t('unknownCollection'), logoSources = EMPTY_FROZEN_ARRAY, chainId } = collection;
-  const handleToggleOpened = () => onToggleOpened(collectionSlug);
+  const itemsCount = collection.ownedCount ?? chainSlugs.length;
   const isVisible = useIsItemVisible(index);
+  const handleToggleOpened = () => {
+    onToggleOpened(collectionSlug);
+  };
+  const accountEvmAddress = useAccountAddressForEvm();
+  const accountTezosAddress = useAccountAddressForTezos();
+  const contractAddressesKey = collection.contractAddresses?.join();
+  const cardRef = useRef<HTMLDivElement>(null);
   const { searchValue } = useCollectiblesSearchState();
+  const previewCount = Math.min(COLLAPSED_COLLECTION_PREVIEW_COUNT, itemsCount);
+  const accountAddress = typeof chainId === 'number' ? accountEvmAddress : accountTezosAddress;
+  const previewRetentionKey = accountAddress ? `${accountAddress}:${collectionSlug}` : undefined;
+  const shownSlugs = collectionPreviewSlugs(
+    chainSlugs,
+    previewRetentionKey ? (retainedCollectionPreviewSlugs.get(previewRetentionKey) ?? []) : [],
+    itemsCount
+  );
+
+  useEffect(() => {
+    if (!previewRetentionKey) return;
+
+    if (itemsCount < 1) retainedCollectionPreviewSlugs.delete(previewRetentionKey);
+    else if (chainSlugs.length > 0) retainedCollectionPreviewSlugs.set(previewRetentionKey, chainSlugs);
+  }, [chainSlugs, itemsCount, previewRetentionKey]);
+
+  useEffect(() => {
+    const element = cardRef.current;
+    if (
+      !element ||
+      !accountEvmAddress ||
+      chainSlugs.length >= previewCount ||
+      previewCount < 1 ||
+      !contractAddressesKey ||
+      typeof chainId !== 'number'
+    )
+      return;
+
+    const requestPreview = () =>
+      requestEvmCollectionTokens(accountEvmAddress, chainId, contractAddressesKey.split(','), {
+        collectionSlug,
+        title: collection.title
+      });
+
+    if (typeof IntersectionObserver === 'undefined') {
+      requestPreview();
+
+      return;
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) requestPreview();
+    });
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [
+    accountEvmAddress,
+    chainId,
+    chainSlugs.length,
+    collection.title,
+    collectionSlug,
+    contractAddressesKey,
+    previewCount
+  ]);
 
   return (
-    <div className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2">
+    <div
+      ref={cardRef}
+      className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2"
+    >
       <div className="flex items-center gap-2">
         <div className="p-0.5 relative" style={collectionImgStyle}>
           {isVisible ? (
@@ -102,10 +227,10 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
               <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
             </p>
           )}
-          <p className="text-font-num-10 text-grey-1 truncate">Items: {chainSlugs.length}</p>
+          <p className="text-font-num-10 text-grey-1 truncate">Items: {itemsCount}</p>
         </div>
 
-        {chainSlugs.length > 4 && (
+        {itemsCount > 4 && (
           <button
             className={clsx('p-2 text-grey-1 transform transition-transform duration-500', opened && 'rotate-180')}
             onClick={handleToggleOpened}
@@ -115,16 +240,20 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
           </button>
         )}
       </div>
-      <CollectiblesGroupGrid
-        isCollapsed={!opened}
-        chainSlugs={chainSlugs}
-        colsCount={4}
-        isVisible={isVisible}
-        areDetailsShown
-        firstItemRef={firstItemRef}
-        showMoreTestID={NftsPageSelectors.showMoreElement}
-        onShowMore={handleToggleOpened}
-      />
+      {shownSlugs.length > 0 ? (
+        <CollectiblesGroupGrid
+          isCollapsed={!opened}
+          chainSlugs={shownSlugs}
+          colsCount={COLLAPSED_COLLECTION_PREVIEW_COUNT}
+          isVisible={isVisible}
+          areDetailsShown
+          firstItemRef={firstItemRef}
+          showMoreTestID={NftsPageSelectors.showMoreElement}
+          onShowMore={handleToggleOpened}
+        />
+      ) : (
+        previewCount > 0 && <CollectionPreviewPlaceholder count={previewCount} isVisible={isVisible} />
+      )}
     </div>
   );
 };

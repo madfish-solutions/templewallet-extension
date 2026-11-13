@@ -2,6 +2,17 @@ import { startTransition, useCallback, useEffect, useMemo, useState } from 'reac
 
 import { useDidUpdate } from 'lib/ui/hooks';
 
+/** A new source array with the same entries must not count as a page change. */
+const samePage = (current: readonly unknown[], next: readonly unknown[]) => {
+  if (current.length !== next.length) return false;
+
+  for (let index = 0; index < current.length; index++) {
+    if (!Object.is(current[index], next[index])) return false;
+  }
+
+  return true;
+};
+
 export const useGenericPaginationLogic = <T extends unknown[]>(
   items: T,
   deps: unknown[] = [],
@@ -17,9 +28,11 @@ export const useGenericPaginationLogic = <T extends unknown[]>(
 
   const _load = useCallback(
     (size: number) => {
-      const nextItems = slice(items, size);
+      setPaginatedItems(current => {
+        const nextItems = slice(items, size);
 
-      setPaginatedItems(nextItems);
+        return samePage(current, nextItems) ? current : nextItems;
+      });
     },
     [items, slice]
   );

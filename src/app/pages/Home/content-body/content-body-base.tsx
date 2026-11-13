@@ -16,6 +16,9 @@ import {
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
 import { setTokensHideSmallBalanceFilterOption } from 'app/store/assets-filter-options/actions';
+import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/assets/selectors';
+import { isAlchemyChainId } from 'app/store/evm/collectibles-inventory/chains';
+import { useEvmCollectiblesInventorySelector } from 'app/store/evm/collectibles-inventory/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AddTokenModal } from 'app/templates/add-token-modal';
 import { CardWithChevron } from 'app/templates/card-with-chevron';
@@ -32,7 +35,7 @@ import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { navigate } from 'lib/woozie';
-import { OneOfChains } from 'temple/front';
+import { OneOfChains, useAccountAddressForEvm } from 'temple/front';
 
 import { ContentBodyBaseContext } from './content-body-base-context';
 
@@ -49,6 +52,16 @@ export interface ContentBodyBaseProps {
 }
 
 const goToNftsPage = () => navigate('/nfts');
+
+/**
+ * Alchemy `nftTotalCount` is the owned total for this counter.
+ * `loaded` is only the pages fetched so far, and a refresh keeps the first page.
+ */
+const alchemyChainCount = (enabledLoaded: number, totalCount: number | undefined, hidden: number) => {
+  if (totalCount == null) return enabledLoaded;
+
+  return Math.max(enabledLoaded, Math.max(0, totalCount - hidden));
+};
 
 export const ContentBodyBase: FC<PropsWithChildren<ContentBodyBaseProps>> = props => {
   const [customAssetModalOpened, localOpenCustomAssetModal, closeCustomAssetModal] = useBooleanState(false);
@@ -169,10 +182,43 @@ const NftsSection = ({
   openCustomAssetModal
 }: NftsSectionProps) => {
   const openCustomCollectibleModal = () => openCustomAssetModal(true);
+  const evmAddress = useAccountAddressForEvm();
+  const inventoryByChain = useEvmCollectiblesInventorySelector(evmAddress);
+  const storedCollectibles = useEvmStoredCollectiblesRecordSelector();
+  const storedByChain = evmAddress ? storedCollectibles[evmAddress] : undefined;
   const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
   const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles);
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
   const collectibles = tezosCollectibles.concat(evmCollectibles);
+  const enabledLoadedByAlchemyChain = new Map<number, number>();
+  let otherEvmCount = 0;
+
+  for (const collectible of evmCollectibles) {
+    if (collectible.status !== 'enabled' || typeof collectible.chainId !== 'number') continue;
+    if (!isAlchemyChainId(collectible.chainId)) {
+      otherEvmCount++;
+      continue;
+    }
+
+    enabledLoadedByAlchemyChain.set(
+      collectible.chainId,
+      (enabledLoadedByAlchemyChain.get(collectible.chainId) ?? 0) + 1
+    );
+  }
+
+  let alchemyCount = 0;
+  for (const [chainId, enabledLoaded] of enabledLoadedByAlchemyChain) {
+    const stored = storedByChain?.[chainId];
+    const hidden = stored
+      ? Object.values(stored).filter(asset => asset.status === 'removed' || asset.status === 'disabled').length
+      : 0;
+    const inventory = inventoryByChain[chainId];
+    const totalCount = inventory?.settled ? inventory.nftTotalCount : undefined;
+
+    alchemyCount += alchemyChainCount(enabledLoaded, totalCount, hidden);
+  }
+
+  const collectiblesCount = tezosCollectiblesSlugs.length + otherEvmCount + alchemyCount;
 
   return (
     <CardWithChevron
@@ -204,6 +250,7 @@ const NftsSection = ({
           <CollectiblesGroupGrid
             isCollapsed
             chainSlugs={collectiblesSlugsSorted}
+            itemsCount={collectiblesCount}
             colsCount={3}
             isVisible
             onShowMore={goToNftsPage}

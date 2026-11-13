@@ -202,6 +202,7 @@ interface SearchCollectiblesWithNoMetaInput<T> {
   getSlug: (asset: T) => string;
   getChainSlug: (asset: T) => string;
   getTezCollectionName: (chainId: string, slug: string) => string | undefined;
+  getEvmCollectionName?: (chainId: number, slug: string) => string | undefined;
 }
 
 export function searchCollectiblesWithNoMeta<T>({
@@ -211,7 +212,8 @@ export function searchCollectiblesWithNoMeta<T>({
   getEvmMetadata,
   getSlug,
   getChainSlug,
-  getTezCollectionName
+  getTezCollectionName,
+  getEvmCollectionName
 }: SearchCollectiblesWithNoMetaInput<T>) {
   const trimmedSearchValue = searchValue.trim();
 
@@ -242,11 +244,12 @@ export function searchCollectiblesWithNoMeta<T>({
       }
 
       const metadata = getEvmMetadata(chainId as number, slug);
+      const collectionName = typeof chainId === 'number' ? getEvmCollectionName?.(chainId, slug) : undefined;
 
       return {
         ...commonProps,
         name: metadata?.collectibleName,
-        contractName: metadata?.name ?? t('unknownCollection')
+        contractName: collectionName ?? metadata?.name ?? t('unknownCollection')
       };
     }
   );

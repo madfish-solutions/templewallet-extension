@@ -1,27 +1,44 @@
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { concat, EMPTY, from, of } from 'rxjs';
-import { catchError, concatMap, mergeMap, withLatestFrom } from 'rxjs/operators';
-import { ofType } from 'ts-action-operators';
+import { concat, defer, EMPTY, from, of } from 'rxjs';
+import { catchError, concatMap, filter, finalize, map, mergeMap, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
+import { isOpenseaChainId } from 'app/store/evm/collectibles-inventory/chains';
 import { RootState } from 'app/store/root-state.type';
-import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
-import { fetchEvmCollectiblesMetadataFromChain } from 'lib/evm/on-chain/metadata';
-import { EMPTY_FROZEN_ARRAY, isTruthy } from 'lib/utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isAbortError } from 'lib/apis/utils';
+import { toTokenSlug } from 'lib/assets';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import {
+  EvmCollectiblesMetadataSession,
   loadEvmCollectiblesMetadataAction,
-  processLoadedEvmCollectiblesMetadataAction,
-  putEvmCollectiblesMetadataAction,
+  retryOpenseaCollectiblesMetadataAction,
   updateEvmCollectiblesMetadataSessionAction
 } from './actions';
-import { getSlugsWithProperCollectibleMetadata } from './utils';
+import { cancelMetadataLoads, createMetadataLoadQueue, metadataLoadWasCancelled, noteMetadataLoad } from './load-queue';
+import { emptyAfterLoadError, isCollectiblesListingChange } from './metadata-load-shared';
+import {
+  continueEvmCollectiblesOnChainLoadEpic,
+  queueVisibleOnChainReads,
+  slugSetsFromRecords,
+  visibleOnChainItems,
+  withOnChainSlugs
+} from './on-chain-metadata-load';
+import { buildOpenseaMultichainRefBatches } from './opensea-batches';
+import {
+  fetchChainCollectiblesMetadata,
+  fetchOpenseaMetadata,
+  loadOpenseaBatch,
+  retryDelayMs
+} from './opensea-metadata-load';
+import { loadOpenseaStorefrontCollectionEpic, retryOpenseaCollectiblesMetadataEpic } from './opensea-metadata-retry';
+import { cancelSharedStorefrontCollectionLoads } from './opensea-storefront';
 
 const canFetchCollectiblesMetadataFromApi = (chainId: number, isTestnetMode: boolean) =>
-  isSupportedChainId(chainId) && !isTestnetMode;
+  isGoldrushChainId(chainId) && !isTestnetMode;
 
 const collectChainLoads = (
   publicKeyHash: HexString,
@@ -30,17 +47,19 @@ const collectChainLoads = (
   state: RootState
 ) => {
   const currentAccountCollectibles = state.evmAssets.collectibles[publicKeyHash];
-  const { metadataRecord, lastFullLoadAccount, seenChainsByAccount, checkedSlugsByAccount } =
+  const { metadataRecord, lastFullLoadAccount, seenChainsByAccount, checkedSlugsByAccount, onChainSlugsByAccount } =
     state.evmCollectiblesMetadata;
   const isTestnetMode = state.settings.isTestnetModeEnabled;
 
   let nextLastFullLoadAccount = lastFullLoadAccount;
   let checkedSlugsByChain = { ...checkedSlugsByAccount[publicKeyHash] };
+  let onChainSlugsByChain = { ...onChainSlugsByAccount[publicKeyHash] };
   const seenChains = new Set(seenChainsByAccount[publicKeyHash] ?? EMPTY_FROZEN_ARRAY);
 
   if (loadAllChains && lastFullLoadAccount !== publicKeyHash) {
     nextLastFullLoadAccount = publicKeyHash;
     checkedSlugsByChain = {};
+    onChainSlugsByChain = {};
     seenChains.clear();
   }
 
@@ -67,7 +86,7 @@ const collectChainLoads = (
       checkedSlugsByChain[chainId] = checkedSlugs.concat(slugsWithoutMeta);
     }
 
-    return [{ chain, slugsWithoutMeta }];
+    return [{ chain, slugsWithoutMeta, allSlugs }];
   });
 
   return {
@@ -76,96 +95,200 @@ const collectChainLoads = (
       publicKeyHash,
       lastFullLoadAccount: nextLastFullLoadAccount,
       seenChains: Array.from(seenChains),
-      checkedSlugsByChain
+      checkedSlugsByChain,
+      onChainSlugsByChain
     }
   };
 };
 
-const loadEvmCollectiblesMetadataFromChain = async (slugsWithoutMeta: string[], chain: EvmNetworkEssentials) => {
-  try {
-    const records = await fetchEvmCollectiblesMetadataFromChain(chain, slugsWithoutMeta);
+const metadataLoadQueue = createMetadataLoadQueue();
 
-    return putEvmCollectiblesMetadataAction({ chainId: chain.chainId, records });
-  } catch (error) {
-    console.error(error);
-
-    return undefined;
-  }
-};
-
-const fetchChainCollectiblesMetadata = async (
-  publicKeyHash: HexString,
-  chain: EvmNetworkEssentials,
-  slugsWithoutMeta: string[],
-  isTestnetMode: boolean
-) => {
-  const { chainId } = chain;
-
-  if (!isTestnetMode && isSupportedChainId(chainId)) {
-    try {
-      const data = await getEvmCollectiblesMetadata(publicKeyHash, chainId);
-      const loadedSlugs = getSlugsWithProperCollectibleMetadata(data);
-
-      const slugsLeftWithoutMeta = slugsWithoutMeta.filter(slug => !loadedSlugs.has(slug));
-      const onChainAction = slugsLeftWithoutMeta.length
-        ? await loadEvmCollectiblesMetadataFromChain(slugsLeftWithoutMeta, chain)
-        : undefined;
-
-      return [processLoadedEvmCollectiblesMetadataAction({ chainId, data }), onChainAction].filter(isTruthy);
-    } catch {
-      return slugsWithoutMeta.length
-        ? [await loadEvmCollectiblesMetadataFromChain(slugsWithoutMeta, chain)].filter(isTruthy)
-        : [];
-    }
-  }
-
-  return slugsWithoutMeta.length
-    ? [await loadEvmCollectiblesMetadataFromChain(slugsWithoutMeta, chain)].filter(isTruthy)
-    : [];
-};
+type MetadataLoadEvent =
+  | { kind: 'cancel' }
+  | { kind: 'load'; action: ReturnType<typeof loadEvmCollectiblesMetadataAction>; id: number };
 
 const loadEvmCollectiblesMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
-    ofType(loadEvmCollectiblesMetadataAction),
-    concatMap(action =>
-      of(action).pipe(
+    filter(action => loadEvmCollectiblesMetadataAction.match(action) || isCollectiblesListingChange(action)),
+    map((action): MetadataLoadEvent => {
+      if (!loadEvmCollectiblesMetadataAction.match(action)) {
+        cancelMetadataLoads(metadataLoadQueue);
+        cancelSharedStorefrontCollectionLoads();
+
+        return { kind: 'cancel' };
+      }
+
+      return { kind: 'load', action, id: noteMetadataLoad(metadataLoadQueue) };
+    }),
+    concatMap(event => {
+      if (event.kind === 'cancel') return of(setEvmCollectiblesMetadataLoading(false));
+      if (metadataLoadWasCancelled(metadataLoadQueue, event.id)) return EMPTY;
+
+      const abortController = new AbortController();
+
+      return of(event.action).pipe(
         withLatestFrom(state$),
         mergeMap(([{ payload }, state]) => {
-          const { publicKeyHash, chains, loadAllChains } = payload;
+          const { signal } = abortController;
+          const { publicKeyHash, chains, loadAllChains, openseaNftRefs: requestedOpenseaNftRefs } = payload;
           const { chainLoads, session } = collectChainLoads(publicKeyHash, chains, loadAllChains, state);
-          const sessionAction = updateEvmCollectiblesMetadataSessionAction(session);
-
-          if (!chainLoads.length) {
-            return of(sessionAction);
-          }
-
+          let sessionToCommit: EvmCollectiblesMetadataSession = session;
           const isTestnetMode = state.settings.isTestnetModeEnabled;
-
-          return concat(
-            of(sessionAction, setEvmCollectiblesMetadataLoading(true)),
-            from(chainLoads).pipe(
-              mergeMap(({ chain, slugsWithoutMeta }) =>
-                from(fetchChainCollectiblesMetadata(publicKeyHash, chain, slugsWithoutMeta, isTestnetMode)).pipe(
-                  mergeMap(actions => from(actions)),
-                  catchError(error => {
-                    console.error(error);
-
-                    return EMPTY;
+          const requestedOpenseaNftRefsFiltered = isTestnetMode
+            ? []
+            : requestedOpenseaNftRefs.filter(ref => isOpenseaChainId(ref.chainId));
+          const openseaBatches = buildOpenseaMultichainRefBatches(
+            requestedOpenseaNftRefsFiltered,
+            state.evmAssets.collectibles[publicKeyHash],
+            state.evmCollectiblesMetadata.metadataRecord
+          );
+          const openseaNftRefs = openseaBatches.flat();
+          const visibleNftRefs = requestedOpenseaNftRefs;
+          const openseaRequest = loadOpenseaBatch(openseaBatches, signal);
+          const openseaBatch = openseaRequest.then(load => load.results);
+          const batchRetryActions$ = from(openseaRequest).pipe(
+            mergeMap(load =>
+              from(
+                load.retries.map(retry =>
+                  retryOpenseaCollectiblesMetadataAction({
+                    kind: 'batch',
+                    publicKeyHash,
+                    refs: retry.refs,
+                    attempt: 1,
+                    delayMs: retryDelayMs(retry.readyAt)
                   })
                 )
               )
             ),
+            catchError(emptyAfterLoadError)
+          );
+          const loadedChainIds = new Set(chainLoads.map(({ chain }) => chain.chainId));
+          const extraOpenseaChainIds = Array.from(
+            new Set(openseaNftRefs.map(ref => ref.chainId).filter(chainId => !loadedChainIds.has(chainId)))
+          );
+          const metadataRecord = state.evmCollectiblesMetadata.metadataRecord;
+
+          const queueVisibleReads = async (resolvedByChain: Record<number, ReadonlySet<string>>) => {
+            const pendingRetryKeys = new Set<string>();
+            const { retries } = await openseaRequest;
+
+            for (const retry of retries) {
+              for (const ref of retry.refs)
+                pendingRetryKeys.add(`${ref.chainId}:${toTokenSlug(ref.contractAddress, ref.tokenId)}`);
+            }
+
+            const items = visibleOnChainItems(
+              chains,
+              visibleNftRefs,
+              metadataRecord,
+              session.onChainSlugsByChain,
+              resolvedByChain
+            ).filter(item => !pendingRetryKeys.has(`${item.chain.chainId}:${item.slug}`));
+
+            sessionToCommit = withOnChainSlugs(sessionToCommit, items);
+
+            return queueVisibleOnChainReads(items);
+          };
+          const commitCheckedSlugs$ = defer(() => of(updateEvmCollectiblesMetadataSessionAction(sessionToCommit)));
+
+          if (!chainLoads.length) {
+            return concat(
+              from(
+                extraOpenseaChainIds.length
+                  ? fetchOpenseaMetadata(
+                      publicKeyHash,
+                      extraOpenseaChainIds,
+                      openseaNftRefs,
+                      state,
+                      openseaBatch,
+                      signal
+                    ).then(async ({ actions, recordsByChain }) => {
+                      const queued = await queueVisibleReads(slugSetsFromRecords(recordsByChain));
+
+                      return actions.concat(queued);
+                    })
+                  : queueVisibleReads({})
+              ).pipe(
+                mergeMap(actions => from(actions)),
+                catchError(emptyAfterLoadError)
+              ),
+              batchRetryActions$,
+              commitCheckedSlugs$
+            );
+          }
+
+          const resolvedByChain: Record<number, Set<string>> = {};
+
+          return concat(
+            of(setEvmCollectiblesMetadataLoading(true)),
+            from(chainLoads).pipe(
+              mergeMap(({ chain, allSlugs }) =>
+                from(
+                  fetchChainCollectiblesMetadata(
+                    publicKeyHash,
+                    chain,
+                    allSlugs,
+                    isTestnetMode,
+                    openseaNftRefs,
+                    openseaBatch,
+                    metadataRecord[chain.chainId],
+                    signal
+                  )
+                ).pipe(
+                  mergeMap(({ actions, resolvedSlugs }) => {
+                    const resolved = resolvedByChain[chain.chainId] ?? new Set<string>();
+
+                    for (const slug of resolvedSlugs) resolved.add(slug);
+                    resolvedByChain[chain.chainId] = resolved;
+
+                    return from(actions);
+                  }),
+                  catchError(emptyAfterLoadError)
+                )
+              )
+            ),
+            extraOpenseaChainIds.length
+              ? from(
+                  fetchOpenseaMetadata(publicKeyHash, extraOpenseaChainIds, openseaNftRefs, state, openseaBatch, signal)
+                ).pipe(
+                  mergeMap(({ actions, recordsByChain }) => {
+                    for (const chainIdKey of Object.keys(recordsByChain)) {
+                      const chainId = Number(chainIdKey);
+                      const resolved = resolvedByChain[chainId] ?? new Set<string>();
+
+                      for (const slug of Object.keys(recordsByChain[chainId])) resolved.add(slug);
+                      resolvedByChain[chainId] = resolved;
+                    }
+
+                    return from(actions);
+                  }),
+                  catchError(emptyAfterLoadError)
+                )
+              : EMPTY,
+            from(queueVisibleReads(resolvedByChain)).pipe(
+              mergeMap(actions => from(actions)),
+              catchError(emptyAfterLoadError)
+            ),
+            batchRetryActions$,
+            commitCheckedSlugs$,
             of(setEvmCollectiblesMetadataLoading(false))
           ).pipe(
             catchError(error => {
-              console.error(error);
+              if (!isAbortError(error)) console.error(error);
 
               return of(setEvmCollectiblesMetadataLoading(false));
             })
           );
-        })
-      )
-    )
+        }),
+        takeUntil(action$.pipe(filter(isCollectiblesListingChange))),
+        finalize(() => abortController.abort())
+      );
+    })
   );
 
-export const evmCollectiblesMetadataEpics = combineEpics(loadEvmCollectiblesMetadataEpic);
+export const evmCollectiblesMetadataEpics = combineEpics(
+  loadEvmCollectiblesMetadataEpic,
+  retryOpenseaCollectiblesMetadataEpic,
+  loadOpenseaStorefrontCollectionEpic,
+  continueEvmCollectiblesOnChainLoadEpic
+);

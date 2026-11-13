@@ -2,28 +2,173 @@ import { Route, RoutesResponse, Token, LiFiStep, StatusResponse, GetStatusReques
 import retry from 'async-retry';
 import axios from 'axios';
 
+import { isAbortError } from 'lib/apis/utils';
+import { stripUndefinedProps } from 'lib/utils';
+
 import { templeWalletApi } from '../templewallet.api';
 
-import { AssetTransfersWithMetadataResult, Log } from './alchemy';
+import {
+  AlchemyChainID,
+  AssetTransfersWithMetadataResult,
+  AlchemyNftQueryFilters,
+  ALCHEMY_NFT_EXCLUDE_SPAM,
+  BaseNftsResponse,
+  GetContractsForOwnerResponse,
+  Log,
+  NftsResponse,
+  SomeNftsResponse
+} from './alchemy';
 import {
   BalancesResponse,
-  ChainID,
+  GoldrushChainID,
   NftAddressBalanceNftResponse,
   Route3EvmRouteRequest,
   Route3EvmRoute,
   Route3EvmTokenWithPrice,
   RouteParams
 } from './api.interfaces';
+import {
+  OpenseaNftDetailed,
+  OpenseaNftRef,
+  OpenseaChainID,
+  OpenseaProfileCollectionResponse,
+  OpenseaSearchResult
+} from './opensea';
 
-export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
+export type {
+  GoldrushChainID,
+  BalancesResponse,
+  RouteParams,
+  BalanceItem,
+  BalanceNftData,
+  NftCollectionAttribute,
+  NftAddressBalanceNftResponse,
+  NftTokenContractBalanceItem,
+  NftData,
+  Route3EvmRoute,
+  Route3EvmTokenWithPrice
+} from './api.interfaces';
+export type { OpenseaNftDetailed, OpenseaNftRef } from './opensea';
+export { ALCHEMY_NFT_EXCLUDE_SPAM };
+
+/** May return NFTs that are not owned by the wallet, use only `includeNfts: true` for chains not supported by Alchemy */
+export const getEvmBalances = (walletAddress: string, chainId: GoldrushChainID, includeNfts = false) =>
+  buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId, params: { includeNfts } });
 
 /** Response also contains exchange rates */
-export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<BalancesResponse>('/tokens-metadata', walletAddress, chainId);
+export const getEvmTokensMetadata = (walletAddress: string, chainId: GoldrushChainID) =>
+  buildEvmRequest<BalancesResponse>({ path: '/tokens-metadata', walletAddress, chainId });
 
-export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
+/** May return NFTs the wallet does not own. Used when Alchemy does not support the chain, and when Alchemy's owner list fails the ownership sample. */
+export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: GoldrushChainID, signal?: AbortSignal) =>
+  buildEvmRequest<NftAddressBalanceNftResponse>({ path: '/collectibles-metadata', walletAddress, chainId, signal });
+
+/** The multichain OpenSea metadata route rejects requests with more than 30 items. */
+export const OPENSEA_MULTICHAIN_NFTS_LIMIT = 30;
+
+export const getOpenseaMultichainNftsMetadata = (nftRefs: OpenseaNftRef[], signal?: AbortSignal) =>
+  buildEvmRequest<Array<OpenseaNftDetailed | null>>({
+    path: '/collectibles-v2/opensea/by-refs',
+    method: 'post',
+    body: nftRefs.slice(0, OPENSEA_MULTICHAIN_NFTS_LIMIT),
+    signal
+  });
+
+export const getOpenseaChainNftsMetadata = (
+  chainId: OpenseaChainID,
+  walletAddress: string,
+  collection?: string,
+  next?: string,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ nfts: OpenseaNftDetailed[]; next?: string | null }>({
+    path: '/collectibles-v2/opensea/by-account',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ collection, next }),
+    signal
+  });
+
+/** Maximal limit is 100. */
+export const getOpenseaAccountCollections = (
+  chainIds: OpenseaChainID[],
+  walletAddress: string,
+  limit?: number,
+  after?: string,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ collections: OpenseaProfileCollectionResponse[]; next?: string | null }>({
+    path: '/collectibles-v2/opensea/account-collections',
+    walletAddress,
+    params: stripUndefinedProps({ limit, after, chainIds }),
+    signal
+  });
+
+export const getOpenseaSearchResults = (
+  chainIds: OpenseaChainID[],
+  query: string,
+  limit?: number,
+  assetTypes?: Array<'collection' | 'nft' | 'token' | 'account'>,
+  signal?: AbortSignal
+) =>
+  buildEvmRequest<{ results: OpenseaSearchResult[] }>({
+    path: '/collectibles-v2/opensea/search',
+    params: stripUndefinedProps({ chainIds, query, limit, assetTypes }),
+    signal
+  });
+
+/** `filters` accepts Alchemy's `orderBy`, `excludeFilters`, `includeFilters`, and `spamConfidenceLevel`. */
+export const getNftAlchemyContractsByOwner = (
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  pageKey?: string,
+  signal?: AbortSignal,
+  filters: AlchemyNftQueryFilters = ALCHEMY_NFT_EXCLUDE_SPAM
+) =>
+  buildEvmRequest<GetContractsForOwnerResponse>({
+    path: '/collectibles-v2/alchemy/owner-contracts',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ pageKey, ...filters }),
+    signal
+  });
+
+/** This entrypoint accepts up to 45 contract addresses. `filters` matches `getNftAlchemyContractsByOwner`. */
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: false,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters?: AlchemyNftQueryFilters
+): Promise<BaseNftsResponse>;
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: true,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters?: AlchemyNftQueryFilters
+): Promise<NftsResponse>;
+export function getAlchemyNftsByOwner(
+  chainId: AlchemyChainID,
+  walletAddress: string,
+  withMetadata: boolean,
+  pageKey?: string,
+  contractAddresses?: string[],
+  signal?: AbortSignal,
+  filters: AlchemyNftQueryFilters = ALCHEMY_NFT_EXCLUDE_SPAM
+): Promise<SomeNftsResponse> {
+  return buildEvmRequest<SomeNftsResponse>({
+    path: '/collectibles-v2/alchemy/owner-nfts',
+    chainId,
+    walletAddress,
+    params: stripUndefinedProps({ pageKey, contractAddresses, withMetadata, ...filters }),
+    signal
+  });
+}
 
 export const fetchEvmTransactions = (
   walletAddress: string,
@@ -32,23 +177,20 @@ export const fetchEvmTransactions = (
   olderThanBlockHeight?: `${number}`,
   signal?: AbortSignal
 ) =>
-  buildEvmRequest<TransactionsResponse>(
-    '/transactions/v2',
+  buildEvmRequest<TransactionsResponse>({
+    path: '/transactions/v2',
     walletAddress,
     chainId,
-    {
-      contractAddress,
-      olderThanBlockHeight
-    },
+    params: { contractAddress, olderThanBlockHeight },
     signal
-  );
+  });
 
 export interface TokensByChain {
   [chainId: number]: Token[];
 }
 
 export const fetchEvmAccountInitialized = (walletAddress: string, signal?: AbortSignal) =>
-  buildEvmRequest<{ isInitialized: boolean }>('/is-initialized', walletAddress, undefined, undefined, signal);
+  buildEvmRequest<{ isInitialized: boolean }>({ path: '/is-initialized', walletAddress, signal });
 
 interface TransactionsResponse {
   transfers: AssetTransfersWithMetadataResult[];
@@ -149,22 +291,51 @@ export const get3RouteEvmSwap = (params: Route3EvmRouteRequest) =>
     }
   );
 
-const buildEvmRequest = <T>(
-  path: string,
-  walletAddress: string,
-  chainId?: number,
-  params?: object,
-  signal?: AbortSignal
-) =>
-  templeWalletApi
-    .get<T>(`evm${path}`, {
-      params: { ...params, walletAddress, chainId },
-      signal
-    })
-    .then(
-      res => res.data,
-      error => {
-        console.error(error);
-        throw error;
-      }
-    );
+interface BuildEvmRequestParamsBase {
+  path: string;
+  walletAddress?: string;
+  chainId?: number;
+  params?: object;
+  signal?: AbortSignal;
+  method?: 'get' | 'post';
+  body?: any;
+}
+
+interface BuildEvmRequestParamsGet extends BuildEvmRequestParamsBase {
+  method?: 'get';
+  body?: undefined;
+}
+
+interface BuildEvmRequestParamsPost extends BuildEvmRequestParamsBase {
+  method: 'post';
+}
+
+type BuildEvmRequestParams = BuildEvmRequestParamsGet | BuildEvmRequestParamsPost;
+
+const buildEvmRequest = <T>({
+  path,
+  walletAddress,
+  chainId,
+  params,
+  signal,
+  method = 'get',
+  body
+}: BuildEvmRequestParams) => {
+  const config = {
+    params: { ...params, walletAddress, chainId },
+    signal,
+    ...(body instanceof Uint8Array ? { headers: { 'Content-Type': 'application/octet-stream' } } : {})
+  };
+  const request =
+    method === 'post'
+      ? templeWalletApi.post<T>(`evm${path}`, body, config)
+      : templeWalletApi.get<T>(`evm${path}`, config);
+
+  return request.then(
+    res => res.data,
+    error => {
+      if (!isAbortError(error)) console.error(error);
+      throw error;
+    }
+  );
+};

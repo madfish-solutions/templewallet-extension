@@ -18,7 +18,7 @@ import {
 import memoizee from 'memoizee';
 
 import { rejectOnTimeout } from 'lib/utils';
-import { getIpfsGenericFile } from 'lib/utils/ipfs';
+import { getMaybeIpfsGenericFile } from 'lib/utils/ipfs';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { TEZOS_FALLBACK_RPC_URLS, TezosNetworkEssentials } from 'temple/networks';
 
@@ -35,7 +35,7 @@ class MultiSourceIpfsHttpHandler extends IpfsHttpHandler {
     uri: Tzip16Uri,
     _context: Context
   ) {
-    const { data } = await getIpfsGenericFile<string>(`ipfs:${uri.location}`, { responseType: 'text' });
+    const { data } = await getMaybeIpfsGenericFile<string>(`ipfs:${uri.location}`, { responseType: 'text' });
 
     return data;
   }
