@@ -1,6 +1,5 @@
 import { StepToolDetails, Route as LiFiRoute, LiFiStep } from '@lifi/sdk';
-import { WalletParamsWithKind } from '@taquito/taquito';
-import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import { BatchWalletOperation, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
 import { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';

@@ -1,8 +1,7 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { TransferParams } from '@taquito/taquito';
-import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import { BatchWalletOperation, TransferParams } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
