@@ -1,8 +1,7 @@
 import { FC, Ref, useRef } from 'react';
 
+import { useEvmCollectibleTileMetadata } from 'app/hooks/use-evm-collectible-metadata-request';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
@@ -84,7 +83,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
     metadata,
     adultBlur,
     areDetailsLoading: areDetailsLoading && details === undefined,
-    extraSrc: details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri),
+    extraSrc: details?.objktArtifactUri ? buildObjktArtifactExtraSrc(details.objktArtifactUri) : undefined,
     mime: details?.mime,
     scam,
     index,
@@ -123,12 +122,14 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   testID,
   nameTestID
 }) => {
-  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
+    accountPkh,
+    evmChainId,
+    assetSlug
+  );
   const chain = useEvmChainByChainId(evmChainId);
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
   const balanceBeforeTruncate = balance.toString();
-
-  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
   const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 
@@ -138,6 +139,8 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   const collectionName = getCollectionName(metadata);
 
   const commonProps = {
+    wrapperElemRef,
+    inView,
     chainId: evmChainId,
     assetSlug,
     assetName,
@@ -157,6 +160,6 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
       publicKeyHash={accountPkh}
     />
   ) : (
-    <DefaultEvmListItemLayout {...commonProps} metadatasLoading={metadatasLoading} showDetails={showDetails} />
+    <DefaultEvmListItemLayout {...commonProps} metadatasLoading={metadataLoading} showDetails={showDetails} />
   );
 };

@@ -50,6 +50,7 @@ import {
 } from 'temple/front';
 
 import { CollectionsListView } from './components/collections-list-view';
+import { EvmDetailsLoadingHint } from './components/evm-details-loading-hint';
 import { useCollectiblesListingLogic } from './hooks/use-collectibles-listing-logic';
 import { useMissingCollectiblesDetailsLoading } from './hooks/use-missing-collectibles-details-loading';
 import { NetworkChips } from './network-chips';
@@ -81,8 +82,9 @@ const MultiChainNftsPage: FC<{ accountTezAddress: string; accountEvmAddress: Hex
   const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
   const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
   const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
+  const { selectedChains } = useCollectiblesSelectedChainsState();
 
-  useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useEvmCollectiblesMetadataLoading(accountEvmAddress, true, selectedChains);
   useMissingCollectiblesDetailsLoading(accountTezAddress);
 
   return <NftsPageContent allCollectibles={tezCollectibles.concat(evmCollectibles)} sortPredicate={sortPredicate} />;
@@ -100,7 +102,9 @@ const TezosNftsPage: FC<{ accountTezAddress: string }> = ({ accountTezAddress })
 };
 
 const EvmNftsPage: FC<{ accountEvmAddress: HexString }> = ({ accountEvmAddress }) => {
-  useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  const { selectedChains } = useCollectiblesSelectedChainsState();
+
+  useEvmCollectiblesMetadataLoading(accountEvmAddress, true, selectedChains);
 
   return (
     <NftsPageContent
@@ -132,7 +136,8 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
     loadNext,
     searchedSlugsByCollections,
     enabledCollectibles,
-    tezDetailsReady
+    tezDetailsReady,
+    searchableSlugs
   } = useCollectiblesListingLogic(allCollectibles, sortPredicate);
 
   const [filtersModalOpen, openFiltersModal, closeFiltersModal] = useBooleanState(false);
@@ -173,6 +178,8 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
             <NetworkChips enabledCollectibles={enabledCollectibles} />
           </div>
         )}
+
+        {isInSearchMode && <EvmDetailsLoadingHint chainSlugs={searchableSlugs} />}
 
         {viewAsCollections && !manageActive ? (
           <CollectionsListView

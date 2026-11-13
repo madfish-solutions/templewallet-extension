@@ -5,13 +5,13 @@ export const delayUnlessAborted = (ms: number, signal: AbortSignal) =>
       return;
     }
 
-    const timeoutId = setTimeout(resolve, ms);
-    signal.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timeoutId);
-        reject(signal.reason);
-      },
-      { once: true }
-    );
+    const onAbort = () => {
+      clearTimeout(timeoutId);
+      reject(signal.reason);
+    };
+    const timeoutId = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
   });

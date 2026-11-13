@@ -27,7 +27,7 @@ interface TezosCollectiblePageImageProps {
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
-  objktArtifactUri?: string;
+  objktArtifactUri?: string | null;
   isAdultContent?: boolean;
   className?: string;
 }
@@ -98,7 +98,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
         />
         <TezosAssetImageStacked
           metadata={metadata}
-          extraSrc={objktArtifactUri && buildObjktArtifactExtraSrc(objktArtifactUri)}
+          extraSrc={objktArtifactUri ? buildObjktArtifactExtraSrc(objktArtifactUri) : undefined}
           fullViewCollectible
           loader={<CollectibleImageLoader large />}
           fallback={<CollectibleImageFallback large />}
@@ -108,6 +108,8 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
     );
   }
 );
+
+const PAGE_IMAGE_TIMEOUT_MS = 30_000;
 
 interface EvmCollectiblePageImageProps {
   metadata: EvmCollectibleMetadata;
@@ -128,11 +130,15 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ met
       <ImageStacked
         sources={sourcesWithCompressedFallback}
         immediate
+        raced
+        timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         className="absolute w-full h-full object-cover blur"
       />
       <ImageStacked
         sources={sources}
         immediate
+        raced
+        timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}
         className={clsx('w-full h-full object-contain z-1', className)}
