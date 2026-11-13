@@ -32,7 +32,7 @@ const AD_CONTEXT_CACHE_MS = 30_000;
 
 let cachedAdContext: { expiresAt: number; value: Promise<AccountNotificationAdContext> } | undefined;
 
-export const getAccountNotificationAdContext = (): Promise<AccountNotificationAdContext> => {
+export const getAccountNotificationAdContext = () => {
   const now = Date.now();
   if (cachedAdContext && cachedAdContext.expiresAt > now) {
     return cachedAdContext.value;
@@ -40,7 +40,7 @@ export const getAccountNotificationAdContext = (): Promise<AccountNotificationAd
 
   const value = browser.runtime.sendMessage({
     type: ContentScriptType.AccountNotificationAdContext
-  });
+  }) as Promise<AccountNotificationAdContext>;
   cachedAdContext = { expiresAt: now + AD_CONTEXT_CACHE_MS, value };
 
   return value;

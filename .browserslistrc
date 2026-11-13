@@ -1,7 +1,7 @@
 [production]
-chrome >= 110
-firefox >= 115
-opera >= 96
+chrome >= 130
+firefox >= 143
+opera >= 115
 
 [development]
 last 1 chrome version

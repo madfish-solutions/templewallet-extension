@@ -32,6 +32,8 @@ export const useTrackDappInteraction = (payload: TempleTezosDAppPayload | Temple
         return 'addAsset';
       case 'add_chain':
         return 'addNetwork';
+      case 'handshake':
+        return 'handshake';
       default:
         return payload.chainType === TempleChainKind.EVM
           ? evmOperationTitles[getOperationKind(parseEvmTxRequest(payload).txSerializable)]

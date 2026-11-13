@@ -375,6 +375,13 @@ export interface TempleTezosDAppSignPayload extends TempleTezosDAppPayloadBase {
   preview: any;
 }
 
+interface TempleHandshakeDAppPayload extends TempleDAppPayloadBase {
+  type: 'handshake';
+  /** Beacon public key from the handshake that will replace the stored pairing key. */
+  publicKey: string;
+  chainType: TempleChainKind.Tezos;
+}
+
 interface TempleEvmDAppSignPayloadBase extends TempleEvmDAppPayloadBase {
   type: string;
   sourcePkh: HexString;
@@ -396,7 +403,8 @@ export type TempleEvmDAppSignPayload = TempleEvmDAppSignTypedPayload | TempleEvm
 export type TempleTezosDAppPayload =
   | TempleTezosDAppConnectPayload
   | TempleTezosDAppOperationsPayload
-  | TempleTezosDAppSignPayload;
+  | TempleTezosDAppSignPayload
+  | TempleHandshakeDAppPayload;
 
 export type TempleEvmDAppPayload =
   | TempleEvmDAppConnectPayload
@@ -502,6 +510,8 @@ export enum TempleMessageType {
   DAppOpsConfirmationResponse = 'TEMPLE_DAPP_OPS_CONFIRMATION_RESPONSE',
   DAppSignConfirmationRequest = 'TEMPLE_DAPP_SIGN_CONFIRMATION_REQUEST',
   DAppSignConfirmationResponse = 'TEMPLE_DAPP_SIGN_CONFIRMATION_RESPONSE',
+  DAppHandshakeConfirmationRequest = 'TEMPLE_DAPP_HANDSHAKE_CONFIRMATION_REQUEST',
+  DAppHandshakeConfirmationResponse = 'TEMPLE_DAPP_HANDSHAKE_CONFIRMATION_RESPONSE',
   DAppRemoveSessionRequest = 'TEMPLE_DAPP_REMOVE_SESSION_REQUEST',
   DAppRemoveSessionResponse = 'TEMPLE_DAPP_REMOVE_SESSION_RESPONSE',
   DAppAddEvmAssetRequest = 'TEMPLE_DAPP_ADD_EVM_ASSET_REQUEST',
@@ -592,6 +602,7 @@ export type TempleRequest =
   | TempleTezosDAppOpsConfirmationRequest
   | TempleEvmDAppOpsConfirmationRequest
   | TempleDAppSignConfirmationRequest
+  | TempleDAppHandshakeConfirmationRequest
   | TempleUpdateSettingsRequest
   | TempleRemoveDAppSessionRequest
   | TempleAddDAppEvmChainRequest
@@ -645,6 +656,7 @@ export type TempleResponse =
   | TempleDAppPermConfirmationResponse
   | TempleDAppOpsConfirmationResponse
   | TempleDAppSignConfirmationResponse
+  | TempleDAppHandshakeConfirmationResponse
   | TempleUpdateSettingsResponse
   | TempleRemoveDAppSessionResponse
   | TempleAddDAppEvmChainResponse
@@ -1191,6 +1203,16 @@ interface TempleDAppSignConfirmationRequest extends TempleMessageBase {
 
 interface TempleDAppSignConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSignConfirmationResponse;
+}
+
+interface TempleDAppHandshakeConfirmationRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppHandshakeConfirmationRequest;
+  id: string;
+  confirmed: boolean;
+}
+
+interface TempleDAppHandshakeConfirmationResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppHandshakeConfirmationResponse;
 }
 
 interface TempleRemoveDAppSessionRequest extends TempleMessageBase {

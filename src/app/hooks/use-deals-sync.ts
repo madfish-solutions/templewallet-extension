@@ -14,7 +14,7 @@ export const useDealsSync = () => {
     // eslint-disable-next-line consistent-type-assertions
     const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
       if (PERSIST_KEY in changes) {
-        const newState: DealsState | undefined = changes[PERSIST_KEY].newValue;
+        const newState = changes[PERSIST_KEY].newValue as DealsState | undefined;
         if (newState) {
           dispatch(setDealsEnabledAction(newState.enabled));
         }

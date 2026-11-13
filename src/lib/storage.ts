@@ -6,12 +6,12 @@ const DEPRECATED_KEYS = [
   'collectibles:adult-blur'
 ];
 
-export async function fetchFromStorage<T = any>(key: string, storageArea = browser.storage.local): Promise<T | null> {
+export async function fetchFromStorage<T = any>(key: string, storageArea = browser.storage.local) {
   if (DEPRECATED_KEYS.some(k => key.startsWith(k))) throw new Error(`Storage key ${key} is deprecated`);
 
   const items = await storageArea.get([key]);
   if (key in items) {
-    return items[key];
+    return items[key] as T;
   } else {
     return null;
   }
@@ -60,6 +60,7 @@ export function onStorageChanged<T = any>(key: string, callback: (newValue: T) =
       // Our fetcher uses null to mean “missing”, so normalize to null here.
       // This keeps SWR (with suspense) from re-suspending on storage.clear(),
       // preventing transient unmount/remount (e.g., modal flicker) during resets.
+      // @ts-expect-error
       callback((changes[key] as Storage.StorageChange).newValue ?? null);
     }
   };
