@@ -727,43 +727,7 @@ export async function processEvmDApp(
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
-  let payload = null;
-
-  if (encrypted) {
-    try {
-      if (!recipientPubKey) throw new Error('<stub>');
-
-      try {
-        msg = await Beacon.decryptMessage(msg, recipientPubKey);
-      } catch (err: any) {
-        await Beacon.removeDAppPublicKey(origin);
-        throw err;
-      }
-    } catch {
-      payload = {
-        payload: Beacon.encodeMessage<Beacon.Response>({
-          version: '2',
-          senderId: await Beacon.getSenderId(),
-          id: 'stub',
-          type: Beacon.MessageType.Disconnect
-        })
-      };
-    }
-  }
-
-  let req: Beacon.Request | null;
-  try {
-    req = Beacon.decodeMessage<Beacon.Request>(msg);
-  } catch {
-    req = null;
-  }
-
-  return {
-    recipientPubKey,
-    req,
-    payload
-  };
+  return Beacon.openBeaconMessage(origin, msg, encrypted);
 }
 
 type ProcessedBeaconMessage = {

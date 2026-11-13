@@ -238,11 +238,65 @@ export const PAIRING_RESPONSE_BASE: Partial<PostMessagePairingResponse> = {
 
 const KEYPAIR_SEED_STORAGE_KEY = 'beacon_keypair_seed';
 
-export async function getSenderId(): Promise<string> {
+export async function getSenderId(publicKeyHex?: string): Promise<string> {
   await ready;
-  const keyPair = await getOrCreateKeyPair();
-  const buffer = Buffer.from(crypto_generichash(5, keyPair.publicKey));
+  const publicKey = publicKeyHex ? fromHex(publicKeyHex) : (await getOrCreateKeyPair()).publicKey;
+  const buffer = Buffer.from(crypto_generichash(5, publicKey));
   return bs58check.encode(buffer);
+}
+
+export async function openBeaconMessage(origin: string, msg: string, encrypted = false) {
+  const recipientPubKey = await getDAppPublicKey(origin);
+  let payload: { payload: string } | null = null;
+
+  if (encrypted) {
+    try {
+      if (!recipientPubKey) throw new Error('<stub>');
+
+      msg = await decryptMessage(msg, recipientPubKey);
+    } catch {
+      payload = {
+        payload: encodeMessage<Response>({
+          version: '2',
+          senderId: await getSenderId(),
+          id: 'stub',
+          type: MessageType.Disconnect
+        })
+      };
+      return {
+        recipientPubKey,
+        req: null,
+        payload
+      };
+    }
+  }
+
+  let req: Request | null;
+  try {
+    req = decodeMessage<Request>(msg);
+  } catch {
+    req = null;
+  }
+
+  if (req) {
+    if (encrypted) {
+      if (!recipientPubKey || !req.senderId || req.senderId !== (await getSenderId(recipientPubKey))) {
+        req = null;
+      }
+    } else if (req.type === MessageType.HandshakeRequest) {
+      if (!req.publicKey || (req.senderId && req.senderId !== (await getSenderId(req.publicKey)))) {
+        req = null;
+      }
+    } else if (req.type !== MessageType.Disconnect && !req.beaconId) {
+      req = null;
+    }
+  }
+
+  return {
+    recipientPubKey,
+    req,
+    payload
+  };
 }
 
 export async function encryptMessage(message: string, recipientPublicKey: string): Promise<string> {

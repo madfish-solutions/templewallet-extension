@@ -373,16 +373,24 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return { type: TempleMessageType.DAppSwitchTezosAccountResponse };
 
     case TempleMessageType.Acknowledge: {
-      if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
+      let senderOrigin: string;
+      try {
+        senderOrigin = new URL(port.sender?.tab?.url ?? '').origin;
+      } catch {
+        throw new Error('Invalid page request origin');
+      }
+
+      if (senderOrigin === 'null' || req.origin !== senderOrigin) {
+        throw new Error('Invalid page request origin');
+      }
+
+      if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon && req.encrypted) {
         const {
           req: res,
           recipientPubKey,
           payload
-        } = await Actions.getBeaconMessage(req.origin, req.payload, req.encrypted);
-        if (payload) {
-          return;
-        }
-        if (!req) {
+        } = await Actions.getBeaconMessage(senderOrigin, req.payload, req.encrypted);
+        if (payload || !res || res.type === MessageType.HandshakeRequest || res.type === MessageType.Disconnect) {
           return;
         }
 
@@ -394,18 +402,17 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         } = {
           version: '2',
           senderId: await getSenderId(),
-          id: res?.id ?? '',
+          id: res.id ?? '',
           type: MessageType.Acknowledge
         };
 
-        const pubKey = res?.type === MessageType.HandshakeRequest && res.publicKey ? res.publicKey : recipientPubKey;
-        if (!pubKey) {
+        if (!recipientPubKey) {
           throw new Error('DApp public key not found.');
         }
 
         return {
           type: TempleMessageType.Acknowledge,
-          payload: await encryptMessage(encodeMessage<Response>(response), pubKey),
+          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey),
           encrypted: true
         };
       }
