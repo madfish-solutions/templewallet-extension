@@ -930,7 +930,11 @@ export async function processBeacon(
   return makeOptionallyEncryptedResponse(resMsg, encrypted, recipientPubKey);
 }
 
-const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
+const getBeaconResponse = async (
+  req: Beacon.Request,
+  resBase: Beacon.ResponseBase,
+  origin: string
+): Promise<Beacon.Response> => {
   try {
     try {
       return await formatTempleReq(getTempleReq(req), req, resBase, origin);
@@ -1020,9 +1024,9 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
 const formatTempleReq = async (
   templeReq: TempleDAppRequest | void,
   req: Beacon.Request,
-  resBase: any,
+  resBase: Beacon.ResponseBase,
   origin: string
-) => {
+): Promise<Beacon.Response> => {
   if (templeReq) {
     const templeRes = await processDApp(origin, templeReq);
 
@@ -1046,11 +1050,10 @@ const formatTempleReq = async (
           };
 
         case TempleDAppMessageType.SignResponse:
-          return {
-            ...resBase,
-            type: Beacon.MessageType.SignPayloadResponse,
-            signature: templeRes.signature
-          };
+          if (req.type !== Beacon.MessageType.SignPayloadRequest) {
+            throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
+          }
+          return Beacon.createSignPayloadResponse(req, templeRes.signature, resBase);
 
         case TempleDAppMessageType.BroadcastResponse:
           return {
