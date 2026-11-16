@@ -117,11 +117,14 @@ export const getOpenseaSearchResults = (
     signal
   });
 
-/** `filters` accepts Alchemy's `orderBy`, `excludeFilters`, `includeFilters`, and `spamConfidenceLevel`. */
+/**
+ * One page of contracts. The route also returns `pageKey`, and that cursor is not followed:
+ * with the spam filter the pages are small and `totalCount` changes between them.
+ * `filters` accepts Alchemy's `orderBy`, `excludeFilters`, `includeFilters`, and `spamConfidenceLevel`.
+ */
 export const getNftAlchemyContractsByOwner = (
   chainId: AlchemyChainID,
   walletAddress: string,
-  pageKey?: string,
   signal?: AbortSignal,
   filters: AlchemyNftQueryFilters = ALCHEMY_NFT_EXCLUDE_SPAM
 ) =>
@@ -129,7 +132,7 @@ export const getNftAlchemyContractsByOwner = (
     path: '/collectibles-v2/alchemy/owner-contracts',
     chainId,
     walletAddress,
-    params: stripUndefinedProps({ pageKey, ...filters }),
+    params: stripUndefinedProps(filters),
     signal
   });
 

@@ -133,7 +133,7 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
   if (!isAlchemyChainId(chainId)) return [];
 
   const [contractsResult, nftsResult, collectionsResult] = await Promise.allSettled([
-    getNftAlchemyContractsByOwner(chainId, account, undefined, signal, ALCHEMY_NFT_EXCLUDE_SPAM),
+    getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM),
     readOwnerNfts(account, chainId, signal),
     readAccountCollections(chainId, account, signal)
   ]);
@@ -236,15 +236,19 @@ const readNftPage = async (
 const requestedNftPages = new Set<string>();
 const nftPageControllers = new Map<string, AbortController>();
 
+/** Drops this account's page history, including pages that already finished, and aborts the ones still running. */
 const cancelNftPageLoads = (account: string) => {
   const prefix = `${account}:`;
+
+  for (const key of requestedNftPages) {
+    if (key.startsWith(prefix)) requestedNftPages.delete(key);
+  }
 
   for (const [key, pageController] of nftPageControllers) {
     if (!key.startsWith(prefix)) continue;
 
     pageController.abort();
     nftPageControllers.delete(key);
-    requestedNftPages.delete(key);
   }
 };
 
@@ -287,12 +291,12 @@ export const loadNextPageEpic: Epic<Action, Action> = action$ =>
       ).pipe(
         mergeMap(actions => from(actions)),
         catchError(error => {
-          requestedNftPages.delete(requestKey);
+          if (nftPageControllers.get(requestKey) === controller) requestedNftPages.delete(requestKey);
 
           return emptyAfterAbort(error);
         }),
         finalize(() => {
-          nftPageControllers.delete(requestKey);
+          if (nftPageControllers.get(requestKey) === controller) nftPageControllers.delete(requestKey);
           controller.abort();
         })
       );
