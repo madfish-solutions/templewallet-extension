@@ -5,7 +5,7 @@ import { storageConfig } from 'lib/store';
 
 import {
   putLifiConnectedEvmTokensMetadataAction,
-  putLifiEnabledNetworksEvmTokensMetadataAction,
+  putLifiEnabledNetworksEvmTokensCatalogueAction,
   putLifiEvmTokensMetadataLoadingAction,
   putLifiSupportedChainIdsAction,
   setLifiMetadataLastFetchTimeAction
@@ -27,21 +27,23 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
         connectedTokensMetadataRecord[chainId][slug] = metadata;
       }
     });
-    builder.addCase(
-      putLifiEnabledNetworksEvmTokensMetadataAction,
-      ({ enabledChainsTokensMetadataRecord }, { payload }) => {
-        const { chainId, records } = payload;
+    builder.addCase(putLifiEnabledNetworksEvmTokensCatalogueAction, (state, { payload }) => {
+      const { recordsByChainId, timestamp } = payload;
 
-        enabledChainsTokensMetadataRecord[chainId] = {};
+      for (const [chainIdStr, records] of Object.entries(recordsByChainId)) {
+        const chainId = Number(chainIdStr);
+        state.enabledChainsTokensMetadataRecord[chainId] = {};
 
         for (const slug of Object.keys(records)) {
           const metadata = records[slug];
           if (!metadata) continue;
 
-          enabledChainsTokensMetadataRecord[chainId][slug] = metadata;
+          state.enabledChainsTokensMetadataRecord[chainId][slug] = metadata;
         }
       }
-    );
+
+      state.catalogueFetchedAt = timestamp;
+    });
     builder.addCase(putLifiEvmTokensMetadataLoadingAction, (state, { payload }) => {
       if (payload.isLoading !== undefined) {
         state.isLoading = payload.isLoading;

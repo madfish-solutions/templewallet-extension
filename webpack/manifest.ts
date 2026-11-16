@@ -55,7 +55,6 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     run_at: 'document_start',
     all_frames: true,
     match_about_blank: true,
-    // @ts-expect-error
     match_origin_as_fallback: true
   });
 
@@ -174,12 +173,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
 
     ...withVendors('firefox')({
       applications: {
-        gecko: { id: '{34ac229e-1cf5-4e4c-8a77-988155c4360f}' }
+        gecko: { id: '{34ac229e-1cf5-4e4c-8a77-988155c4360f}', strict_min_version: '143.0' }
       }
     }),
 
-    ...withVendors('chrome')({ minimum_chrome_version: '110' }),
-    ...withVendors('opera')({ minimum_opera_version: '96' }),
+    ...withVendors('chrome')({ minimum_chrome_version: '130' }),
+    ...withVendors('opera')({ minimum_opera_version: '115' }),
 
     ...withVendors('chrome', 'opera')({ options_page: 'options.html' }),
 
@@ -244,7 +243,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/inpage.js'],
         run_at: 'document_start' as const,
         all_frames: true,
-        world: 'MAIN'
+        world: 'MAIN' as const
       }
     ].filter(isTruthy)
   };

@@ -86,6 +86,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     handleFeeOptionSelect,
     feeOptions,
     displayedFee,
+    getDisplayedFee,
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
   } = useEvmEstimationForm(estimationData, null, account, network.chainId);
@@ -138,7 +139,7 @@ export const EvmContent: FC<EvmContentProps> = ({
         } as TransactionRequest);
 
         onConfirm();
-        onSuccess({ txHash, displayedFee });
+        onSuccess({ txHash, displayedFee: getDisplayedFee(gasPrice, gasLimit) });
 
         const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 

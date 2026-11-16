@@ -189,10 +189,10 @@ export class AiChatbotAdsController {
   }
 
   private async fetchNudgeState(): Promise<AiChatbotAdsNudgeStateResponse> {
-    const response = await browser.runtime.sendMessage({
+    const response = (await browser.runtime.sendMessage({
       type: ContentScriptType.GetAiChatbotAdsNudgeState,
       domain: this.domain
-    });
+    })) as AiChatbotAdsNudgeStateResponse | undefined;
 
     return {
       enabled: Boolean(response?.enabled),

@@ -6545,17 +6545,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webextension-polyfill@npm:^0.12.6":
+  version: 0.12.6
+  resolution: "@types/webextension-polyfill@npm:0.12.6"
+  checksum: 10c0/bed10401f84bcb2530362174c7307e1dc5e869a3dd950ef3cdcfc50543aefc4736185a136349bb9b129e47fca4e488bc9adb7d77a4dcf6eaee5336a6e83bf9e4
+  languageName: node
+  linkType: hard
+
 "@types/webextension-polyfill@npm:^0.8.3":
   version: 0.8.3
   resolution: "@types/webextension-polyfill@npm:0.8.3"
   checksum: 10c0/f2849c04d9d64f01dc1d654b42107a47f81e19c1cf804b8f7135fa3675b643b1ef3cebe2db30fe303296897e7d094c9283c5dbcaad087d743e9460daa722a507
-  languageName: node
-  linkType: hard
-
-"@types/webextension-polyfill@npm:^0.9.1":
-  version: 0.9.1
-  resolution: "@types/webextension-polyfill@npm:0.9.1"
-  checksum: 10c0/385a0a997400b5be3fce40ead97fbde9c043c0bede495b33736ac62fa75cd12437033221806f568a54d49c0cc1924dd0ce2c8ed0fc128b9ee5df9d664c7f721a
   languageName: node
   linkType: hard
 
@@ -7764,13 +7764,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bip174@npm:^3.0.0-rc.0":
-  version: 3.0.0-rc.1
-  resolution: "bip174@npm:3.0.0-rc.1"
+"bip174@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "bip174@npm:3.0.1"
   dependencies:
-    uint8array-tools: "npm:^0.0.9"
-    varuint-bitcoin: "npm:^2.0.0"
-  checksum: 10c0/d4fc26a4ec3dc6f4ce5b5cf38acc0825570c96a2bea536bf857a743ebfca5061ea9bc5c0cb21466a47c82e757190e7f00149eb6c6ccbba3238a48e853341b945
+    uint8array-tools: "npm:^0.0.10"
+    varuint-bitcoin: "npm:^2.0.1"
+  checksum: 10c0/2edd5dda0e7bc131e330730eba713d8e8e980e4fa954cd17f467f83f4d027d6b7af88d3fbe9a10a52b97697cdefe21131586ec362a21b15a9cffffc95b395d25
   languageName: node
   linkType: hard
 
@@ -7799,17 +7799,17 @@ __metadata:
   linkType: hard
 
 "bitcoinjs-lib@npm:^7.0.0-rc.0":
-  version: 7.0.0-rc.0
-  resolution: "bitcoinjs-lib@npm:7.0.0-rc.0"
+  version: 7.0.5
+  resolution: "bitcoinjs-lib@npm:7.0.5"
   dependencies:
     "@noble/hashes": "npm:^1.2.0"
     bech32: "npm:^2.0.0"
-    bip174: "npm:^3.0.0-rc.0"
+    bip174: "npm:^3.0.1"
     bs58check: "npm:^4.0.0"
-    uint8array-tools: "npm:^0.0.9"
-    valibot: "npm:^0.38.0"
-    varuint-bitcoin: "npm:^2.0.0"
-  checksum: 10c0/9185d2b59a3a75d34a715dd0f654019cba4a274042c376c6ff130469fb5577de6dbe224c0c1a482fa842dfd35d3b0d25de263a5c1a79762cf46ed325194b6614
+    uint8array-tools: "npm:^0.0.10"
+    valibot: "npm:^1.2.0"
+    varuint-bitcoin: "npm:^2.0.1"
+  checksum: 10c0/b24768331ebe6d2f3f007762997b11125082f8723f8019409846b42d0bdcb53b8f98bab989579ca2f686d166d72a727963683e4cb40617d5afdcb63e8a30fb16
   languageName: node
   linkType: hard
 
@@ -17735,7 +17735,7 @@ __metadata:
     "@types/scryptsy": "npm:^2.0.0"
     "@types/typedarray-to-buffer": "npm:^4.0.0"
     "@types/w3c-web-hid": "npm:^1.0.3"
-    "@types/webextension-polyfill": "npm:^0.9.1"
+    "@types/webextension-polyfill": "npm:^0.12.6"
     "@types/webpack": "npm:^5"
     "@types/ws": "npm:^7.4.6"
     assert: "npm:1.5.0"
@@ -18501,17 +18501,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uint8array-tools@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "uint8array-tools@npm:0.0.8"
-  checksum: 10c0/ffc01a50aaed4ce7d9c30260b23465c79ffe6e4d0fe1ba4605611e59feabbaff81b42ddf7896a747f07aafcbb5a4252d1b39f2325bacb21454212c42c954d74d
-  languageName: node
-  linkType: hard
-
-"uint8array-tools@npm:^0.0.9":
-  version: 0.0.9
-  resolution: "uint8array-tools@npm:0.0.9"
-  checksum: 10c0/1f3692aa60f87b84ebd3254bea2024ee9b8c1dc226ac906a879190298c736b3c942a7a12d20996d179d3918a65d4613fc2494837e8959329ac0747e12a18f90c
+"uint8array-tools@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "uint8array-tools@npm:0.0.10"
+  checksum: 10c0/9529b9b3e1f6ed36f9c047b85de1a47f3b1cca0212d13c4e7752b405ddcfe04c2426abf90c1b7e2aeaf9b20ea4378734a51b5244b20e3dd2e20c4c36e617d914
   languageName: node
   linkType: hard
 
@@ -18817,12 +18810,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"varuint-bitcoin@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "varuint-bitcoin@npm:2.0.0"
+"varuint-bitcoin@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "varuint-bitcoin@npm:2.0.1"
   dependencies:
-    uint8array-tools: "npm:^0.0.8"
-  checksum: 10c0/63048ddcf85ef728ec610d234a1de010ce81204751d7d1a54eca9f140a86c30bb187cd4871ee042ce9e656d76ee50093a7370c56114ae6716297ef32de4a8b26
+    uint8array-tools: "npm:^0.0.10"
+  checksum: 10c0/c32a7052ab4dc66cc402a2924ab0f6dba8a67560918beb3b326bd3f6d08c691b1f4971d52db02dfab60fecf36391497ac99845b5fc0016cd5b8e0586066e96a2
   languageName: node
   linkType: hard
 

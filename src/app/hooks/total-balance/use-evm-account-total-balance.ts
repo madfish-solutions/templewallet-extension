@@ -1,8 +1,9 @@
+import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
-import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
+import { useGetEvmGasOrTokenMetadata } from 'lib/metadata';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
@@ -12,10 +13,11 @@ import { TempleChainKind } from 'temple/types';
 import { useIsEvmBigBalance } from '../listing-logic/use-is-big-balance';
 
 import { useEthStakingSummand } from './use-eth-staking-summand';
-import { calculateTotalDollarValue as genericCalculateTotalDollarValue } from './utils';
+import { calculateTotalDollarValue as genericCalculateTotalDollarValue, tokenBalanceFromRaw } from './utils';
 
 const useCalculateTotalDollarValue = (publicKeyHash: HexString) => {
-  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+  const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
+  const getMetadata = useGetEvmGasOrTokenMetadata();
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
 
   return (chainSlugs: string[]) =>
@@ -24,7 +26,7 @@ const useCalculateTotalDollarValue = (publicKeyHash: HexString) => {
       chainSlug => {
         const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-        return getBalance(chainId, slug);
+        return tokenBalanceFromRaw(rawBalances[chainId]?.[slug], getMetadata(chainId, slug));
       },
       chainSlug => {
         const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);

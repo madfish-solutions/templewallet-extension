@@ -537,7 +537,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
   }
 };
 
-browser.runtime.onMessage.addListener(async (msg, sender) => {
+browser.runtime.onMessage.addListener(async (msg: any, sender: Runtime.MessageSender) => {
   try {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:

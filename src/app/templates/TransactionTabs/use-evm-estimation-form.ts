@@ -91,7 +91,8 @@ export const useEvmEstimationForm = (
           ...(basicParams.maxFeePerGas ? { maxFeePerGas: basicParams.maxFeePerGas } : {}),
           ...(basicParams.maxPriorityFeePerGas ? { maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas } : {})
         }
-      : fullEstimationData
+      : fullEstimationData,
+    basicParams?.gas
   );
 
   const { setData } = useEvmEstimationDataState();
@@ -188,17 +189,32 @@ export const useEvmEstimationForm = (
     if (rawTransaction) setValue('rawTransaction', rawTransaction);
   }, [rawTransaction, setValue]);
 
-  const displayedFee = useMemo(() => {
-    if (feeOptions && selectedFeeOption) return feeOptions.displayed[selectedFeeOption];
+  const getDisplayedFee = useCallback(
+    (rawGasPrice: string, rawGasLimit?: string) => {
+      // Same fee-per-gas submit will sign. Undefined means that fee cannot be used.
+      const feesPerGas = getFeesPerGas(rawGasPrice);
+      const pricePerGas = feesPerGas ? getChargedPricePerGas(feesPerGas) : undefined;
+      if (pricePerGas === undefined) return undefined;
 
-    if (debouncedGasPrice) {
-      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : (fullEstimationData?.gas ?? SEND_ETH_GAS_LIMIT);
+      try {
+        const gas = rawGasLimit
+          ? BigInt(rawGasLimit)
+          : (fullEstimationData?.gas ?? basicParams?.gas ?? SEND_ETH_GAS_LIMIT);
 
-      return formatEther(gas * parseEther(debouncedGasPrice, 'gwei'));
-    }
+        return formatEther(gas * pricePerGas);
+      } catch (error) {
+        console.error(error);
 
-    return '0';
-  }, [feeOptions, selectedFeeOption, fullEstimationData, debouncedGasPrice, debouncedGasLimit]);
+        return undefined;
+      }
+    },
+    [basicParams?.gas, fullEstimationData?.gas, getFeesPerGas]
+  );
+
+  const displayedFee = useMemo(
+    () => getDisplayedFee(debouncedGasPrice, debouncedGasLimit),
+    [debouncedGasLimit, debouncedGasPrice, getDisplayedFee]
+  );
 
   const handleFeeOptionSelect = useCallback(
     (label: FeeOptionLabel) => {
@@ -256,10 +272,15 @@ export const useEvmEstimationForm = (
     handleFeeOptionSelect,
     feeOptions,
     displayedFee,
+    getDisplayedFee,
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
   };
 };
+
+/** Price that is multiplied by gas to get the fee a transaction will actually pay. */
+const getChargedPricePerGas = (fees: FeeValuesLegacy | FeeValuesEIP1559) =>
+  'gasPrice' in fees ? fees.gasPrice : fees.maxFeePerGas;
 
 const serializeBigint = (value: bigint | nullish) => (typeof value === 'bigint' ? value.toString() : undefined);
 

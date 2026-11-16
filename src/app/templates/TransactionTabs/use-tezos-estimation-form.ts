@@ -222,10 +222,11 @@ export const useTezosEstimationForm = ({
   const displayedFee = useMemo(() => {
     if (debouncedGasFee) return debouncedGasFee;
 
-    if (displayedFeeOptions && selectedFeeOption) return displayedFeeOptions[selectedFeeOption];
+    // Typed value has not settled yet. Don't show a different fee than submit will use.
+    if (gasFeeValue || !displayedFeeOptions) return;
 
-    return;
-  }, [selectedFeeOption, debouncedGasFee, displayedFeeOptions]);
+    return displayedFeeOptions[selectedFeeOption ?? 'mid'];
+  }, [debouncedGasFee, displayedFeeOptions, gasFeeValue, selectedFeeOption]);
 
   const totalDefaultStorageLimit = useMemo(
     () => (estimates ?? []).reduce((acc, { storageLimit }) => acc.plus(storageLimit), new BigNumber(0)),

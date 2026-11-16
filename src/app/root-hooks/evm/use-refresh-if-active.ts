@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
+import axios from 'axios';
+
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -52,6 +54,13 @@ interface RefreshIfActiveConfig<L extends [DataLoader<any>, ...DataLoader<any>[]
 }
 
 const validPaths = ['/send', '/swap', '/token'];
+
+/** Axios (including the fetch adapter) puts the HTTP status on `response` and, in v1, on `status`. */
+const isTooManyRequests = (error: unknown) => {
+  if (!axios.isAxiosError(error)) return false;
+
+  return error.response?.status === 429 || error.status === 429;
+};
 
 export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any>[]]>({
   getDataTimestamp,
@@ -118,6 +127,14 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
 
           return;
         } catch (e) {
+          if (isTooManyRequests(e)) {
+            // A 429 is a pause. Recording it as an API error starts per-token on-chain reads,
+            // and falling through starts the chain-wide loader. Stored balances stay as they are.
+            setLoading(chainId, false);
+
+            return;
+          }
+
           console.error(e);
           handleError({ chainId, error: serializeError(e) ?? t('unknownError') });
         }

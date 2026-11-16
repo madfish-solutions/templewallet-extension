@@ -2234,6 +2234,12 @@
   "connectWallet": {
     "message": "Connect Wallet"
   },
+  "newHandshake": {
+    "message": "New Handshake"
+  },
+  "dappHandshakeWarning": {
+    "message": "A DApp usually does not request handshakes while it is connected, so this dApp may be hacked. Proceed with caution"
+  },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
   },

@@ -284,10 +284,10 @@ function renderTempleDealsPopup(
       activateBtn.disabled = true;
 
       try {
-        const result = await browser.runtime.sendMessage({
+        const result = (await browser.runtime.sendMessage({
           type: ContentScriptType.ActivateMerchantOffer,
           url: activationUrl
-        });
+        })) as { trackingLink?: string };
 
         if (!result?.trackingLink) {
           activateBtn.textContent = activateText;

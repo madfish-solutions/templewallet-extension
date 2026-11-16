@@ -8,6 +8,7 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
+import { nanoid } from 'nanoid';
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
@@ -51,7 +52,8 @@ import {
   requestOperation,
   requestSign,
   requestBroadcast,
-  removeDApps as removeTezDApps
+  removeDApps as removeTezDApps,
+  getDApp as getTezosDApp
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
@@ -84,6 +86,7 @@ import {
   sendTransactionPayloadValidationSchema,
   switchEthChainPayloadValidationSchema
 } from './evm-validation-schemas';
+import { requestConfirm } from './request-confirm';
 import {
   toFront,
   store,
@@ -128,6 +131,11 @@ const onFocusLocationError = (error: unknown) => {
   console.error(error);
   focusLocationChanged(null);
 };
+
+let resolveInitedPromise: EmptyFn;
+const initedPromise = new Promise<void>(resolve => {
+  resolveInitedPromise = () => resolve();
+});
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -200,7 +208,8 @@ export async function init() {
   }
 
   initEvm();
-  initTezos();
+  await initTezos();
+  resolveInitedPromise();
 }
 
 export async function getFrontState(): Promise<TempleState> {
@@ -734,12 +743,7 @@ export async function getBeaconMessage(origin: string, msg: string, encrypted = 
     try {
       if (!recipientPubKey) throw new Error('<stub>');
 
-      try {
-        msg = await Beacon.decryptMessage(msg, recipientPubKey);
-      } catch (err: any) {
-        await Beacon.removeDAppPublicKey(origin);
-        throw err;
-      }
+      msg = await Beacon.decryptMessage(msg, recipientPubKey);
     } catch {
       payload = {
         payload: Beacon.encodeMessage<Beacon.Response>({
@@ -771,6 +775,80 @@ type ProcessedBeaconMessage = {
   encrypted?: boolean;
 };
 
+function confirmHandshakeRequest(origin: string, req: Beacon.PostMessagePairingRequest) {
+  const id = nanoid();
+
+  return new Promise<boolean>(resolve => {
+    let settled = false;
+    const finish = (confirmed: boolean) => {
+      if (settled) return;
+      settled = true;
+      resolve(confirmed);
+    };
+
+    void requestConfirm({
+      id,
+      payload: {
+        type: 'handshake',
+        origin,
+        chainType: TempleChainKind.Tezos,
+        appMeta: {
+          name: (typeof req.name === 'string' && req.name.trim()) || origin,
+          ...(typeof req.icon === 'string' ? { icon: req.icon } : {})
+        },
+        publicKey: req.publicKey
+      },
+      onDecline: async () => {
+        const connectedDApp = await getTezosDApp(origin).catch(() => null);
+        if (connectedDApp === undefined) {
+          Beacon.removeDAppPublicKey(origin);
+        }
+        finish(false);
+      },
+      handleIntercomRequest: async (confirmReq, decline) => {
+        if (confirmReq?.type !== TempleMessageType.DAppHandshakeConfirmationRequest || confirmReq.id !== id) {
+          return undefined;
+        }
+
+        if (confirmReq.confirmed) {
+          finish(true);
+        } else {
+          decline();
+        }
+
+        return {
+          type: TempleMessageType.DAppHandshakeConfirmationResponse,
+          keepConfirmationWindowOpen: confirmReq.confirmed
+        };
+      }
+    }).catch(() => finish(false));
+  });
+}
+
+async function acceptHandshakePairing(origin: string, req: Beacon.PostMessagePairingRequest) {
+  const storedPublicKey = await Beacon.getDAppPublicKey(origin);
+  const connectedDApp = await getTezosDApp(origin);
+
+  if (!storedPublicKey) return !connectedDApp;
+
+  const sameKey = storedPublicKey === req.publicKey;
+
+  if (sameKey && !connectedDApp) return true;
+
+  return withInited(() => confirmHandshakeRequest(origin, req));
+}
+
+async function makeOptionallyEncryptedResponse(payload: string, encrypted: boolean, recipientPubKey: string | null) {
+  if (encrypted && recipientPubKey) {
+    return {
+      payload: await Beacon.encryptMessage(payload, recipientPubKey),
+      encrypted: true
+    };
+  }
+
+  return { payload };
+}
+
 export function resetExtension(password: string) {
   return withUnlocked(async () =>
     Promise.all([
@@ -789,6 +867,8 @@ export async function processBeacon(
   msg: string,
   encrypted = false
 ): Promise<ProcessedBeaconMessage | undefined> {
+  await initedPromise;
+
   const { req, recipientPubKey, payload } = await getBeaconMessage(origin, msg, encrypted);
   if (payload) {
     return payload;
@@ -811,30 +891,43 @@ export async function processBeacon(
 
   // Process handshake
   if (req.type === Beacon.MessageType.HandshakeRequest) {
-    await Beacon.saveDAppPublicKey(origin, req.publicKey);
-    const keyPair = await Beacon.getOrCreateKeyPair();
-    return {
-      payload: await Beacon.sealCryptobox(
-        JSON.stringify({
-          ...resBase,
-          ...Beacon.PAIRING_RESPONSE_BASE,
-          publicKey: Beacon.toHex(keyPair.publicKey)
-        }),
-        Beacon.fromHex(req.publicKey)
-      )
-    };
+    const newKeyPair = await Beacon.getOrCreateKeyPair();
+    const newCryptobox = await Beacon.sealCryptobox(
+      JSON.stringify({
+        ...resBase,
+        ...Beacon.PAIRING_RESPONSE_BASE,
+        publicKey: Beacon.toHex(newKeyPair.publicKey)
+      }),
+      Beacon.fromHex(req.publicKey)
+    );
+
+    const keysHaveBeenWritten = await dAppQueue.enqueue(async () => {
+      const accepted = await acceptHandshakePairing(origin, req);
+
+      if (!accepted) return false;
+
+      await Beacon.saveDAppPublicKey(origin, req.publicKey);
+      return true;
+    });
+
+    if (keysHaveBeenWritten) {
+      return { payload: newCryptobox };
+    }
+
+    const errorMsg = Beacon.encodeMessage<Beacon.Response>({
+      ...resBase,
+      type: Beacon.MessageType.Error,
+      errorType: Beacon.ErrorType.ABORTED_ERROR
+    });
+
+    return makeOptionallyEncryptedResponse(errorMsg, encrypted, recipientPubKey);
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
-  if (encrypted && recipientPubKey) {
-    return {
-      payload: await Beacon.encryptMessage(resMsg, recipientPubKey),
-      encrypted: true
-    };
-  }
-  return { payload: resMsg };
+
+  return makeOptionallyEncryptedResponse(resMsg, encrypted, recipientPubKey);
 }
 
 const getBeaconResponse = async (req: Beacon.Request, resBase: any, origin: string): Promise<Beacon.Response> => {
