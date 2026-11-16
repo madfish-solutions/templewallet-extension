@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -13,6 +13,7 @@ import {
 import { useSimpleAssetsPaginationLogic } from 'app/hooks/use-simple-assets-pagination-logic';
 import { dispatch } from 'app/store';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useEvmStoredCollectiblesRecordSelector } from 'app/store/evm/assets/selectors';
 import {
   clearEvmCollectiblesSearchAction,
   loadEvmCollectiblesInventoryNextPageAction,
@@ -155,12 +156,44 @@ export const useCollectiblesListingLogic = (
 
   const enabledSlugsSorted = toSortedSlugs(enabledCollectibles);
   const otherSlugsSorted = toSortedSlugs(allAccountCollectibles.filter(({ status }) => status !== 'enabled'));
+  const manualChainSlugs = new Set(
+    allAccountCollectibles
+      .filter(({ manual }) => manual)
+      .map(({ slug, chainId }) =>
+        toChainAssetSlug(typeof chainId === 'number' ? TempleChainKind.EVM : TempleChainKind.Tezos, chainId, slug)
+      )
+  );
 
   const evmMetadata = useEvmCollectiblesMetadataRecordSelector();
   const accountAddressForTezos = useAccountAddressForTezos();
   const accountAddressForEvm = useAccountAddressForEvm();
   const enabledEvmChains = useEnabledEvmChains();
   const inventoryByChain = useEvmCollectiblesInventorySelector(accountAddressForEvm);
+  const storedCollectiblesRecord = useEvmStoredCollectiblesRecordSelector();
+  const storedCollectibles = accountAddressForEvm ? storedCollectiblesRecord[accountAddressForEvm] : undefined;
+  const hiddenCollectibleKeys = useMemo(() => {
+    const keys = new Set<string>();
+    if (!storedCollectibles) return keys;
+
+    for (const [chainIdKey, assets] of Object.entries(storedCollectibles)) {
+      for (const [slug, asset] of Object.entries(assets)) {
+        if (asset?.status === 'removed' || (!manageActive && asset?.status === 'disabled')) {
+          keys.add(`${chainIdKey}:${slug.toLowerCase()}`);
+        }
+      }
+    }
+
+    return keys;
+  }, [manageActive, storedCollectibles]);
+  const collectibleIsHidden = (chainId: number, slug: string) =>
+    hiddenCollectibleKeys.has(`${chainId}:${slug.toLowerCase()}`);
+  const inventoryForDisplay = <T extends { loaded: ReadonlyArray<{ slug: string }> }>(
+    chainId: number,
+    inventory: T
+  ) => ({
+    ...inventory,
+    loaded: inventory.loaded.filter(nft => !collectibleIsHidden(chainId, nft.slug))
+  });
   const inventoryLoading = useEvmCollectiblesInventoryLoadingSelector();
   const collectiblesSearch = useEvmCollectiblesSearchSelector();
 
@@ -253,10 +286,14 @@ export const useCollectiblesListingLogic = (
     const localSlugs = searchedSlugs.filter(slug => {
       const chainId = evmChainIdOfSlug(slug);
 
-      return chainId === undefined || !isAlchemyOpenseaChainId(chainId);
+      return chainId === undefined || !isAlchemyOpenseaChainId(chainId) || manualChainSlugs.has(slug);
     });
     const hitSlugs = collectiblesSearch.searchHits
-      .filter(hit => selectedChains.length === 0 || selectedChains.includes(hit.chainId))
+      .filter(
+        hit =>
+          (selectedChains.length === 0 || selectedChains.includes(hit.chainId)) &&
+          !collectibleIsHidden(hit.chainId, hit.slug)
+      )
       .map(hit => toChainAssetSlug(TempleChainKind.EVM, hit.chainId, hit.slug));
 
     searchedSlugs = Array.from(new Set(search(localSlugs).concat(hitSlugs)));
@@ -295,11 +332,25 @@ export const useCollectiblesListingLogic = (
       ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
       : evmCollectionTitle(chainId as number, assetSlug);
 
-  const groupedSlugs = slugsBeforeChainFilter.filter(slug => {
+  const loadedAlchemySlugs = new Set<string>();
+  for (const [chainIdKey, inventory] of Object.entries(inventoryByChain)) {
+    if (!inventory?.settled) continue;
+
+    for (const nft of inventory.loaded) loadedAlchemySlugs.add(`${chainIdKey}:${nft.slug.toLowerCase()}`);
+  }
+  const alchemySlugIsLoaded = (chainSlug: string) => {
+    const chainId = evmChainIdOfSlug(chainSlug);
+    if (chainId === undefined) return false;
+
+    return loadedAlchemySlugs.has(`${chainId}:${parseChainAssetSlug(chainSlug)[2].toLowerCase()}`);
+  };
+  const keepOutsideAlchemyInventory = (slug: string) => {
     const chainId = evmChainIdOfSlug(slug);
 
-    return chainId === undefined || !isAlchemyChainId(chainId);
-  });
+    return chainId === undefined || !isAlchemyChainId(chainId) || !alchemySlugIsLoaded(slug);
+  };
+
+  const groupedSlugs = slugsBeforeChainFilter.filter(keepOutsideAlchemyInventory);
   const slugsByCollectionsInContracts = groupSlugsByCollectionsInContracts(groupedSlugs, getCollectionName);
 
   const unsortedSearchedSlugsByCollections = useMemoWithCompare(
@@ -313,10 +364,14 @@ export const useCollectiblesListingLogic = (
         const inventory = inventoryByChain[chainId];
         if (!inventory?.settled || !isAlchemyChainId(chainId)) return [];
 
-        return alchemyInventoryCollections(chainId, inventory, {
+        return alchemyInventoryCollections(chainId, inventoryForDisplay(chainId, inventory), {
           searching: isInSearchMode,
           allowedSlugs: allowedCollectionSlugs,
-          extraLoaded: searchReady ? loadedNftsFromSearchHits(collectiblesSearch.searchHits, chainId) : []
+          extraLoaded: searchReady
+            ? loadedNftsFromSearchHits(collectiblesSearch.searchHits, chainId).filter(
+                nft => !collectibleIsHidden(chainId, nft.slug)
+              )
+            : []
         });
       })
     : [];
@@ -326,11 +381,7 @@ export const useCollectiblesListingLogic = (
       ? allCollectionEntries.filter(([collection]) => selectedChains.includes(collection.chainId))
       : allCollectionEntries;
   const chipSlugGroups = groupSlugsByCollectionsInContracts(
-    enabledSlugsSorted.filter(slug => {
-      const chainId = evmChainIdOfSlug(slug);
-
-      return chainId === undefined || !isAlchemyChainId(chainId);
-    }),
+    enabledSlugsSorted.filter(keepOutsideAlchemyInventory),
     getCollectionName
   );
   const chipCollections = useMemoWithCompare(() => {
@@ -340,12 +391,19 @@ export const useCollectiblesListingLogic = (
           const inventory = inventoryByChain[chainId];
           if (!inventory?.settled || !isAlchemyChainId(chainId)) return [];
 
-          return alchemyInventoryCollections(chainId, inventory, { searching: false });
+          return alchemyInventoryCollections(
+            chainId,
+            {
+              ...inventory,
+              loaded: inventory.loaded.filter(nft => !hiddenCollectibleKeys.has(`${chainId}:${nft.slug.toLowerCase()}`))
+            },
+            { searching: false }
+          );
         })
       : [];
 
     return collectionEntriesFromGroups(chipSlugGroups, allTezosCollectiblesDetails).concat(inventoryEntries);
-  }, [accountAddressForEvm, allTezosCollectiblesDetails, chipSlugGroups, inventoryByChain]);
+  }, [accountAddressForEvm, allTezosCollectiblesDetails, chipSlugGroups, hiddenCollectibleKeys, inventoryByChain]);
 
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 

@@ -51,7 +51,7 @@ export type {
 export type { OpenseaNftDetailed, OpenseaNftRef } from './opensea';
 export { ALCHEMY_NFT_EXCLUDE_SPAM };
 
-/** May return NFTs that are not owned by the wallet, use only `includeNfts: true` for chains not supported by Alchemy */
+/** Fungible balances. Leave `includeNfts` false: that list can contain NFTs the account does not own. Owned NFTs come from the inventory load. */
 export const getEvmBalances = (walletAddress: string, chainId: GoldrushChainID, includeNfts = false) =>
   buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId, params: { includeNfts } });
 

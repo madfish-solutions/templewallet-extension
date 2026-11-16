@@ -21,8 +21,10 @@ import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { BalancesResponse, GoldrushChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { COLLECTIBLES_DETAILS_SYNC_INTERVAL, EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
+import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
+import { useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { useLocation } from 'lib/woozie';
 import { getViemPublicClient } from 'temple/evm';
 import { useEnabledEvmChains } from 'temple/front';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -41,6 +43,9 @@ type Loaders =
   | [OnchainDataLoader<StringRecord>]
   | [ApiDataLoader<BalancesResponse, GoldrushChainID>, OnchainDataLoader<StringRecord>];
 
+/** Screens that show token balances or the NFT inventory. */
+const INVENTORY_REFRESH_PATHS = ['/', '/nfts', '/send', '/swap', '/token'];
+
 export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const isTestnetMode = useTestnetModeEnabledSelector();
   const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
@@ -55,7 +60,12 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     .filter(isAlchemyChainId)
     .join();
 
-  useEffect(() => {
+  const windowIsActive = useWindowIsActive();
+  const { pathname } = useLocation();
+  const shouldRefreshInventory =
+    windowIsActive && INVENTORY_REFRESH_PATHS.some(path => pathname === path || pathname.startsWith(`${path}/`));
+
+  const loadInventoryRef = useUpdatableRef(() => {
     if (!inventoryChainKey) return;
 
     dispatch(
@@ -64,7 +74,20 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         chainIds: inventoryChainKey.split(',').map(Number)
       })
     );
-  }, [inventoryChainKey, publicKeyHash]);
+  });
+
+  useEffect(() => {
+    loadInventoryRef.current();
+  }, [inventoryChainKey, publicKeyHash, loadInventoryRef]);
+
+  useInterval(
+    () => {
+      if (shouldRefreshInventory) loadInventoryRef.current();
+    },
+    [shouldRefreshInventory, loadInventoryRef],
+    COLLECTIBLES_DETAILS_SYNC_INTERVAL,
+    false
+  );
   const enabledEvmChainsByIds = useMemo(
     () => Object.fromEntries(enabledEvmChains.map(chain => [chain.chainId, chain])),
     [enabledEvmChains]
@@ -200,9 +223,10 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleApiError = useMemo(() => handleErrorFactory('api'), [handleErrorFactory]);
   const handleOnchainError = useMemo(() => handleErrorFactory('onchain'), [handleErrorFactory]);
 
+  // NFTs refresh is done above through inventory loading
   const getEvmBalancesFromApi = useCallback(
     (walletAddress: string, chainId: GoldrushChainID) =>
-      getEvmBalances(walletAddress, chainId)
+      getEvmBalances(walletAddress, chainId, false)
         .then(async data => {
           if (!(await shouldUseGoldrushData(data, chainId))) {
             console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);

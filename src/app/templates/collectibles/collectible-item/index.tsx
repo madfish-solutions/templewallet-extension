@@ -14,7 +14,7 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
-import { getAssetStatus } from 'lib/assets/hooks/utils';
+import { getCollectibleAssetStatus } from 'lib/assets/hooks/utils';
 import { fromAssetSlug, getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
@@ -68,7 +68,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
 
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
-  const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
+  const checked = getCollectibleAssetStatus(balanceAtomic, storedToken) === 'enabled';
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
@@ -133,7 +133,7 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
 
   const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 
-  const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
+  const checked = getCollectibleAssetStatus(balanceBeforeTruncate, storedToken) === 'enabled';
 
   const assetName = getCollectibleName(metadata);
   const storedCollectionName = evmStoredCollectionName(metadata, assetSlug);

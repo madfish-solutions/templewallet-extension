@@ -191,6 +191,7 @@ const NftsSection = ({
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
   const collectibles = tezosCollectibles.concat(evmCollectibles);
   const enabledLoadedByAlchemyChain = new Map<number, number>();
+  const manualOutsideInventoryByChain = new Map<number, number>();
   let otherEvmCount = 0;
 
   for (const collectible of evmCollectibles) {
@@ -204,6 +205,17 @@ const NftsSection = ({
       collectible.chainId,
       (enabledLoadedByAlchemyChain.get(collectible.chainId) ?? 0) + 1
     );
+
+    if (!collectible.manual) continue;
+
+    const loaded = inventoryByChain[collectible.chainId]?.loaded;
+    const listed = loaded?.some(nft => nft.slug.toLowerCase() === collectible.slug.toLowerCase());
+    if (listed) continue;
+
+    manualOutsideInventoryByChain.set(
+      collectible.chainId,
+      (manualOutsideInventoryByChain.get(collectible.chainId) ?? 0) + 1
+    );
   }
 
   let alchemyCount = 0;
@@ -214,8 +226,10 @@ const NftsSection = ({
       : 0;
     const inventory = inventoryByChain[chainId];
     const totalCount = inventory?.settled ? inventory.nftTotalCount : undefined;
+    const manualOutsideInventory = manualOutsideInventoryByChain.get(chainId) ?? 0;
 
-    alchemyCount += alchemyChainCount(enabledLoaded, totalCount, hidden);
+    alchemyCount +=
+      alchemyChainCount(enabledLoaded - manualOutsideInventory, totalCount, hidden) + manualOutsideInventory;
   }
 
   const collectiblesCount = tezosCollectiblesSlugs.length + otherEvmCount + alchemyCount;
