@@ -22,8 +22,8 @@ export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
 export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/tokens-metadata', walletAddress, chainId);
 
-export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
-  buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
+export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID, signal?: AbortSignal) =>
+  buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId, undefined, signal);
 
 export const fetchEvmTransactions = (
   walletAddress: string,

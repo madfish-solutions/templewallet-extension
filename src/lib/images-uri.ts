@@ -31,6 +31,7 @@ const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
+const TCINFRA_FALLBACK_SIZES: TcInfraMediaSize[] = ['medium', 'small'];
 
 const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
@@ -67,7 +68,17 @@ const buildObjktStages = (uris: string[], renditions: ObjktAssetRendition[]): Im
     )
   ).map(url => ({ urls: [url] }));
 
-/** objkt's CDN first, then the IPFS gateways for the first URI they can serve. */
+const buildTcInfraFallbackStages = (uris: string[]): ImageSourceStage[] =>
+  uniq(
+    uris
+      .filter(isGatewayFallbackUri)
+      .flatMap(uri => buildTcInfraMediaUrls(uri, TCINFRA_FALLBACK_SIZES).filter(isTruthy))
+  ).map(url => ({ urls: [url] }));
+
+/**
+ * objkt's CDN first, then tcinfra's cached renditions (a miss fails fast, its origin is gone),
+ * then the IPFS gateways for the first URI they can serve.
+ */
 const buildTezosMediaStages = (
   uris: Array<string | undefined>,
   renditions: ObjktAssetRendition[] = ['artifact']
@@ -75,6 +86,7 @@ const buildTezosMediaStages = (
   const definedUris = uris.filter(isTruthy);
 
   return buildObjktStages(definedUris, renditions).concat(
+    buildTcInfraFallbackStages(definedUris),
     buildIpfsGatewaySourceStages(definedUris.find(isGatewayFallbackUri))
   );
 };
@@ -164,13 +176,21 @@ export const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] =
   return stages;
 };
 
+export const buildPrimaryIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] => {
+  const primaryUrls = buildPrimaryIpfsGatewayUrls(uri);
+
+  return primaryUrls.length ? [{ urls: primaryUrls }] : [];
+};
+
 const chainIdsChainNamesRecord = chainIdsMapping as Record<string, string>;
 
 const rainbowBaseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 const llamaoBaseUrl = 'https://icons.llamao.fi/icons/chains/';
 
 const getCompressedImageUrl = (imageUrl: string, size: number) =>
-  `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
+  imageUrl.startsWith('data:')
+    ? imageUrl
+    : `https://img.templewallet.com/insecure/fill/${size}/${size}/ce/0/plain/${imageUrl}`;
 
 type NativeIconSource = 'rainbow' | 'llamao';
 
@@ -222,7 +242,9 @@ export const buildEvmCollectibleIconSources = (
   const originalUrl = metadata.image;
   if (!originalUrl) return [];
 
-  const gatewayStages = buildIpfsGatewaySourceStages(originalUrl);
+  if (originalUrl.startsWith('data:')) return [{ urls: [originalUrl] }];
+
+  const gatewayStages = buildPrimaryIpfsGatewaySourceStages(originalUrl);
   if (!includeCompressed) {
     return gatewayStages;
   }

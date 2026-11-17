@@ -48,7 +48,9 @@ const noCategoryEvmAssetsMetadataReducer = createReducer<NoCategoryEvmAssetsMeta
           if (!state.accountToAssetAssociations[associatedAccountPkh]) {
             state.accountToAssetAssociations[associatedAccountPkh] = [];
           }
-          state.accountToAssetAssociations[associatedAccountPkh].push(slug);
+          if (!state.accountToAssetAssociations[associatedAccountPkh].includes(slug)) {
+            state.accountToAssetAssociations[associatedAccountPkh].push(slug);
+          }
         }
       }
     };

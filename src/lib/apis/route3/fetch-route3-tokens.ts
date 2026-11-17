@@ -1,3 +1,4 @@
+import retry from 'async-retry';
 import { from, map } from 'rxjs';
 
 import { route3Api } from './route3.api';
@@ -18,4 +19,4 @@ export interface Route3Token {
 }
 
 export const fetchgetRoute3Tokens = () =>
-  from(route3Api.get<Array<Route3Token>>('/tokens')).pipe(map(response => response.data));
+  from(retry(() => route3Api.get<Array<Route3Token>>('/tokens'), { retries: 3 })).pipe(map(response => response.data));
