@@ -11,6 +11,7 @@ import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
+import { SAPLING_CONTRACT_ADDRESS } from './pre-parse';
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
@@ -51,18 +52,35 @@ export async function fetchOperations(
   return await fetchOperations_Any(chainId, accAddress, pseudoLimit, olderThan);
 }
 
-const fetchOperations_TEZ = (
+const fetchOperations_TEZ = async (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
-) =>
-  fetchTransactionsPage(
+) => {
+  const transfers = await fetchTransactionsPage(
     chainId,
     { 'anyof.sender.target.initiator': accountAddress, 'amount.ne': '0' },
     buildOlderThanParam(olderThan),
     pseudoLimit
   );
+  const oldestTransfer = transfers.at(-1);
+
+  const saplingCalls = await refetchOnce429(
+    () =>
+      TZKT.fetchGetOperationsTransactions(chainId, {
+        sender: accountAddress,
+        target: SAPLING_CONTRACT_ADDRESS,
+        amount: '0',
+        'sort.desc': 'id',
+        ...buildOlderThanParam(olderThan),
+        ...(oldestTransfer ? { 'timestamp.ge': oldestTransfer.timestamp, limit: 1000 } : { limit: pseudoLimit })
+      }),
+    1000
+  );
+
+  return transfers.concat(saplingCalls).sort((b, a) => a.id - b.id);
+};
 
 const fetchOperations_Contract = (
   chainId: TzktApiChainId,

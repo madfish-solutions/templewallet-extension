@@ -2,6 +2,8 @@ import { Collection } from 'dexie';
 
 import { TezosActivity } from 'lib/activity';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
+import { isShieldedTezosOperation } from 'lib/activity/utils';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 
 import { DbTezosActivity, TezosActivitiesInterval, db, tezosActivities, tezosActivitiesIntervals } from '../db';
 
@@ -118,7 +120,13 @@ export const getClosestTezosActivitiesInterval = async ({
     return {
       activities: rawActivities
         .map(toFrontTezosActivity)
-        .filter(activity => !assetSlug || activity.operations.some(op => op.assetSlug === assetSlug)),
+        .filter(
+          activity =>
+            !assetSlug ||
+            activity.operations.some(
+              op => op.assetSlug === assetSlug || (assetSlug === TEZ_TOKEN_SLUG && isShieldedTezosOperation(op))
+            )
+        ),
       upperLimit: searchUpperLimit,
       lowerLimit
     };
