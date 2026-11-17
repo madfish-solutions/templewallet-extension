@@ -21,7 +21,7 @@ import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm } from 'temple/front';
 
 import { NftsPageSelectors } from '../../selectors';
 import { CollectiblesCollection } from '../../types';
@@ -56,18 +56,6 @@ export const requestEvmCollectionTokens = (
 
 /** Collapsed cards show one row of this many tokens. */
 const COLLAPSED_COLLECTION_PREVIEW_COUNT = 4 as const;
-
-/**
- * Last preview row for a collection, kept while a reload has not returned tokens yet.
- * Keyed by account so one account never keeps another's NFTs.
- */
-const retainedCollectionPreviewSlugs = new Map<string, string[]>();
-
-const collectionPreviewSlugs = (chainSlugs: string[], retainedSlugs: string[], itemsCount: number) => {
-  if (chainSlugs.length > 0 || itemsCount < 1) return chainSlugs;
-
-  return retainedSlugs;
-};
 
 const CollectionPreviewPlaceholder: FC<{ count: number; isVisible: boolean }> = ({ count, isVisible }) => (
   <div className="grid grid-cols-4 gap-2">
@@ -116,25 +104,10 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
     onToggleOpened(collectionSlug);
   };
   const accountEvmAddress = useAccountAddressForEvm();
-  const accountTezosAddress = useAccountAddressForTezos();
   const contractAddressesKey = collection.contractAddresses?.join();
   const cardRef = useRef<HTMLDivElement>(null);
   const { searchValue } = useCollectiblesSearchState();
   const previewCount = Math.min(COLLAPSED_COLLECTION_PREVIEW_COUNT, itemsCount);
-  const accountAddress = typeof chainId === 'number' ? accountEvmAddress : accountTezosAddress;
-  const previewRetentionKey = accountAddress ? `${accountAddress}:${collectionSlug}` : undefined;
-  const shownSlugs = collectionPreviewSlugs(
-    chainSlugs,
-    previewRetentionKey ? (retainedCollectionPreviewSlugs.get(previewRetentionKey) ?? []) : [],
-    itemsCount
-  );
-
-  useEffect(() => {
-    if (!previewRetentionKey) return;
-
-    if (itemsCount < 1) retainedCollectionPreviewSlugs.delete(previewRetentionKey);
-    else if (chainSlugs.length > 0) retainedCollectionPreviewSlugs.set(previewRetentionKey, chainSlugs);
-  }, [chainSlugs, itemsCount, previewRetentionKey]);
 
   useEffect(() => {
     const element = cardRef.current;
@@ -240,10 +213,10 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
           </button>
         )}
       </div>
-      {shownSlugs.length > 0 ? (
+      {chainSlugs.length > 0 ? (
         <CollectiblesGroupGrid
           isCollapsed={!opened}
-          chainSlugs={shownSlugs}
+          chainSlugs={chainSlugs}
           colsCount={COLLAPSED_COLLECTION_PREVIEW_COUNT}
           isVisible={isVisible}
           areDetailsShown

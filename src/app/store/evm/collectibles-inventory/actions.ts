@@ -65,6 +65,8 @@ export const reconcileEvmCollectiblesOwnershipAction = createAction<{
   /** Owned tokens. `collectionSlug` replaces whatever was stored, including clearing it. */
   upsert: EvmChainCollectiblesInventory['loaded'];
   collectionCounts: Array<{ slug: string; itemCount: number }>;
+  /** Contract cards whose count moved to the Goldrush balance closer to the chain. */
+  contractCounts?: Array<{ address: string; distinctTokensOwned: number }>;
 }>('evm/collectibles-inventory/RECONCILE_OWNERSHIP');
 
 export const putEvmCollectiblesSearchHitsAction = createAction<{

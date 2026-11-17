@@ -80,6 +80,15 @@ export const evmCollectiblesInventoryReducer = createReducer<EvmCollectiblesInve
         const collection = chain.collections.find(item => item.slug === update.slug);
         if (collection) collection.itemCount = update.itemCount;
       }
+
+      for (const update of payload.contractCounts ?? []) {
+        const contract = chain.contracts.find(item => item.address.toLowerCase() === update.address.toLowerCase());
+        if (!contract || contract.distinctTokensOwned === update.distinctTokensOwned) continue;
+
+        const delta = update.distinctTokensOwned - contract.distinctTokensOwned;
+        contract.distinctTokensOwned = update.distinctTokensOwned;
+        if (chain.nftTotalCount != null) chain.nftTotalCount = Math.max(0, chain.nftTotalCount + delta);
+      }
     });
 
     builder.addCase(putEvmCollectiblesSearchHitsAction, (state, { payload }) => {

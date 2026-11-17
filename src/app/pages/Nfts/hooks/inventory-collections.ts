@@ -9,6 +9,8 @@ interface InventoryCollectionOptions {
   searching: boolean;
   /** Chain slugs that may appear inside a card. Omitted when every loaded token is shown. */
   allowedSlugs?: ReadonlySet<string>;
+  /** Lowercase asset slugs left off the card. Their number comes off the owned count. */
+  excludedSlugs?: ReadonlySet<string>;
   extraLoaded?: readonly InventoryLoadedNft[];
 }
 
@@ -50,28 +52,39 @@ const collectionFromCard = ({
 /**
  * Collection cards for one Alchemy chain.
  * A card keeps its owned count when only part of its tokens are loaded.
+ * Tokens the account removed or disabled come off that count, and a card with nothing left is left out.
  * While searching, a card with no matching token is left out.
  */
 export const alchemyInventoryCollections = (
   chainId: number,
   inventory: EvmChainCollectiblesInventory,
-  { searching, allowedSlugs, extraLoaded = [] }: InventoryCollectionOptions
+  { searching, allowedSlugs, excludedSlugs, extraLoaded = [] }: InventoryCollectionOptions
 ): Array<[CollectiblesCollection, string[]]> => {
   const loadedSlugs = new Set(inventory.loaded.map(nft => nft.slug));
   const loaded = inventory.loaded.concat(extraLoaded.filter(nft => !loadedSlugs.has(nft.slug)));
   const cards = placeInventoryCollections(inventory.contracts, inventory.collections, loaded);
   const placed = new Set(cards.flatMap(card => card.slugs));
-  const entries = cards.flatMap(card => {
-    const visible = allowedSlugs ? card.slugs.filter(slug => allowedSlugs.has(chainSlug(chainId, slug))) : card.slugs;
-    if (searching && visible.length === 0) return [];
+  const isExcluded = (slug: string) => excludedSlugs?.has(slug.toLowerCase()) ?? false;
+  const visibleSlugs = (slugs: readonly string[]) =>
+    slugs.filter(slug => {
+      if (isExcluded(slug)) return false;
+      if (allowedSlugs && !allowedSlugs.has(chainSlug(chainId, slug))) return false;
 
-    return [collectionFromCard({ ...card, chainId, slugs: visible })];
+      return true;
+    });
+  const entries = cards.flatMap(card => {
+    const visible = visibleSlugs(card.slugs);
+    const hiddenOnCard = card.slugs.filter(isExcluded).length;
+    const ownedCount = Math.max(0, card.ownedCount - hiddenOnCard);
+    if (visible.length === 0 && (searching || ownedCount === 0)) return [];
+
+    return [collectionFromCard({ ...card, chainId, slugs: visible, ownedCount })];
   });
 
   const leftovers = new Map<string, InventoryLoadedNft[]>();
 
   for (const nft of extraLoaded) {
-    if (placed.has(nft.slug)) continue;
+    if (placed.has(nft.slug) || isExcluded(nft.slug)) continue;
     if (allowedSlugs && !allowedSlugs.has(chainSlug(chainId, nft.slug))) continue;
 
     const key = nft.collectionSlug ?? nft.contractAddress;

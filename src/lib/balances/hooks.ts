@@ -23,7 +23,6 @@ import {
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
-import { fromAssetSlug } from 'lib/assets/utils';
 import { evmBalanceOnChainRequestedAt, getEvmBalanceOnChainRequestKey } from 'lib/evm/on-chain/balance';
 import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscriptions';
 import { EvmAssetStandard } from 'lib/evm/types';
@@ -291,8 +290,8 @@ export function useEvmAssetBalance(
     forceFirstRefreshOnChain,
     forceOnChainRefresh
   );
-  const tokenId = fromAssetSlug(assetSlug)[1];
-  const loadedNft = useEvmLoadedNftSelector(tokenId ? address : undefined, network.chainId, assetSlug);
+  const collectible = isEvmCollectible(metadata);
+  const loadedNft = useEvmLoadedNftSelector(collectible ? address : undefined, network.chainId, assetSlug);
   const knownBalance = storedRaw ?? loadedNft?.balance;
   const chainBalance = useOwnedNftBalance({
     chainId: network.chainId,
@@ -300,7 +299,7 @@ export function useEvmAssetBalance(
     assetSlug,
     knownBalance,
     storedSlug: loadedNft?.slug,
-    enabled: Boolean(tokenId) && (knownBalance == null || knownBalance === '')
+    enabled: collectible && (knownBalance == null || knownBalance === '')
   });
 
   const value = useMemo(() => {

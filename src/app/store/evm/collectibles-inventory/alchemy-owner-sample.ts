@@ -30,9 +30,16 @@ interface OwnerListSample {
   unownedSlugs: string[];
   /** Contracts whose ERC-721 balance is zero. Every loaded token of these contracts is unowned. */
   unownedContracts: string[];
+  /** ERC-721 `balanceOf` for a sampled contract, keyed by lowercase address. */
+  balanceOfByContract: ReadonlyMap<string, number>;
 }
 
-const keptList = (): OwnerListSample => ({ rejectsList: false, unownedSlugs: [], unownedContracts: [] });
+const keptList = (): OwnerListSample => ({
+  rejectsList: false,
+  unownedSlugs: [],
+  unownedContracts: [],
+  balanceOfByContract: new Map()
+});
 
 /**
  * Balances for a few reported tokens.
@@ -73,11 +80,19 @@ export const readOwnerListSample = async (
       };
     });
     const unowned = unownedFromOwnerSample(answers);
+    const balanceOfByContract = new Map<string, number>();
+
+    for (const answer of answers) {
+      if (answer.balanceOf == null || !answer.contractAddress) continue;
+
+      balanceOfByContract.set(contractKey(answer.contractAddress), answer.balanceOf);
+    }
 
     return {
       rejectsList: alchemyOwnerSampleRejectsList(answers, source),
       unownedSlugs: unowned.slugs,
-      unownedContracts: unowned.contractAddresses
+      unownedContracts: unowned.contractAddresses,
+      balanceOfByContract
     };
   } catch (error) {
     if (isAbortError(error)) throw error;

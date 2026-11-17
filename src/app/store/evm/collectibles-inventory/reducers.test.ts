@@ -114,4 +114,36 @@ describe('appendEvmChainCollectiblesInventoryAction', () => {
       { ...storedWithBalance, collectionSlug: 'known-origin' }
     ]);
   });
+
+  it('moves a contract card count and the owner total by the same amount', () => {
+    const address = '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B';
+    const initial = evmCollectiblesInventoryReducer(
+      evmCollectiblesInventoryInitialState,
+      putEvmChainCollectiblesInventoryAction({
+        account,
+        chainId,
+        inventory: {
+          settled: true,
+          nftTotalCount: 8,
+          contracts: [{ address, distinctTokensOwned: 8 }],
+          collections: [],
+          loaded: []
+        }
+      })
+    );
+    const state = evmCollectiblesInventoryReducer(
+      initial,
+      reconcileEvmCollectiblesOwnershipAction({
+        account,
+        chainId,
+        removeSlugs: [],
+        upsert: [],
+        collectionCounts: [],
+        contractCounts: [{ address, distinctTokensOwned: 2 }]
+      })
+    );
+
+    expect(state.byAccount[account][chainId].contracts[0]?.distinctTokensOwned).toBe(2);
+    expect(state.byAccount[account][chainId].nftTotalCount).toBe(2);
+  });
 });

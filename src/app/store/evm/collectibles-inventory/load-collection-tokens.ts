@@ -35,8 +35,10 @@ import {
   CollectedNfts
 } from './collected-nfts';
 import { isUnusableAlchemyOwnerPage } from './collection-load';
+import { goldrushContractBalancesFor, withCloserGoldrushCounts } from './goldrush-balances';
 import { OwnershipSource } from './ownership';
 import { InventoryLoadedNft } from './place-collections';
+import { rememberLoadedBeyondFirstPage } from './preserve-loaded';
 import {
   mergeCollectibleMetadata,
   ReportedCollectible,
@@ -117,7 +119,8 @@ const readOpenseaCollectionNfts = async (
   chainId: OpenseaChainID,
   collectionSlug: string,
   collectionName: string | undefined,
-  signal: AbortSignal
+  signal: AbortSignal,
+  alreadyLoaded: readonly string[]
 ): Promise<{ actions: Action[]; collected: CollectedNfts }> => {
   const response = await withRateLimitRetry(
     () => getOpenseaChainNftsMetadata(chainId, account, collectionSlug, undefined, signal),
@@ -127,6 +130,12 @@ const readOpenseaCollectionNfts = async (
   const nfts = response.nfts ?? [];
 
   const collected = collectOpenseaCollectionNfts(nfts, account, collectionSlug, collectionName || collectionSlug);
+  rememberLoadedBeyondFirstPage(
+    account,
+    chainId,
+    collected.loaded.map(nft => nft.slug),
+    alreadyLoaded
+  );
 
   return {
     actions: [
@@ -224,14 +233,38 @@ const verifiedCollectionActions = async (
     const actions: Action[] = [];
     const slugs = verified.upsert.map(nft => nft.slug);
     if (Object.keys(records).length) actions.push(putEvmCollectiblesMetadataAction({ chainId, records }));
-    if (slugs.length) actions.push(enableEvmCollectiblesAction({ publicKeyHash: account, chainId, slugs }));
+    if (slugs.length) {
+      actions.push(enableEvmCollectiblesAction({ publicKeyHash: account, chainId, slugs }));
+      rememberLoadedBeyondFirstPage(
+        account,
+        chainId,
+        slugs,
+        (inventory?.loaded ?? []).map(nft => nft.slug)
+      );
+    }
+    const adjustedCounts = withCloserGoldrushCounts(
+      inventory?.contracts ?? [],
+      inventory?.collections ?? [],
+      goldrushContractBalancesFor(account, chainId),
+      new Map(verified.chainBalances.map(item => [item.address.toLowerCase(), item.balanceOf]))
+    );
+    const previousCounts = new Map(
+      (inventory?.contracts ?? []).map(contract => [contract.address.toLowerCase(), contract.distinctTokensOwned])
+    );
+    const contractCounts = adjustedCounts.contracts.flatMap(contract => {
+      const previous = previousCounts.get(contract.address.toLowerCase());
+      if (previous == null || previous === contract.distinctTokensOwned) return [];
+
+      return [{ address: contract.address, distinctTokensOwned: contract.distinctTokensOwned }];
+    });
     actions.push(
       reconcileEvmCollectiblesOwnershipAction({
         account,
         chainId,
         removeSlugs: verified.removeSlugs,
         upsert: verified.upsert,
-        collectionCounts: verified.collectionCounts
+        collectionCounts: verified.collectionCounts,
+        contractCounts
       })
     );
 
@@ -310,6 +343,14 @@ export const loadCollectionTokensEpic: Epic<Action, Action, RootState> = (action
                   const collected = collectAlchemyNfts(page.ownedNfts);
                   if (matchesCollection(collected.loaded)) suppliedCollection = true;
                   remember(collected, 'alchemy', false);
+                  rememberLoadedBeyondFirstPage(
+                    payload.account,
+                    chainId,
+                    collected.loaded.map(nft => nft.slug),
+                    state$.value.evmCollectiblesInventory.byAccount[payload.account]?.[chainId]?.loaded?.map(
+                      nft => nft.slug
+                    ) ?? []
+                  );
                   actions.push(
                     ...publishCollected(payload.account, chainId, collected),
                     appendEvmChainCollectiblesInventoryAction({
@@ -339,7 +380,10 @@ export const loadCollectionTokensEpic: Epic<Action, Action, RootState> = (action
                 chainId,
                 openseaCollection,
                 payload.collectionName,
-                controller.signal
+                controller.signal,
+                state$.value.evmCollectiblesInventory.byAccount[payload.account]?.[chainId]?.loaded?.map(
+                  nft => nft.slug
+                ) ?? []
               );
               remember(opensea.collected, 'opensea', true);
               openseaQueried = true;

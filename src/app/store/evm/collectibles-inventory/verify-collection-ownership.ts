@@ -41,6 +41,8 @@ interface VerifiedCollectionOwnership {
   upsert: InventoryLoadedNft[];
   removeSlugs: string[];
   collectionCounts: Array<{ slug: string; itemCount: number }>;
+  /** ERC-721 `balanceOf` for a contract this check settled, keyed later by lowercase address. */
+  chainBalances: Array<{ address: string; balanceOf: number }>;
   metadata: StringRecord<EvmCollectibleMetadata>;
 }
 
@@ -251,6 +253,14 @@ export const verifyCollectionOwnership = async (
     return [nft.slug];
   });
 
+  const chainBalances: VerifiedCollectionOwnership['chainBalances'] = [];
+
+  for (const [contract, owned] of ownedByContract) {
+    if (!owned.settled || owned.balanceOf == null) continue;
+
+    chainBalances.push({ address: contract, balanceOf: owned.balanceOf });
+  }
+
   const collectionCounts = collections.flatMap(collection => {
     const addresses = collection.contractAddresses.map(contractKey);
     if (!addresses.every(address => contracts.includes(address))) return [];
@@ -269,7 +279,7 @@ export const verifyCollectionOwnership = async (
     return [{ slug: collection.slug, itemCount }];
   });
 
-  return { upsert, removeSlugs, collectionCounts, metadata };
+  return { upsert, removeSlugs, collectionCounts, chainBalances, metadata };
 };
 
 const previewUrl = (metadata: EvmCollectibleMetadata) => metadata.images?.[0] ?? metadata.image;

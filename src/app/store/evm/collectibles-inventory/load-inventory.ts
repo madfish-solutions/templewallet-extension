@@ -3,12 +3,14 @@ import { Epic } from 'redux-observable';
 import { EMPTY, concat, from, of } from 'rxjs';
 import { catchError, filter, finalize, mergeMap, switchMap } from 'rxjs/operators';
 
+import { RootState } from 'app/store/root-state.type';
 import {
   ALCHEMY_NFT_EXCLUDE_SPAM,
   getAlchemyNftsByOwner,
   getEvmCollectiblesMetadata,
   getNftAlchemyContractsByOwner,
-  getOpenseaAccountCollections
+  getOpenseaAccountCollections,
+  NftAddressBalanceNftResponse
 } from 'lib/apis/temple/endpoints/evm';
 import { AlchemyChainID } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -33,8 +35,14 @@ import {
   emptyCollected,
   publishCollected
 } from './collected-nfts';
+import {
+  goldrushBalanceByContract,
+  rememberGoldrushContractBalances,
+  withCloserGoldrushCounts
+} from './goldrush-balances';
 import { inventoryFromGoldrush, withoutProvenUnowned } from './goldrush-inventory';
 import { InventoryContractRef } from './place-collections';
+import { forgetPreservedLoadedNfts, rememberLoadedBeyondFirstPage, withPreservedLoadedNfts } from './preserve-loaded';
 import { EvmChainCollectiblesInventory } from './state';
 
 const ACCOUNT_COLLECTIONS_PAGE_LIMIT = 5;
@@ -74,12 +82,15 @@ const unreadGoldrushInventory = (): GoldrushInventoryRead => ({
 const readGoldrushInventory = async (
   account: HexString,
   chainId: number,
-  signal: AbortSignal
+  signal: AbortSignal,
+  /** Set when this load already requested Goldrush. `data` is omitted when that request failed. */
+  preloaded?: { data?: NftAddressBalanceNftResponse }
 ): Promise<GoldrushInventoryRead> => {
   if (!isGoldrushChainId(chainId)) return unreadGoldrushInventory();
 
   try {
-    const data = await getEvmCollectiblesMetadata(account, chainId, signal);
+    const data = preloaded ? preloaded.data : await getEvmCollectiblesMetadata(account, chainId, signal);
+    if (!data) return unreadGoldrushInventory();
     const goldrush = inventoryFromGoldrush(data);
     const sample = await readOwnerListSample(account, chainId, goldrush.collected.loaded, 'goldrush', signal);
     if (sample.rejectsList) return { collected: emptyCollected(), contracts: [], fetched: true };
@@ -132,21 +143,41 @@ const readOwnerNfts = async (account: HexString, chainId: AlchemyChainID, signal
 const readChainInventory = async (account: HexString, chainId: number, signal: AbortSignal): Promise<Action[]> => {
   if (!isAlchemyChainId(chainId)) return [];
 
-  const [contractsResult, nftsResult, collectionsResult] = await Promise.allSettled([
+  const goldrushResponse = isGoldrushChainId(chainId)
+    ? getEvmCollectiblesMetadata(account, chainId, signal).catch(error => {
+        if (isAbortError(error)) throw error;
+
+        console.error(error);
+
+        return undefined;
+      })
+    : Promise.resolve(undefined);
+  const [contractsResult, nftsResult, collectionsResult, goldrushResult] = await Promise.allSettled([
     getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM),
     readOwnerNfts(account, chainId, signal),
-    readAccountCollections(chainId, account, signal)
+    readAccountCollections(chainId, account, signal),
+    goldrushResponse
   ]);
   settledOrThrow(contractsResult);
   settledOrThrow(nftsResult);
   settledOrThrow(collectionsResult);
+  settledOrThrow(goldrushResult);
 
   const contracts = contractsResult.status === 'fulfilled' ? contractsFromResponse(contractsResult.value) : [];
   const nfts = nftsResult.status === 'fulfilled' ? nftsResult.value : undefined;
   const collections = collectionsResult.status === 'fulfilled' ? collectionsFromResponse(collectionsResult.value) : [];
+  const goldrushData = goldrushResult.status === 'fulfilled' ? goldrushResult.value : undefined;
+  if (goldrushData) rememberGoldrushContractBalances(account, chainId, goldrushBalanceByContract(goldrushData));
   const replaceWithGoldrush = async (): Promise<Action[]> => {
-    const goldrush = await readGoldrushInventory(account, chainId, signal);
+    const goldrush = await readGoldrushInventory(
+      account,
+      chainId,
+      signal,
+      isGoldrushChainId(chainId) ? { data: goldrushData } : undefined
+    );
     if (!goldrush.fetched) return [];
+
+    forgetPreservedLoadedNfts(account, chainId);
 
     const inventory: EvmChainCollectiblesInventory = {
       settled: true,
@@ -176,8 +207,14 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
     alchemySample.unownedContracts
   );
   const trusted = trimmed.collected;
-  const inventoryContracts = trimmed.contracts.slice();
-  const nftTotalCount = Math.max(0, nfts.totalCount - trimmed.removed);
+  const adjustedCounts = withCloserGoldrushCounts(
+    trimmed.contracts,
+    collections,
+    goldrushData ? goldrushBalanceByContract(goldrushData) : undefined,
+    alchemySample.balanceOfByContract
+  );
+  const inventoryContracts = adjustedCounts.contracts;
+  const nftTotalCount = Math.max(0, nfts.totalCount - trimmed.removed + adjustedCounts.delta);
   const nftPageKey = nfts.pageKey;
   const contractsTotalCount =
     contractsResult.status === 'fulfilled'
@@ -206,7 +243,8 @@ const readNftPage = async (
   pageKey: string | undefined,
   contractAddresses: string[] | undefined,
   replacePageKey: boolean,
-  signal: AbortSignal
+  signal: AbortSignal,
+  alreadyLoaded: readonly string[]
 ): Promise<Action[]> => {
   if (!isAlchemyChainId(chainId)) return [];
 
@@ -220,6 +258,13 @@ const readNftPage = async (
     ALCHEMY_NFT_EXCLUDE_SPAM
   );
   const collected = collectAlchemyNfts(page.ownedNfts);
+
+  rememberLoadedBeyondFirstPage(
+    account,
+    chainId,
+    collected.loaded.map(nft => nft.slug),
+    alreadyLoaded
+  );
 
   return [
     ...publishCollected(account, chainId, collected),
@@ -252,7 +297,7 @@ const cancelNftPageLoads = (account: string) => {
   }
 };
 
-export const loadInventoryEpic: Epic<Action, Action> = action$ =>
+export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     filter(loadEvmCollectiblesInventoryAction.match),
     switchMap(({ payload }) => {
@@ -265,7 +310,22 @@ export const loadInventoryEpic: Epic<Action, Action> = action$ =>
         from(
           Promise.all(chainIds.map(chainId => readChainInventory(payload.account, chainId, controller.signal)))
         ).pipe(
-          mergeMap(actionLists => from(actionLists.flat())),
+          mergeMap(actionLists =>
+            from(
+              actionLists.flat().map(action => {
+                if (!putEvmChainCollectiblesInventoryAction.match(action)) return action;
+
+                const { account, chainId, inventory } = action.payload;
+                const previous = state$.value.evmCollectiblesInventory.byAccount[account]?.[chainId];
+
+                return putEvmChainCollectiblesInventoryAction({
+                  account,
+                  chainId,
+                  inventory: withPreservedLoadedNfts(account, chainId, inventory, previous)
+                });
+              })
+            )
+          ),
           catchError(emptyAfterAbort)
         ),
         of(setEvmCollectiblesInventoryLoadingAction(false))
@@ -273,7 +333,7 @@ export const loadInventoryEpic: Epic<Action, Action> = action$ =>
     })
   );
 
-export const loadNextPageEpic: Epic<Action, Action> = action$ =>
+export const loadNextPageEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     filter(loadEvmCollectiblesInventoryNextPageAction.match),
     mergeMap(({ payload }) => {
@@ -285,9 +345,21 @@ export const loadNextPageEpic: Epic<Action, Action> = action$ =>
 
       const controller = new AbortController();
       nftPageControllers.set(requestKey, controller);
+      const alreadyLoaded =
+        state$.value.evmCollectiblesInventory.byAccount[payload.account]?.[payload.chainId]?.loaded?.map(
+          nft => nft.slug
+        ) ?? [];
 
       return from(
-        readNftPage(payload.account, payload.chainId, payload.pageKey, undefined, true, controller.signal)
+        readNftPage(
+          payload.account,
+          payload.chainId,
+          payload.pageKey,
+          undefined,
+          true,
+          controller.signal,
+          alreadyLoaded
+        )
       ).pipe(
         mergeMap(actions => from(actions)),
         catchError(error => {
