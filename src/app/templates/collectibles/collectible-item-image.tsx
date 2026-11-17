@@ -16,10 +16,13 @@ import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
+import { parseMediaUri } from 'lib/utils/ipfs';
 
 import { CollectibleBlur } from './collectible-blur';
 import { CollectibleImageFallback } from './collectible-image-fallback';
 import { CollectibleImageLoader } from './collectible-image-loader';
+
+const EVM_TILE_IMAGE_FAILURE_BACKOFF_MS = 60_000;
 
 interface TezosCollectibleItemImageProps {
   assetSlug: string;
@@ -98,6 +101,7 @@ interface EvmCollectibleItemImageProps {
   shouldUseBlurredBg?: boolean;
   /** Keep the first frame. Used for the image under a cover. */
   still?: boolean;
+  inView: boolean;
 }
 
 export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
@@ -106,9 +110,14 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   chainId,
   className,
   shouldUseBlurredBg = false,
-  still = false
+  still = false,
+  inView
 }) => {
-  const sources = useMemoWithCompare(() => buildEvmCollectiblePreviewSources(metadata), [metadata]);
+  const sources = useMemoWithCompare(
+    () => buildEvmCollectiblePreviewSources(metadata, { primaryGatewaysOnly: true }),
+    [metadata]
+  );
+  const isIpfsImage = Boolean(parseMediaUri(sources[0]?.urls[0]).ipfsAware.ipfs);
   const sourcesWithCompressedFallback = useMemoWithCompare(
     () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
     [metadata]
@@ -121,6 +130,8 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
         <ImageStacked
           sources={sourcesWithCompressedFallback}
           still={still}
+          paused={!inView}
+          failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
           loading="lazy"
           className="absolute w-full h-full object-cover blur-xs"
         />
@@ -128,6 +139,9 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
       <ImageStacked
         sources={sources}
         still={still}
+        raced={isIpfsImage}
+        paused={!inView}
+        failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
         loading="lazy"
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback />}

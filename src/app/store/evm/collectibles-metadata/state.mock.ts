@@ -5,6 +5,5 @@ import { EvmCollectiblesMetadataState } from './state';
 export const mockEvmCollectiblesMetadataState = mockPersistedState<EvmCollectiblesMetadataState>({
   metadataRecord: {},
   seenChainsByAccount: {},
-  checkedSlugsByAccount: {},
-  onChainSlugsByAccount: {}
+  checkedSlugsByAccount: {}
 });

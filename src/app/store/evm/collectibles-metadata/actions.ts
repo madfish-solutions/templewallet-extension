@@ -26,18 +26,27 @@ export const putEvmCollectiblesMetadataAction = createAction<PutEvmCollectiblesM
   'evm/collectible-metadata/PUT_COLLECTIBLES_METADATA_ACTION'
 );
 
-/** Fills a discovered collection name onto the other NFTs of that contract. */
-export const propagateEvmContractCollectionNamesAction = createAction(
-  'evm/collectible-metadata/PROPAGATE_CONTRACT_COLLECTION_NAMES'
-);
-
 export const loadEvmCollectiblesMetadataAction = createAction<{
   publicKeyHash: HexString;
   chains: EvmNetworkEssentials[];
-  loadAllChains: boolean;
-  /** Visible collectibles to resolve through OpenSea. The loader may add more, up to 30. */
-  openseaNftRefs: OpenseaNftRef[];
+  visibleSlugsByChain: Record<number, string[]>;
+  readAllInBackground: boolean;
+  priorityChainIds: number[];
 }>('evm/collectible-metadata/LOAD');
+
+export const cancelEvmCollectiblesMetadataLoadingAction = createAction('evm/collectible-metadata/CANCEL_LOADING');
+
+export const markEvmCollectiblesMetadataChainLoadedAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+}>('evm/collectible-metadata/MARK_CHAIN_LOADED');
+
+export const markEvmCollectibleSlugsCheckedAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+  slugs: string[];
+  retryAt?: number;
+}>('evm/collectible-metadata/MARK_SLUGS_CHECKED');
 
 /** Remaining visible on-chain reads. Processed one small batch at a time. */
 export const continueEvmCollectiblesOnChainLoadAction = createAction<{
@@ -77,7 +86,3 @@ export interface EvmCollectiblesMetadataSession {
   checkedSlugsByChain: Record<number, string[]>;
   onChainSlugsByChain: Record<number, string[]>;
 }
-
-export const updateEvmCollectiblesMetadataSessionAction = createAction<EvmCollectiblesMetadataSession>(
-  'evm/collectible-metadata/UPDATE_SESSION'
-);

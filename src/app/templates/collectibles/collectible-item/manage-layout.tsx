@@ -1,11 +1,10 @@
-import { FC, Ref, useRef } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
@@ -13,9 +12,7 @@ import { setTezosCollectibleStatusAction } from 'app/store/tezos/assets/actions'
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setTestID } from 'lib/analytics';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import { useBooleanState } from 'lib/ui/hooks';
-import { combineRefs } from 'lib/ui/utils';
 import { ChainId, ChainOfKind, PublicKeyHash, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -79,11 +76,6 @@ const ManageCollectibleListItemLayoutHOC = <
     const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
-    const visibilityElemRef = useRef<HTMLDivElement>(null);
-    useReportEvmCollectibleVisibility(
-      typeof chainId === 'number' ? toChainAssetSlug(TempleChainKind.EVM, chainId, assetSlug) : undefined,
-      visibilityElemRef
-    );
 
     const handleCollectibleStatusSwitch = () =>
       toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash);
@@ -98,7 +90,7 @@ const ManageCollectibleListItemLayoutHOC = <
             'focus:bg-secondary-low',
             scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low'
           )}
-          ref={combineRefs(visibilityElemRef, ref)}
+          ref={ref as Ref<HTMLDivElement>}
           {...setTestID(testID)}
         >
           <div className="flex items-center gap-x-1.5">
@@ -194,10 +186,19 @@ export const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
   useTezosChainByChainId
 );
 
-export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  ManageCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   EvmNetworkLogo,
-  ({ metadata, assetSlug, chainId }) => (
-    <EvmCollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} className="object-cover" />
+  ({ metadata, assetSlug, chainId, inView }) => (
+    <EvmCollectibleItemImage
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      inView={inView}
+      className="object-cover"
+    />
   ),
   (status, assetSlug, chainId, account) =>
     void dispatch(setEvmCollectibleStatusAction({ account, chainId, slug: assetSlug, status })),

@@ -1,11 +1,9 @@
-import { FC, useRef } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
-import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmCollectibleTileMetadata } from 'app/hooks/use-evm-collectible-metadata-request';
 import {
   useCollectibleMetadataSelector,
   useCollectiblesMetadataLoadingSelector
@@ -14,6 +12,7 @@ import { useCollectibleDetailsSelector } from 'app/store/tezos/collectibles/sele
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
 import { CollectibleMetadata } from 'lib/metadata/types';
+import { useAccountAddressForEvm } from 'temple/front';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -60,13 +59,13 @@ export const ShowMore: FC<ShowMoreProps> = ({
 };
 
 interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
+  wrapperElemRef?: Ref<HTMLDivElement>;
   assetSlug: string;
   chainId: ChainId<T>;
   metadata?: CollectibleMetadata<T>;
   addDetailsPlaceholder: boolean;
   metadatasLoading: boolean;
   isVisible: boolean;
-  visibilityChainSlug?: string;
   overlayClassName?: string;
   overlayStyle?: React.CSSProperties;
   onClick: EmptyFn;
@@ -78,20 +77,18 @@ const ShowMoreLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultShowMoreLayoutProps<T> = DefaultShowMoreLayoutProps<T>
 >(
-  CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'chainId'> & Omit<P, keyof DefaultShowMoreLayoutProps<T>>
-  >,
+  CollectibleItemImage: FC<Pick<P, 'metadata' | 'assetSlug'> & Omit<P, keyof DefaultShowMoreLayoutProps<T>>>,
   className?: string
 ) => {
   function ShowMoreLayout(props: P) {
     const {
+      wrapperElemRef,
       assetSlug,
       metadata,
       chainId,
       addDetailsPlaceholder,
       metadatasLoading,
       isVisible,
-      visibilityChainSlug,
       onClick,
       children,
       overlayClassName,
@@ -99,17 +96,15 @@ const ShowMoreLayoutHOC = <
       testID,
       ...restProps
     } = props;
-    const visibilityElemRef = useRef<HTMLButtonElement>(null);
-    useReportEvmCollectibleVisibility(visibilityChainSlug, visibilityElemRef);
 
     return (
       <Button
-        ref={visibilityElemRef}
         onClick={onClick}
         className={clsx('relative flex flex-col overflow-hidden group rounded-8', className)}
         testID={testID}
       >
         <div
+          ref={wrapperElemRef}
           className={clsx(
             'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
             isVisible && 'border-2 border-transparent',
@@ -118,7 +113,7 @@ const ShowMoreLayoutHOC = <
         >
           {!isVisible && <div className="w-full h-full z-1 bg-grey-3" />}
           {(!metadatasLoading || metadata) && isVisible && (
-            <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
+            <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
           )}
         </div>
 
@@ -144,15 +139,14 @@ const TezosShowMoreLayout = ShowMoreLayoutHOC<
   TempleChainKind.Tezos,
   DefaultShowMoreLayoutProps<TempleChainKind.Tezos> & { mime: string | nullish; extraSrc?: string }
 >(
-  props => (
-    <TezosCollectibleItemImage {...props} adultBlur={false} areDetailsLoading={false} containerElemRef={null} still />
-  ),
+  props => <TezosCollectibleItemImage {...props} adultBlur={false} areDetailsLoading={false} containerElemRef={null} />,
   'items-center justify-center'
 );
 
-const EvmShowMoreLayout = ShowMoreLayoutHOC<TempleChainKind.EVM, DefaultShowMoreLayoutProps<TempleChainKind.EVM>>(
-  props => <EvmCollectibleItemImage {...props} still />
-);
+const EvmShowMoreLayout = ShowMoreLayoutHOC<
+  TempleChainKind.EVM,
+  DefaultShowMoreLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(EvmCollectibleItemImage);
 
 interface ShowMoreContentProps {
   chainSlug: string;
@@ -179,24 +173,29 @@ const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProp
       metadatasLoading={metadatasLoading}
       metadata={metadata}
       mime={details?.mime}
-      extraSrc={details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri)}
+      extraSrc={details?.objktArtifactUri ? buildObjktArtifactExtraSrc(details.objktArtifactUri) : undefined}
     />
   );
 };
 
 const EvmShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps }) => {
   const [, chainId, assetSlug] = parseChainAssetSlug<TempleChainKind.EVM>(chainSlug);
-  const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
-  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const accountPkh = useAccountAddressForEvm();
+  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
+    accountPkh,
+    chainId,
+    assetSlug
+  );
 
   return (
     <EvmShowMoreLayout
       {...restProps}
+      wrapperElemRef={wrapperElemRef}
+      inView={inView}
       assetSlug={assetSlug}
       chainId={chainId}
       metadata={metadata}
-      metadatasLoading={metadatasLoading}
-      visibilityChainSlug={chainSlug}
+      metadatasLoading={metadataLoading}
     />
   );
 };

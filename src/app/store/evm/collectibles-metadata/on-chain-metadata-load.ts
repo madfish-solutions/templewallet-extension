@@ -25,7 +25,8 @@ import {
 
 const loadEvmCollectiblesMetadataFromChain = async (slugsWithoutMeta: string[], chain: EvmNetworkEssentials) => {
   try {
-    const records = await fetchEvmCollectiblesMetadataFromChain(chain, slugsWithoutMeta);
+    const loaded = await fetchEvmCollectiblesMetadataFromChain(chain, slugsWithoutMeta);
+    const records = Object.fromEntries(loaded);
 
     return putEvmCollectiblesMetadataAction({ chainId: chain.chainId, records });
   } catch (error) {

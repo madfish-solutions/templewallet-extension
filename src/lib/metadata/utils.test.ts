@@ -76,4 +76,17 @@ describe('buildEvmCollectiblePreviewSources', () => {
       cover
     ]);
   });
+
+  it('loads a tile IPFS preview from the primary gateway only', () => {
+    const metadata = {
+      address: '0x2953399124F0cBB46d2CbACD8A89cF0599974963' as const,
+      tokenId: '1',
+      image: 'ipfs://QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG'
+    };
+    const tile = buildEvmCollectiblePreviewSources(metadata, { primaryGatewaysOnly: true });
+    const detail = buildEvmCollectiblePreviewSources(metadata);
+
+    expect(tile).toEqual([{ urls: ['https://ipfs.filebase.io/ipfs/QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG'] }]);
+    expect(detail.some(stage => stage.delayMs !== undefined)).toBe(true);
+  });
 });

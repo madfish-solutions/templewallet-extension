@@ -1,17 +1,14 @@
-import { FC, Ref, useRef } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
 import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import { toExploreAssetLink } from 'lib/ui/links';
-import { combineRefs } from 'lib/ui/utils';
 import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -64,11 +61,6 @@ const DefaultCollectibleListItemLayoutHOC = <
     const network = useNetwork(chainId);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
-    const visibilityElemRef = useRef<HTMLAnchorElement>(null);
-    useReportEvmCollectibleVisibility(
-      chainKind === TempleChainKind.EVM ? toChainAssetSlug(chainKind, chainId, assetSlug) : undefined,
-      visibilityElemRef
-    );
 
     return (
       <Link
@@ -76,7 +68,7 @@ const DefaultCollectibleListItemLayoutHOC = <
         className={clsx('flex flex-col overflow-hidden group', className)}
         testID={testID}
         testIDProperties={{ assetSlug }}
-        ref={combineRefs(visibilityElemRef, ref)}
+        ref={ref as Ref<HTMLAnchorElement>}
       >
         <div
           ref={wrapperElemRef}
@@ -164,15 +156,19 @@ export const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
   'items-center justify-center'
 );
 
-export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  DefaultCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   TempleChainKind.EVM,
   EvmNetworkLogo,
-  ({ metadata, assetSlug, chainId }) => (
+  ({ metadata, assetSlug, chainId, inView }) => (
     <EvmCollectibleItemImage
       shouldUseBlurredBg
       metadata={metadata}
       assetSlug={assetSlug}
       chainId={chainId}
+      inView={inView}
       className="object-contain"
     />
   ),

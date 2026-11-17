@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import { isEqual, uniq } from 'lodash';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
 import { EMPTY, forkJoin, from, of } from 'rxjs';
@@ -98,7 +98,7 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
     withLatestFrom(state$),
     exhaustMap(([{ rpcUrls, associatedAccountPkh }, { evmNoCategoryAssetMetadata }]) => {
       const { contractsChainIds, accountToAssetAssociations } = evmNoCategoryAssetMetadata;
-      const slugs = accountToAssetAssociations[associatedAccountPkh] || [];
+      const slugs = uniq(accountToAssetAssociations[associatedAccountPkh] || []);
 
       const slugsByChainIds = slugs.reduce<Record<number, string[]>>((acc, slug) => {
         const [address] = fromAssetSlug(slug);

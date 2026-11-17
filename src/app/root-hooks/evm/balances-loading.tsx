@@ -39,6 +39,8 @@ import {
   useRefreshIfActive
 } from './use-refresh-if-active';
 
+const MAX_GOLDRUSH_TIP_LAG_MS = 5 * 60_000;
+
 type Loaders =
   | [OnchainDataLoader<StringRecord>]
   | [ApiDataLoader<BalancesResponse, GoldrushChainID>, OnchainDataLoader<StringRecord>];
@@ -149,7 +151,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
         const delta = Math.abs(latestTimestampMs - latestApiIndexedBlockTimestamp);
 
-        return delta <= EVM_BALANCES_SYNC_INTERVAL * 3;
+        return delta <= MAX_GOLDRUSH_TIP_LAG_MS;
       } catch (err) {
         console.warn('Failed to verify GoldRush balances response', err);
         return false;

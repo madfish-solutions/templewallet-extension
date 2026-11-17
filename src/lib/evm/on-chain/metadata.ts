@@ -1,30 +1,35 @@
-import { pickBy } from 'lodash';
-import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
-
-import { erc1155Abi } from 'lib/abi/erc1155';
-import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
-import { collectibleImagePreviewUrl, firstCollectibleArtifactUrl } from 'lib/metadata/collectible-media';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
-import { getMaybeIpfsGenericFile } from 'lib/utils/ipfs';
-import { getViemPublicClient } from 'temple/evm';
+import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { IpfsBackoffError, IpfsTransientError } from 'lib/utils/ipfs';
+import { ChainPublicClient, getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
 
+import { CollectibleChainRead, readCollectibleChainFields } from './collectible-chain-reads';
+import { getERC1155Properties, getERC20Properties, getERC721Properties, getValue } from './contract-properties';
+import {
+  fetchERC1155MetadataFile,
+  fetchMetadataFileInBulk,
+  fetchMetadataFileInteractively,
+  getCollectiblePropertiesFromUri,
+  MetadataFileFetcher
+} from './metadata-file';
 import { detectEvmTokenStandard } from './utils/common.utils';
+
+const ENS_NAME_CONTRACTS: Record<number, string[]> = {
+  [ETHEREUM_MAINNET_CHAIN_ID]: ['0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85']
+};
+
+const getEnsMetadataUri = (chainId: number, contractAddress: HexString, tokenId: bigint) =>
+  ENS_NAME_CONTRACTS[chainId]?.includes(contractAddress.toLowerCase())
+    ? `https://metadata.ens.domains/mainnet/${contractAddress}/${tokenId}`
+    : undefined;
 
 export const fetchEvmTokensMetadataFromChain = async (network: EvmNetworkEssentials, tokenSlugs: string[]) =>
   Promise.all(tokenSlugs.map(slug => fetchEvmTokenMetadataFromChain(network, slug))).then(fetchedMetadata =>
     handleFetchedMetadata<EvmTokenMetadata | undefined>(fetchedMetadata, tokenSlugs)
-  );
-
-export const fetchEvmCollectiblesMetadataFromChain = async (
-  network: EvmNetworkEssentials,
-  collectibleSlugs: string[]
-) =>
-  Promise.all(collectibleSlugs.map(slug => fetchEvmCollectibleMetadataFromChain(network, slug))).then(fetchedMetadata =>
-    handleFetchedMetadata<EvmCollectibleMetadata | undefined>(fetchedMetadata, collectibleSlugs)
   );
 
 export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentials, assetSlug: string) => {
@@ -39,9 +44,9 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentia
   try {
     switch (standard) {
       case EvmAssetStandard.ERC1155:
-        return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+        return await getERC1155Metadata(publicClient, contractAddress, tokenId, fetchMetadataFileInteractively);
       case EvmAssetStandard.ERC721:
-        return await getERC721Metadata(publicClient, contractAddress, tokenId);
+        return await getERC721Metadata(publicClient, contractAddress, tokenId, fetchMetadataFileInteractively);
       default:
         return await getERC20Metadata(publicClient, contractAddress);
     }
@@ -66,7 +71,58 @@ export const fetchEvmTokenMetadataFromChain = async (network: EvmNetworkEssentia
   }
 };
 
-export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEssentials, collectibleSlug: string) => {
+export const fetchEvmCollectibleMetadataFromChain = (network: EvmNetworkEssentials, collectibleSlug: string) =>
+  loadEvmCollectibleMetadataFromChain(network, collectibleSlug, fetchMetadataFileInteractively);
+
+export const fetchEvmCollectibleMetadataFromChainInBulk = (
+  network: EvmNetworkEssentials,
+  collectibleSlug: string,
+  signal: AbortSignal
+) => loadEvmCollectibleMetadataFromChain(network, collectibleSlug, uri => fetchMetadataFileInBulk(uri, signal), signal);
+
+/**
+ * One multicall reads the standard, name, symbol, and metadata URI for every slug.
+ * Each metadata file is still fetched on its own.
+ */
+export const fetchEvmCollectiblesMetadataFromChain = async (
+  network: EvmNetworkEssentials,
+  collectibleSlugs: readonly string[]
+) => {
+  if (!collectibleSlugs.length) return [];
+
+  const publicClient = getViemPublicClient(network);
+  let chainReads: CollectibleChainRead[];
+
+  try {
+    chainReads = await readCollectibleChainFields(publicClient, collectibleSlugs);
+  } catch (error) {
+    console.error(error);
+
+    return Promise.all(
+      collectibleSlugs.map(
+        async (slug): Promise<[string, EvmCollectibleMetadata | undefined]> =>
+          [slug, await fetchEvmCollectibleMetadataFromChain(network, slug)] as const
+      )
+    );
+  }
+
+  const readsBySlug = new Map(chainReads.map(read => [read.slug, read]));
+
+  return Promise.all(
+    collectibleSlugs.map(async slug => {
+      const read = readsBySlug.get(slug);
+
+      return [slug, read ? await metadataFromChainRead(publicClient, read) : undefined] as const;
+    })
+  );
+};
+
+const loadEvmCollectibleMetadataFromChain = async (
+  network: EvmNetworkEssentials,
+  collectibleSlug: string,
+  fetchMetadataFile: MetadataFileFetcher,
+  signal?: AbortSignal
+) => {
   const [contractAddress, tokenIdStr] = fromAssetSlug<HexString>(collectibleSlug);
 
   const tokenId = BigInt(tokenIdStr ?? 0);
@@ -75,12 +131,14 @@ export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEs
 
   const standard = await detectEvmTokenStandard(network, collectibleSlug);
 
+  if (signal?.aborted) return undefined;
+
   try {
     switch (standard) {
       case EvmAssetStandard.ERC1155:
-        return await getERC1155Metadata(publicClient, contractAddress, tokenId);
+        return await getERC1155Metadata(publicClient, contractAddress, tokenId, fetchMetadataFile);
       case EvmAssetStandard.ERC721:
-        return await getERC721Metadata(publicClient, contractAddress, tokenId);
+        return await getERC721Metadata(publicClient, contractAddress, tokenId, fetchMetadataFile);
       default: {
         console.error(
           `ChainId: ${network.chainId}. Slug: ${collectibleSlug}. Standard: ${standard}. Failed to load metadata. Standard is not ERC721 or ERC1155`
@@ -90,128 +148,66 @@ export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEs
       }
     }
   } catch (error) {
+    if (signal?.aborted || error instanceof IpfsBackoffError) return undefined;
+
+    if (error instanceof IpfsTransientError) throw error;
+
     console.error(`ChainId: ${network.chainId}. Failed to get metadata for: ${collectibleSlug}.`, error);
 
     return undefined;
   }
 };
 
-const getERC20Metadata = async (publicClient: PublicClient, contractAddress: HexString) => {
-  const results = await getERC20Properties(publicClient, contractAddress);
+const getERC20Metadata = async (publicClient: ChainPublicClient, contractAddress: HexString) => {
+  const [nameRes, symbolRes, decimalsRes] = await getERC20Properties(publicClient, contractAddress);
 
   const metadata: EvmTokenMetadata = {
     address: contractAddress,
     standard: EvmAssetStandard.ERC20,
-    name: getValue<string>(results[0]),
-    symbol: getValue<string>(results[1]),
-    decimals: getValue<number>(results[2])
+    name: getValue(nameRes),
+    symbol: getValue(symbolRes),
+    decimals: getValue(decimalsRes)
   };
 
   return metadata;
 };
 
-const getERC721Metadata = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) => {
-  const results = await getERC721Properties(publicClient, contractAddress, tokenId);
+const getERC721Metadata = async (
+  publicClient: ChainPublicClient,
+  contractAddress: HexString,
+  tokenId: bigint,
+  fetchMetadataFile: MetadataFileFetcher
+) => {
+  const [nameRes, symbolRes, tokenUriRes] = await getERC721Properties(publicClient, contractAddress, tokenId);
 
-  const metadataUri = getValue<string>(results[2]);
-
-  if (!metadataUri) throw new Error();
-
-  const collectibleMetadata = await getCollectiblePropertiesFromUri(metadataUri);
-
-  const metadata: EvmCollectibleMetadata = {
-    address: contractAddress,
-    tokenId: tokenId.toString(),
-    standard: EvmAssetStandard.ERC721,
-    name: getValue<string>(results[0]),
-    symbol: getValue<string>(results[1]),
-    metadataUri,
-    ...collectibleMetadata
-  };
-
-  return metadata;
+  return buildErc721Metadata(
+    publicClient,
+    contractAddress,
+    tokenId,
+    getValue(nameRes),
+    getValue(symbolRes),
+    getValue(tokenUriRes),
+    fetchMetadataFile
+  );
 };
 
-const getERC1155Metadata = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) => {
-  const results = await getERC1155Properties(publicClient, contractAddress, tokenId);
+const getERC1155Metadata = async (
+  publicClient: ChainPublicClient,
+  contractAddress: HexString,
+  tokenId: bigint,
+  fetchMetadataFile: MetadataFileFetcher
+) => {
+  const [nameRes, symbolRes, tokenUriRes] = await getERC1155Properties(publicClient, contractAddress, tokenId);
 
-  const metadataUri = getValue<string>(results[2]);
-
-  if (!metadataUri) throw new Error();
-
-  const tokenIdStr = tokenId.toString();
-
-  let collectibleMetadata, actualMetadataUri;
-  try {
-    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr.padStart(64, '0'));
-    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
-  } catch {
-    actualMetadataUri = metadataUri.replace('{id}', tokenIdStr);
-    collectibleMetadata = await getCollectiblePropertiesFromUri(actualMetadataUri);
-  }
-
-  const metadata: EvmCollectibleMetadata = {
-    address: contractAddress,
-    tokenId: tokenIdStr,
-    standard: EvmAssetStandard.ERC1155,
-    // ERC1155 specification does not include `symbol` or `name` view methods, see
-    // https://eips.ethereum.org/EIPS/eip-1155#metadata-choices but let's assign their values if a contract has them
-    name: collectibleMetadata.collectibleName ?? getValue<string>(results[0]),
-    symbol: getValue<string>(results[1]) ?? collectibleMetadata.collectibleName,
-    metadataUri: actualMetadataUri,
-    ...collectibleMetadata
-  };
-
-  return metadata;
+  return buildErc1155Metadata(
+    contractAddress,
+    tokenId,
+    getValue(nameRes),
+    getValue(symbolRes),
+    getValue(tokenUriRes),
+    fetchMetadataFile
+  );
 };
-
-const getCommonPromises = (
-  publicClient: PublicClient,
-  contractAddress: HexString
-): [Promise<string>, Promise<string>] => [
-  publicClient.readContract({
-    address: contractAddress,
-    abi: parseAbi(['function name() public view returns (string)']),
-    functionName: 'name'
-  }),
-  publicClient.readContract({
-    address: contractAddress,
-    abi: parseAbi(['function symbol() public view returns (string)']),
-    functionName: 'symbol'
-  })
-];
-
-const getERC20Properties = async (publicClient: PublicClient, contractAddress: HexString) =>
-  Promise.allSettled([
-    ...getCommonPromises(publicClient, contractAddress),
-    publicClient.readContract({
-      address: contractAddress,
-      abi: erc20Abi,
-      functionName: 'decimals'
-    })
-  ]);
-
-const getERC721Properties = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) =>
-  Promise.allSettled([
-    ...getCommonPromises(publicClient, contractAddress),
-    publicClient.readContract({
-      address: contractAddress,
-      abi: erc721Abi,
-      functionName: 'tokenURI',
-      args: [tokenId]
-    })
-  ]);
-
-const getERC1155Properties = async (publicClient: PublicClient, contractAddress: HexString, tokenId: bigint) =>
-  Promise.allSettled([
-    ...getCommonPromises(publicClient, contractAddress),
-    publicClient.readContract({
-      address: contractAddress,
-      abi: erc1155Abi,
-      functionName: 'uri',
-      args: [tokenId]
-    })
-  ]);
 
 const handleFetchedMetadata = <T>(fetchedMetadata: T[], assetSlugs: string[]) =>
   fetchedMetadata.reduce<Record<string, T | undefined>>((acc, metadata, index) => {
@@ -220,57 +216,101 @@ const handleFetchedMetadata = <T>(fetchedMetadata: T[], assetSlugs: string[]) =>
     return { ...acc, [slug]: metadata };
   }, {});
 
-const getValue = <T>(result: PromiseSettledResult<T>) => (result.status === 'fulfilled' ? result.value : undefined);
+const metadataFromChainRead = async (publicClient: ChainPublicClient, read: CollectibleChainRead) => {
+  try {
+    if (read.standard === EvmAssetStandard.ERC721) {
+      return await buildErc721Metadata(
+        publicClient,
+        read.contractAddress,
+        read.tokenId,
+        read.name,
+        read.symbol,
+        read.tokenUri,
+        fetchMetadataFileInteractively
+      );
+    }
 
-interface CollectibleMetadata {
-  image?: string;
-  name?: string;
-  decimals?: number;
-  description?: string;
-  attributes?: NftCollectionAttribute[];
-  external_url?: string;
-  animation_url?: string;
-}
+    if (read.standard === EvmAssetStandard.ERC1155) {
+      return await buildErc1155Metadata(
+        read.contractAddress,
+        read.tokenId,
+        read.name,
+        read.symbol,
+        read.uri,
+        fetchMetadataFileInteractively
+      );
+    }
 
-const getCollectiblePropertiesFromUri = async (
-  metadataUri?: string
-): Promise<
-  Pick<
-    EvmCollectibleMetadata,
-    | 'image'
-    | 'images'
-    | 'collectibleName'
-    | 'description'
-    | 'attributes'
-    | 'externalUrl'
-    | 'animationUrl'
-    | 'artifactUrl'
-  >
-> => {
+    console.error(
+      `ChainId: ${publicClient.chain.id}. Slug: ${read.slug}. Standard: ${read.standard}. Failed to load metadata. Standard is not ERC721 or ERC1155`
+    );
+
+    return undefined;
+  } catch (error) {
+    if (error instanceof IpfsBackoffError) return undefined;
+
+    if (error instanceof IpfsTransientError) throw error;
+
+    console.error(`ChainId: ${publicClient.chain.id}. Failed to get metadata for: ${read.slug}.`, error);
+
+    return undefined;
+  }
+};
+
+const buildErc721Metadata = async (
+  publicClient: ChainPublicClient,
+  contractAddress: HexString,
+  tokenId: bigint,
+  name: string | undefined,
+  symbol: string | undefined,
+  tokenUri: string | undefined,
+  fetchMetadataFile: MetadataFileFetcher
+) => {
+  const metadataUri = tokenUri ?? getEnsMetadataUri(publicClient.chain.id, contractAddress, tokenId);
   if (!metadataUri) throw new Error();
 
-  const { data } = await getMaybeIpfsGenericFile<CollectibleMetadata>(metadataUri);
+  const collectibleMetadata = await getCollectiblePropertiesFromUri(metadataUri, fetchMetadataFile);
 
-  if (typeof data !== 'object' || !data.image) throw new Error();
-
-  const {
+  const metadata: EvmCollectibleMetadata = {
+    address: contractAddress,
+    tokenId: tokenId.toString(),
+    standard: EvmAssetStandard.ERC721,
     name,
-    description,
-    decimals,
-    image,
-    attributes,
-    external_url: externalUrl,
-    animation_url: animationUrl
-  } = data;
-
-  const still = collectibleImagePreviewUrl(image);
-
-  return {
-    image: still,
-    images: still ? [still] : undefined,
-    collectibleName: name,
-    description,
-    artifactUrl: firstCollectibleArtifactUrl(animationUrl, image),
-    ...pickBy({ attributes, externalUrl, animationUrl, decimals }, value => value !== undefined && value !== '')
+    symbol,
+    metadataUri,
+    ...collectibleMetadata
   };
+
+  return metadata;
+};
+
+const buildErc1155Metadata = async (
+  contractAddress: HexString,
+  tokenId: bigint,
+  name: string | undefined,
+  symbol: string | undefined,
+  metadataUri: string | undefined,
+  fetchMetadataFile: MetadataFileFetcher
+) => {
+  if (!metadataUri) throw new Error();
+
+  const [collectibleMetadata, actualMetadataUri] = await fetchERC1155MetadataFile(
+    metadataUri,
+    tokenId,
+    fetchMetadataFile
+  );
+
+  const metadata: EvmCollectibleMetadata = {
+    address: contractAddress,
+    tokenId: tokenId.toString(),
+    standard: EvmAssetStandard.ERC1155,
+    // ERC1155 specification does not include `symbol` or `name` view methods, see
+    // https://eips.ethereum.org/EIPS/eip-1155#metadata-choices but let's assign their values if a contract has them
+    name: collectibleMetadata.collectibleName ?? name,
+    symbol: symbol ?? collectibleMetadata.collectibleName,
+    metadataUri: actualMetadataUri,
+    ...collectibleMetadata
+  };
+
+  return metadata;
 };

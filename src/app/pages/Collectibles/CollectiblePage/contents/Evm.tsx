@@ -18,6 +18,7 @@ import { EvmCollectiblePageImage } from '../components/CollectiblePageImage';
 import { CollectionDetails } from '../components/CollectionDetails';
 import { EvmDetails } from '../components/Details';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
+import { useLoadMissingEvmCollectibleImage } from '../hooks/use-load-collectible-metadata';
 
 import { BaseContent } from './Base';
 import { EvmNoMetadataContent } from './NoMetadata';
@@ -33,6 +34,7 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
   const inventory = useEvmCollectiblesInventorySelector(accountPkh)[chainId];
   const collectionImage = collectionImageForToken(inventory, assetSlug);
+  useLoadMissingEvmCollectibleImage(network, assetSlug, Boolean(metadata) && !metadata?.image);
 
   const onSendButtonClick = useCallback(
     () => navigate(buildSendPagePath(TempleChainKind.EVM, String(chainId), assetSlug)),

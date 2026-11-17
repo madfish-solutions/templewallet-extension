@@ -12,7 +12,7 @@ export interface CollectibleDetails extends Pick<UserObjktCollectible, 'fa' | 'd
   /** Cheepest listing */
   listing: null | CollectibleDetailsListing;
   /** Highest offer */
-  objktArtifactUri: string;
+  objktArtifactUri: string | null;
   creators: CollectibleDetailsCreator[];
   galleries: CollectibleDetailsGallery[];
   isAdultContent: boolean;

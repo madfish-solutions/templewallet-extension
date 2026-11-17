@@ -30,7 +30,7 @@ interface TezosCollectiblePageImageProps {
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
-  objktArtifactUri?: string;
+  objktArtifactUri?: string | null;
   isAdultContent?: boolean;
   className?: string;
 }
@@ -139,6 +139,8 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
   }
 );
 
+const PAGE_IMAGE_TIMEOUT_MS = 30_000;
+
 interface EvmCollectiblePageImageProps {
   chainId: number;
   assetSlug: string;
@@ -163,6 +165,8 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
       <ImageStacked
         sources={sources}
         immediate
+        raced
+        timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large isAudioCollectible />}
         className={clsx('z-1 h-full w-full object-contain', className)}
@@ -180,6 +184,8 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
           <ImageStacked
             sources={sourcesWithCompressedFallback}
             immediate
+            raced
+            timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
             className="absolute h-full w-full object-cover blur"
           />
         }
@@ -187,6 +193,8 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
           <ImageStacked
             sources={sources}
             immediate
+            raced
+            timeoutMs={PAGE_IMAGE_TIMEOUT_MS}
             loader={<CollectibleImageLoader large />}
             fallback={<CollectibleImageFallback large />}
             className={clsx('z-1 h-full w-full object-contain', className)}
