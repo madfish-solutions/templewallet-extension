@@ -91,7 +91,6 @@ const AppReadyRootHooks = memo(() => {
 
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
-  useConversionVerification();
   useReactivateAdsOnce();
   useAdsImpressionsLinking();
 
