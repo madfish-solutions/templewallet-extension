@@ -4,6 +4,7 @@ import { IconBase, Loader, Money } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as LinkIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
@@ -22,14 +23,23 @@ import referralsImage from './assets/referrals-image.png';
 
 export const ReferralsCard = memo(() => {
   const accounts = useAllAccounts();
+  const session = useConversionVerification();
   const { tezosAddress: rewardsTezosAddress, evmAddress: rewardsEvmAddress } = useRewardsAddresses();
   const inviteAccountInfoRef = useTippy<HTMLDivElement>(inviteAccountInfoTippyProps);
   const { trackEvent } = useAnalytics();
 
-  const { data: conversionAccount } = useTypedSWR(['conversionAccount'], fetchConversionAccount, { suspense: false });
-  const { data: refLink } = useTypedSWR(['refLink'], getRefLink, { suspense: false });
+  const { data: conversionAccount } = useTypedSWR(
+    session.kind === 'ready' ? ['conversionAccount', ...session.identity] : null,
+    fetchConversionAccount,
+    { suspense: false }
+  );
+  const { data: refLink } = useTypedSWR(
+    session.kind === 'ready' ? ['refLink', ...session.identity] : null,
+    getRefLink,
+    { suspense: false }
+  );
   const { data: referralsCount, isLoading: isReferralsCountLoading } = useTypedSWR(
-    ['referralsCount'],
+    session.kind === 'ready' ? ['referralsCount', ...session.identity] : null,
     () => getReferralsCount(),
     {
       suspense: false,
@@ -78,7 +88,7 @@ export const ReferralsCard = memo(() => {
           </div>
 
           <span className="text-font-num-24 font-medium mr-2">
-            {isReferralsCountLoading ? (
+            {session.kind === 'pending' || isReferralsCountLoading ? (
               <Loader size="L" trackVariant="dark" className="text-secondary" />
             ) : referralsCount === undefined ? (
               '-'

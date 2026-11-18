@@ -11,6 +11,8 @@ import { useAbortSignal } from 'lib/ui/hooks/useAbortSignal';
 import { isAbortError } from 'lib/ui/is-abort-error';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 
+import { useConversionVerification } from './use-conversion-verification';
+
 type BadgeState = {
   initialized: boolean;
   lastChecked: number;
@@ -22,6 +24,10 @@ export function useRewardsBadgeVisible() {
   const account = useAccountForTezos();
   const tezosMainnet = useTezosMainnetChain();
   const aborter = useAbortSignal();
+  const session = useConversionVerification();
+  const referralReady = session.kind === 'ready';
+  const sessionTezosAddress = session.kind === 'ready' ? session.identity[0] : null;
+  const sessionEvmAddress = session.kind === 'ready' ? session.identity[1] : null;
 
   const [state, setState] = useState<BadgeState | null>(null);
   const [visible, setVisible] = useState(false);
@@ -74,12 +80,12 @@ export function useRewardsBadgeVisible() {
             },
             signal
           ),
-          getReferralsCount(signal).catch(err => {
-            if (isAbortError(err)) {
-              throw err;
-            }
-            return undefined;
-          })
+          referralReady
+            ? getReferralsCount(signal).catch(err => {
+                if (isAbortError(err)) throw err;
+                return undefined;
+              })
+            : Promise.resolve(undefined)
         ]);
 
         if (cancelled) return;
@@ -95,7 +101,9 @@ export function useRewardsBadgeVisible() {
         const shouldShow = !state.initialized || hasUpdateUnseen || hasNewPayout || hasNewReferral;
         setVisible(shouldShow);
 
-        lastCheckedRef.current = Date.now();
+        // Keep the original payout window until the authenticated half of this check can run.
+        // Otherwise the readiness-triggered scan could skip a payout detected during startup.
+        if (referralReady) lastCheckedRef.current = Date.now();
         const nextStored: BadgeState = {
           initialized: state.initialized,
           lastChecked: lastCheckedRef.current,
@@ -114,7 +122,7 @@ export function useRewardsBadgeVisible() {
       cancelled = true;
       aborter.abort();
     };
-  }, [aborter, account, state, tezosMainnet.chainId]);
+  }, [aborter, account, state, tezosMainnet.chainId, referralReady, sessionTezosAddress, sessionEvmAddress]);
 
   return visible;
 }
