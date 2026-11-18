@@ -27,7 +27,7 @@ import {
   retryDelayMs
 } from './opensea-metadata-load';
 import { collectOpenseaMetadataRecords, loadOpenseaAccountNfts } from './opensea-records';
-import { sharedStorefrontCollectionsToLoad } from './opensea-storefront';
+import { cancelSharedStorefrontCollectionLoads, sharedStorefrontCollectionsToLoad } from './opensea-storefront';
 import { isSharedStorefrontTokenId } from './utils';
 
 /** Nameless collectibles already sent to OpenSea during this session. */
@@ -211,6 +211,7 @@ export const loadVisibleOpenseaCollectiblesEpic: Epic<Action, Action, RootState>
       if (!loadEvmCollectiblesMetadataAction.match(action)) {
         previousRefsKey.current = '';
         collectionNameRequestedSlugs.clear();
+        if (isCollectiblesListingChange(action)) cancelSharedStorefrontCollectionLoads();
 
         return EMPTY;
       }

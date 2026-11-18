@@ -32,7 +32,7 @@ export const fetchMetadataFileInteractively: MetadataFileFetcher = uri => getIpf
 export const fetchMetadataFileInBulk = (uri: string, signal: AbortSignal) =>
   getIpfsGenericFileInBulk<CollectibleMetadata>(uri, signal);
 
-export type CollectibleProperties = Pick<
+type CollectibleProperties = Pick<
   EvmCollectibleMetadata,
   'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl' | 'artifactUrl'
 >;

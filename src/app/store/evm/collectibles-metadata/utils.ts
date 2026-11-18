@@ -8,7 +8,7 @@ import {
   OpenseaNftDetailed,
   OpenseaNftRef
 } from 'lib/apis/temple/endpoints/evm';
-import { fromAssetSlug, toTokenSlug } from 'lib/assets';
+import { fromAssetSlug } from 'lib/assets';
 import { EvmAssetStandard } from 'lib/evm/types';
 import {
   collectibleImagePreviewUrl,
@@ -18,7 +18,6 @@ import {
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { patchRetiredSeadnImageUrl } from 'lib/metadata/utils';
 import { equalsIgnoreCase, stripUndefinedProps } from 'lib/utils';
-import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import { EvmCollectibleMetadataRecord } from './state';
 
@@ -61,20 +60,6 @@ const getCollectibleStandard = (supportedErcs: string[]) => {
   }
 
   return undefined;
-};
-
-export const getSlugsWithProperCollectibleMetadata = (data: NftAddressBalanceNftResponse) => {
-  const slugs = new Set<string>();
-
-  for (const { contract_address, nft_data } of data.items) {
-    for (const collectible of nft_data) {
-      if (!isProperCollectibleMetadata(collectible)) continue;
-
-      slugs.add(toTokenSlug(getAddress(contract_address), collectible.token_id));
-    }
-  }
-
-  return slugs;
 };
 
 export const isOpenseaNftForRef = ({ contract, identifier }: OpenseaNftDetailed, ref: OpenseaNftRef) => {

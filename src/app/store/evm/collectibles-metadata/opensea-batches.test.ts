@@ -8,7 +8,13 @@ import {
   openseaNftRefsFromVisibleSlugs
 } from './opensea-batches';
 import { collectiblePreviewIsLastResort } from './opensea-preview';
-import { finishSharedStorefrontCollectionLoad, noteSharedStorefrontCollectionLoad } from './opensea-storefront';
+import {
+  cancelSharedStorefrontCollectionLoads,
+  currentSharedStorefrontFillGeneration,
+  finishSharedStorefrontCollectionLoad,
+  noteSharedStorefrontCollectionLoad,
+  sharedStorefrontFillInFlight
+} from './opensea-storefront';
 
 const IPFS_IMAGE = 'ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi';
 const CDN_IMAGE = 'https://i2c.seadn.io/preview.png';
@@ -217,6 +223,25 @@ describe('openseaNftRefsFromVisibleSlugs', () => {
     expect(openseaNftRefsFromVisibleSlugs([chainSlug(1, contract, tokenId)], metadata)).toEqual([
       { chainId: 1, contractAddress: contract, tokenId }
     ]);
+  });
+
+  it('keeps a newer shared-storefront collection load after the previous list is cancelled', () => {
+    const contract: HexString = '0x495f947276749Ce646f68AC8c248420045cb7b5e';
+    const tokenId = '105652905984981711355387048174102533489553866874432653063576599429034419421185';
+    const metadata = {
+      1: { [`${contract}_${tokenId}`]: { address: contract, tokenId, image: CDN_IMAGE } }
+    };
+
+    noteSharedStorefrontCollectionLoad(1, contract);
+    const cancelledGeneration = currentSharedStorefrontFillGeneration();
+    cancelSharedStorefrontCollectionLoads();
+    noteSharedStorefrontCollectionLoad(1, contract);
+    finishSharedStorefrontCollectionLoad(1, contract, cancelledGeneration);
+
+    expect(openseaNftRefsFromVisibleSlugs([chainSlug(1, contract, tokenId)], metadata)).toEqual([]);
+
+    finishSharedStorefrontCollectionLoad(1, contract, currentSharedStorefrontFillGeneration());
+    expect(sharedStorefrontFillInFlight(1, contract)).toBe(false);
   });
 
   it('still requests a shared-storefront preview while the collection page is loading', () => {

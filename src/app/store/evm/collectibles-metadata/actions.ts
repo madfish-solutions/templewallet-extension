@@ -5,8 +5,6 @@ import { OpenseaNftRef } from 'lib/apis/temple/endpoints/evm/opensea';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 
-import { DeferredEvmCollectibleOnChainLoad } from './on-chain-queue';
-
 interface processLoadedEvmCollectiblesMetadataActionPayload {
   chainId: number;
   data: NftAddressBalanceNftResponse;
@@ -48,11 +46,6 @@ export const markEvmCollectibleSlugsCheckedAction = createAction<{
   retryAt?: number;
 }>('evm/collectible-metadata/MARK_SLUGS_CHECKED');
 
-/** Remaining visible on-chain reads. Processed one small batch at a time. */
-export const continueEvmCollectiblesOnChainLoadAction = createAction<{
-  items: DeferredEvmCollectibleOnChainLoad[];
-}>('evm/collectible-metadata/CONTINUE_ON_CHAIN_LOAD');
-
 interface RetryOpenseaCollectiblesMetadataPayloadBase {
   delayMs: number;
   attempt: number;
@@ -78,11 +71,3 @@ export const loadOpenseaStorefrontCollectionAction = createAction<{
 export const retryOpenseaCollectiblesMetadataAction = createAction<RetryOpenseaCollectiblesMetadataPayload>(
   'evm/collectible-metadata/RETRY_OPENSEA'
 );
-
-export interface EvmCollectiblesMetadataSession {
-  publicKeyHash: HexString;
-  lastFullLoadAccount?: HexString;
-  seenChains: number[];
-  checkedSlugsByChain: Record<number, string[]>;
-  onChainSlugsByChain: Record<number, string[]>;
-}
