@@ -24,6 +24,8 @@ import browser from 'webextension-polyfill';
 import { APP_TITLE } from 'lib/constants';
 import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 
+import { decodeBeaconPayload } from './decode-beacon-payload';
+
 interface AppMetadata {
   senderId: string;
   name: string;
@@ -199,7 +201,7 @@ export function encodeMessage<T = unknown>(msg: T): string {
 }
 
 export function decodeMessage<T = unknown>(encoded: string): T {
-  return JSON.parse(bs58check.decode(encoded).toString());
+  return JSON.parse(decodeBeaconPayload(encoded).toString());
 }
 
 export function formatOpParams(op: any) {
