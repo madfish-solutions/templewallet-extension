@@ -97,7 +97,7 @@ export const AD_SELECTORS_STORAGE_KEY = 'AD_SELECTORS_V1';
 
 export const AD_CAMPAIGN_POLICY_STORAGE_KEY = 'AD_CAMPAIGN_POLICY';
 
-export const AD_SELECTORS_REFRESH_ALARM = 'ad-selectors-refresh';
+export const AD_RULES_REFRESH_INTERVAL = 5 * 60_000;
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
 

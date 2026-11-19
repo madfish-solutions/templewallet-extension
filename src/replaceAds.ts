@@ -14,6 +14,7 @@ import {
   AI_CHATBOT_ADS_ENABLED,
   AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
   ADS_VIEWER_DATA_STORAGE_KEY,
+  AD_RULES_REFRESH_INTERVAL,
   AD_SELECTORS_STORAGE_KEY,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
@@ -73,6 +74,7 @@ let updateQueue = Promise.resolve();
 let routeKey = window.location.href;
 let observedRouteKey = routeKey;
 let pageIsActive = true;
+let nextRulesRefreshAt = 0;
 let activeAdsModule: Awaited<ReturnType<typeof importExtensionAdsModule>> | undefined;
 
 const stopAdsActionTriggers = () => {
@@ -213,6 +215,11 @@ const scanIsCurrent = (scanGeneration: number, href: string) =>
 const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
   const href = window.location.href;
   if (!scanIsCurrent(scanGeneration, href)) return;
+  const now = Date.now();
+  if (now >= nextRulesRefreshAt) {
+    nextRulesRefreshAt = now + AD_RULES_REFRESH_INTERVAL;
+    void browser.runtime.sendMessage({ type: ContentScriptType.RefreshAdSelectors }).catch(console.error);
+  }
   const adsModule = await importExtensionAdsModule();
   if (!scanIsCurrent(scanGeneration, href)) return;
   if (routeKey !== href) {

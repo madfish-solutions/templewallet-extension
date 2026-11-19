@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { AD_SELECTORS_REFRESH_ALARM, AD_SELECTORS_STORAGE_KEY } from 'lib/constants';
+import { AD_RULES_REFRESH_INTERVAL, AD_SELECTORS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
 import { refreshCampaignPolicy } from './campaign-policy';
@@ -18,6 +18,7 @@ import { compileSelectorStorage } from './selector-snapshot';
 const REQUEST_TIMEOUT = 20_000;
 const MIN_RETRY = 5 * 60_000;
 let transaction: Promise<SelectorRefreshResult> | undefined;
+let reuseRefreshUntil = 0;
 
 export const downloadSelectorFeed = async (
   url: string,
@@ -73,9 +74,6 @@ const retryAfterMs = (response: Response): number => {
 };
 
 const refresh = async (): Promise<SelectorRefreshResult> => {
-  if (!(await browser.alarms.get(AD_SELECTORS_REFRESH_ALARM))) {
-    await browser.alarms.create(AD_SELECTORS_REFRESH_ALARM, { delayInMinutes: 1, periodInMinutes: 5 });
-  }
   const previous = await migrateAdSelectorStorage();
   const feeds = { ...previous.feeds };
   const errors: string[] = [];
@@ -152,16 +150,6 @@ const refresh = async (): Promise<SelectorRefreshResult> => {
   }
   const next = await compileSelectorStorage(feeds);
   await browser.storage.local.set({ [AD_SELECTORS_STORAGE_KEY]: next });
-  await browser.alarms.create(AD_SELECTORS_REFRESH_ALARM, {
-    periodInMinutes: 5,
-    when: Math.max(
-      Date.now() + 60_000,
-      Math.min(
-        Date.now() + 5 * 60_000,
-        ...SELECTOR_FEEDS.filter(feed => feed.enabled).map(feed => feeds[feed.id].nextCheckAt)
-      )
-    )
-  });
   void refreshCampaignPolicy().catch(error => console.error('Ad campaign policy:', error));
   return {
     status: errors.length ? (successes ? 'partial' : 'failure') : changed ? 'success' : 'unchanged',
@@ -171,7 +159,10 @@ const refresh = async (): Promise<SelectorRefreshResult> => {
 };
 
 export const refreshAdSelectors = (): Promise<SelectorRefreshResult> => {
-  if (transaction) return transaction;
+  const startedAt = Date.now();
+  if (transaction && startedAt < reuseRefreshUntil) return transaction;
+  // Share the in-flight refresh, then reuse its result across tabs within the refresh interval.
+  reuseRefreshUntil = Infinity;
   transaction = refresh()
     .catch(async (error: unknown): Promise<SelectorRefreshResult> => {
       const stored = await fetchFromStorage<SelectorStorage>(AD_SELECTORS_STORAGE_KEY).catch(() => null);
@@ -182,7 +173,7 @@ export const refreshAdSelectors = (): Promise<SelectorRefreshResult> => {
       };
     })
     .finally(() => {
-      transaction = undefined;
+      reuseRefreshUntil = startedAt + AD_RULES_REFRESH_INTERVAL;
     });
   return transaction;
 };

@@ -124,7 +124,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const COMMON_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', ...(!shouldDisableAds ? ['alarms'] : [])];
+const COMMON_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
 const COMMON_HOST_PERMISSIONS: string[] = ['http://localhost:8732/', ...(!shouldDisableAds ? ['https://easylist.to/*'] : [])];
 
