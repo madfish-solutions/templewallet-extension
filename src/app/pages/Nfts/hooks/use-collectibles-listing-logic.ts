@@ -32,6 +32,7 @@ import { buildCollectionLogoSourceStages } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { getCollectionName as getEvmCollectionName } from 'lib/metadata/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -153,7 +154,10 @@ export const useCollectiblesListingLogic = (
       ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
       : getEvmCollectionName(getEvmMetadata(chainId as number, assetSlug));
 
-  const slugsByCollectionsInContracts = groupSlugsByCollectionsInContracts(searchedSlugs, getCollectionName);
+  const slugsByCollectionsInContracts = groupSlugsByCollectionsInContracts(
+    viewAsCollections && !manageActive ? searchedSlugs : EMPTY_FROZEN_ARRAY,
+    getCollectionName
+  );
 
   const unsortedSearchedSlugsByCollections = useMemoWithCompare(
     () =>

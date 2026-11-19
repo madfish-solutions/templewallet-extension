@@ -4,7 +4,7 @@ import { getAddress } from 'viem';
 
 import { isNativeTokenAddress } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import {
@@ -92,7 +92,7 @@ const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitial
 export const evmAssetsPersistedReducer = persistReducer(
   {
     key: 'root.evmAssets',
-    ...storageConfig
+    ...stringStorageConfig
   },
   evmAssetsReducer
 );

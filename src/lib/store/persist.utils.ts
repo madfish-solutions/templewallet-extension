@@ -1,4 +1,4 @@
-import { getStoredState, PersistConfig, type Transform, type PersistedState } from 'redux-persist';
+import { getStoredState, KEY_PREFIX, PersistConfig, type Transform, type PersistedState } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
 import { ReduxPersistStorage } from './storage';
@@ -84,4 +84,37 @@ export const storageConfig = {
   serialize: false,
   deserialize: false,
   getStoredState: getStoredStateToMigrateStorage
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+export const isPersistedState = (value: unknown): value is NonNullable<PersistedState> =>
+  isRecord(value) &&
+  isRecord(value[PERSIST_STATE_KEY]) &&
+  typeof value[PERSIST_STATE_KEY].version === 'number' &&
+  typeof value[PERSIST_STATE_KEY].rehydrated === 'boolean';
+
+const parseStringState = (stored: string): unknown => {
+  const outer: unknown = JSON.parse(stored);
+
+  return isRecord(outer)
+    ? Object.fromEntries(
+        Object.entries(outer).map(([key, value]) => [key, typeof value === 'string' ? JSON.parse(value) : value])
+      )
+    : undefined;
+};
+
+// Before their first save with `stringStorageConfig`, keys hold the object `storageConfig` saved
+const getStoredStringOrObjectState = async <S>(config: PersistConfig<S>): Promise<PersistedState> => {
+  const stored: unknown = await ReduxPersistStorage.getItem(`${KEY_PREFIX}${config.key}`);
+  const state = typeof stored === 'string' ? parseStringState(stored) : stored;
+
+  return isPersistedState(state) ? state : undefined;
+};
+
+// chrome.storage converts a big object on the main thread for the save and for every change listener; a string is cheap
+export const stringStorageConfig = {
+  storage: ReduxPersistStorage,
+  getStoredState: getStoredStringOrObjectState
 };

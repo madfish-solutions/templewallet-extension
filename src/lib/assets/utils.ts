@@ -94,9 +94,12 @@ const NAME_FROM_GALLERY_FIRST_ADDRESSES = new Set([
   'KT1M2JnD1wsg7w2B4UXJXtKQPuDUpU2L7cJH' // hic et Nunc OBJKTs Legacy
 ]);
 
+// A native extension API call per NFT otherwise; native messages can't change while the browser runs
+let unknownCollectionName: string | undefined;
+
 export const getTezCollectionName = (assetSlug: string, details: CollectibleDetails | nullish) => {
   const [contractAddress] = fromAssetSlug(assetSlug);
-  const fallbackName = browser.i18n.getMessage('unknownCollection');
+  const fallbackName = (unknownCollectionName ??= browser.i18n.getMessage('unknownCollection'));
 
   if (!details) {
     return fallbackName;

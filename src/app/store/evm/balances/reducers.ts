@@ -1,4 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { getStoredState, type PersistConfig, type PersistedState, persistReducer } from 'redux-persist';
+
+import { isPersistedState } from 'lib/store';
+import { ReduxPersistStorage } from 'lib/store/storage';
 
 import {
   loadEvmBalanceOnChainActions,
@@ -9,7 +13,7 @@ import {
 import { EvmBalancesInitialState, EvmBalancesStateInterface } from './state';
 import { getTokenSlugBalanceRecords, prepareAssigning } from './utils';
 
-export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
+const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
   builder.addCase(processLoadedEvmAssetsBalancesAction, (state, { payload }) => {
     const { balancesAtomic, dataTimestamps } = state;
     const { publicKeyHash, chainId, data, assetsToPreventBalanceErase } = payload;
@@ -60,3 +64,25 @@ export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBa
     state.initiallyLoadedChains[chainId] = true;
   });
 });
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isEvmBalancesState = (value: unknown): value is EvmBalancesStateInterface =>
+  isRecord(value) && isRecord(value.balancesAtomic) && isRecord(value.dataTimestamps);
+
+// Before their first save under the own key (the first launch after the update), balances live in the root state
+const getStoredEvmBalances = async (config: PersistConfig<EvmBalancesStateInterface>): Promise<PersistedState> => {
+  const stored = await getStoredState(config);
+  if (isPersistedState(stored)) return stored;
+
+  const root: unknown = await ReduxPersistStorage.getItem('persist:temple-root');
+  const rootCopy = isRecord(root) ? root.evmBalances : undefined;
+
+  return isEvmBalancesState(rootCopy) ? { ...rootCopy, _persist: { version: -1, rehydrated: false } } : undefined;
+};
+
+export const evmBalancesPersistedReducer = persistReducer(
+  { key: 'root.evmBalances', storage: ReduxPersistStorage, getStoredState: getStoredEvmBalances },
+  evmBalancesReducer
+);

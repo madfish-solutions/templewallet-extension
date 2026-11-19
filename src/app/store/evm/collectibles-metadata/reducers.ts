@@ -4,7 +4,7 @@ import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 import {
@@ -111,7 +111,7 @@ const EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST: Array<keyof EvmCollectiblesMe
 export const evmCollectiblesMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesMetadata',
-    ...storageConfig,
+    ...stringStorageConfig,
     blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST,
     throttle: 5_000
   },

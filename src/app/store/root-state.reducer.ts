@@ -11,7 +11,7 @@ import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
 import { currencyPersistedReducer } from './currency/reducers';
 import { dealsPersistedReducer } from './deals/reducers';
 import { evmAssetsPersistedReducer } from './evm/assets/reducer';
-import { evmBalancesReducer } from './evm/balances/reducers';
+import { evmBalancesPersistedReducer } from './evm/balances/reducers';
 import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-metadata/reducers';
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
@@ -54,7 +54,7 @@ const rootStateReducersMap = {
   rewards: rewardsReducer,
   evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsPersistedReducer,
-  evmBalances: evmBalancesReducer,
+  evmBalances: evmBalancesPersistedReducer,
   pendingEvmTransactions: pendingEvmTransactionsPersistedReducer,
   pendingTezosTransactions: pendingTezosTransactionsPersistedReducer,
   lifiEvmTokensMetadata: lifiEvmTokensMetadataPersistedReducer,

@@ -21,6 +21,7 @@ export const SLICES_BLACKLIST = [
   'collectiblesMetadata' as const,
   'evmLoading' as const,
   'evmAssets' as const,
+  'evmBalances' as const,
   'evmTokensMetadata' as const,
   'evmCollectiblesMetadata' as const,
   'evmTokensExchangeRates' as const,

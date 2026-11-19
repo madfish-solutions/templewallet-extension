@@ -58,6 +58,21 @@ function getFallbackLocaleMessages(): Promise<LocaleMessages | null> {
   return fetchLocaleMessages(defaultLocale);
 }
 
+// Native messages are fixed for the browser's lifetime, and each lookup is a native extension API call
+const nativeMessages = new Map<string, string>();
+
+function getNativeMessage(messageName: string, substitutions?: Substitutions) {
+  if (substitutions !== undefined) return browser.i18n.getMessage(messageName, substitutions);
+
+  let message = nativeMessages.get(messageName);
+  if (message === undefined) {
+    message = browser.i18n.getMessage(messageName);
+    nativeMessages.set(messageName, message);
+  }
+
+  return message;
+}
+
 export function getMessage(messageName: string, substitutions?: Substitutions) {
   const { target, fallback } = fetchedLocaleMessages;
   const targetVal = target?.[messageName];
@@ -65,7 +80,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
   if (targetVal) return applySubstitutions(targetVal, substitutions);
 
   if (!target) {
-    const nativeVal = browser.i18n.getMessage(messageName, substitutions);
+    const nativeVal = getNativeMessage(messageName, substitutions);
 
     if (nativeVal) return nativeVal;
   }
@@ -74,7 +89,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
   return fallbackVal
     ? applySubstitutions(fallbackVal, substitutions)
-    : (browser.i18n.getMessage(messageName, substitutions) ?? '');
+    : (getNativeMessage(messageName, substitutions) ?? '');
 }
 
 function getDateFnsLocale() {
