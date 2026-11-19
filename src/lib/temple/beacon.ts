@@ -32,8 +32,6 @@ import browser from 'webextension-polyfill';
 import { APP_TITLE } from 'lib/constants';
 import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
 
-import { decodeBeaconPayload } from './decode-beacon-payload';
-
 export { ErrorType, NetworkType, PermissionScope, SigningType };
 export type { AppMetadata, Network };
 
@@ -175,7 +173,7 @@ export function encodeMessage<T = unknown>(msg: T): string {
 }
 
 export function decodeMessage<T = unknown>(encoded: string): T {
-  return JSON.parse(decodeBeaconPayload(encoded).toString());
+  return JSON.parse(bs58check.decode(encoded).toString());
 }
 
 export function formatOpParams(op: any) {
