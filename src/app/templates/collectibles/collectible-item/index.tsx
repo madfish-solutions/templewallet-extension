@@ -123,13 +123,20 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   testID,
   nameTestID
 }) => {
-  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
+  const { metadata, metadataLoading, wrapperElemRef, inView, offScreen } = useEvmCollectibleTileMetadata(
     accountPkh,
     evmChainId,
     assetSlug
   );
   const chain = useEvmChainByChainId(evmChainId);
-  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+  const { value: balance = ZERO } = useEvmAssetBalance(
+    assetSlug,
+    accountPkh,
+    chain!,
+    false,
+    false,
+    isVisible && inView ? 'visible' : offScreen ? 'offscreen' : 'pending'
+  );
   const balanceBeforeTruncate = balance.toString();
 
   const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);

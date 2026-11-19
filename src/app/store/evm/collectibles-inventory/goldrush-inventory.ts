@@ -46,7 +46,7 @@ export const inventoryFromGoldrush = (data: NftAddressBalanceNftResponse): Goldr
     const slugsBefore = collected.slugs.length;
 
     for (const nft of item.nft_data) {
-      if (!nft.token_id) continue;
+      if (nft.token_id == null || nft.token_id === '') continue;
 
       const slug = toTokenSlug(address, nft.token_id);
       if (collected.records[slug]) continue;

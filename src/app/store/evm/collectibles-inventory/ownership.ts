@@ -215,8 +215,219 @@ export const attributeOwnedToken = (
   return undefined;
 };
 
-/** How many of Alchemy's tokens are checked before the owner list is trusted. One token per contract. */
+/** How many tokens are checked before the owner list is trusted. One token per contract. */
 const ALCHEMY_OWNER_SAMPLE_LIMIT = 3;
+
+export type ListedBy = 'alchemy' | 'goldrush';
+
+export interface SourcedToken {
+  slug: string;
+  contractAddress: string;
+  sources: readonly ListedBy[];
+}
+
+const slugKey = (slug: string) => slug.toLowerCase();
+
+/** Tokens only one source reported come first. The sample spends its slots on those disagreements. */
+export const singleSourceFirst = <T extends { sources: readonly unknown[] }>(tokens: readonly T[]) => {
+  const exclusive: T[] = [];
+  const shared: T[] = [];
+
+  for (const token of tokens) {
+    if (token.sources.length === 1) exclusive.push(token);
+    else shared.push(token);
+  }
+
+  return exclusive.concat(shared);
+};
+
+export const listTokensBySource = (
+  alchemy: readonly Omit<SourcedToken, 'sources'>[],
+  goldrush: readonly Omit<SourcedToken, 'sources'>[]
+): SourcedToken[] => {
+  const bySlug = new Map<string, SourcedToken>();
+  const add = (token: Omit<SourcedToken, 'sources'>, source: ListedBy) => {
+    const key = slugKey(token.slug);
+    const existing = bySlug.get(key);
+    if (!existing) {
+      bySlug.set(key, { ...token, sources: [source] });
+
+      return;
+    }
+
+    if (!existing.sources.includes(source)) existing.sources = existing.sources.concat(source);
+  };
+
+  for (const token of alchemy) add(token, 'alchemy');
+  for (const token of goldrush) add(token, 'goldrush');
+
+  return Array.from(bySlug.values());
+};
+
+export interface SingleSourceSampleAnswer {
+  slug: string;
+  /** Missing when that token's call did not return. */
+  owned?: boolean;
+  /** ERC-721 `balanceOf`. Zero means this account owns no token of that contract. */
+  balanceOf: number | null;
+}
+
+/** Unowned checks of one contract, or of one source, before its remaining tokens are dropped. */
+const COLLECTION_UNOWNED_CHECKS = 3;
+/** Exclusive tokens read on the next pass. The loaded page is already bounded; this caps one multicall. */
+const SOURCE_FOLLOW_UP_LIMIT = 40;
+
+const contractKey = (address: string) => address.toLowerCase();
+
+const answerSettled = (answer: SingleSourceSampleAnswer) => answer.owned != null || answer.balanceOf === 0;
+
+const answerUnowned = (answer: SingleSourceSampleAnswer) => answer.owned === false || answer.balanceOf === 0;
+
+export interface SingleSourceDecision {
+  keepSlugs: string[];
+  dropSlugs: string[];
+  /**
+   * Tokens that still need an on-chain read.
+   * A source that has not been shown to be right does not keep these, and does not drop them, until the chain answers.
+   */
+  readSlugs: string[];
+}
+
+/**
+ * What to do with tokens only one source reported, after the chain has answered the sample.
+ * A confirmed owned token is kept. A confirmed unowned token is dropped. One unowned token does not drop another contract.
+ * Those other tokens are read first. A contract, and the rest of a source, is dropped when several checked tokens are unowned and none are owned.
+ * When every answered token of a source was owned, the other source omitted real tokens, so the rest are kept.
+ * `settle` resolves tokens the chain did not answer. Their chance uses this source's report rates.
+ * With no answer, Alchemy's tokens stay and Goldrush-only tokens are not added.
+ */
+export const singleSourceTokensAfterSample = (
+  tokens: readonly SourcedToken[],
+  answers: readonly SingleSourceSampleAnswer[],
+  settle = false
+): SingleSourceDecision => {
+  const answerBySlug = new Map(answers.map(answer => [slugKey(answer.slug), answer]));
+  const keepSlugs: string[] = [];
+  const dropSlugs: string[] = [];
+  const readSlugs: string[] = [];
+  const trustedSource = new Set<ListedBy>();
+  const sourceStats = new Map<ListedBy, { owned: number; unowned: number }>();
+
+  for (const source of ['alchemy', 'goldrush'] as const) {
+    let owned = 0;
+    let unowned = 0;
+
+    for (const token of tokens) {
+      if (token.sources.length !== 1 || token.sources[0] !== source) continue;
+
+      const answer = answerBySlug.get(slugKey(token.slug));
+      if (!answer || !answerSettled(answer)) continue;
+      if (answer.owned === true) owned++;
+      else if (answerUnowned(answer)) unowned++;
+    }
+
+    sourceStats.set(source, { owned, unowned });
+    if (owned > 0 && unowned === 0) trustedSource.add(source);
+  }
+
+  for (const source of ['alchemy', 'goldrush'] as const) {
+    const byContract = new Map<string, SourcedToken[]>();
+
+    for (const token of tokens) {
+      if (token.sources.length !== 1 || token.sources[0] !== source) continue;
+
+      const key = contractKey(token.contractAddress);
+      const group = byContract.get(key) ?? [];
+      group.push(token);
+      byContract.set(key, group);
+    }
+
+    for (const group of byContract.values()) {
+      const settled = group.flatMap(token => {
+        const answer = answerBySlug.get(slugKey(token.slug));
+
+        return answer && answerSettled(answer) ? [answer] : [];
+      });
+      if (settled.some(answer => answer.balanceOf === 0)) {
+        for (const token of group) dropSlugs.push(token.slug);
+        continue;
+      }
+
+      const owned = settled.filter(answer => answer.owned === true);
+      const unowned = settled.filter(answerUnowned);
+      const unread = group.filter(token => !answerBySlug.has(slugKey(token.slug)));
+      const inconclusive = group.filter(token => {
+        const answer = answerBySlug.get(slugKey(token.slug));
+
+        return answer != null && !answerSettled(answer);
+      });
+
+      for (const answer of owned) keepSlugs.push(answer.slug);
+      for (const answer of unowned) dropSlugs.push(answer.slug);
+
+      if (unowned.length > 0 && owned.length === 0) {
+        if (unread.length && unowned.length < COLLECTION_UNOWNED_CHECKS && !settle) {
+          const stillNeeded = COLLECTION_UNOWNED_CHECKS - unowned.length;
+          for (const token of unread.slice(0, stillNeeded)) readSlugs.push(token.slug);
+          continue;
+        }
+
+        if (unowned.length >= COLLECTION_UNOWNED_CHECKS) {
+          for (const token of unread) dropSlugs.push(token.slug);
+          for (const token of inconclusive) dropSlugs.push(token.slug);
+          continue;
+        }
+      }
+
+      if (owned.length > 0 && unowned.length > 0 && unread.length && !settle) {
+        for (const token of unread) readSlugs.push(token.slug);
+        continue;
+      }
+
+      const pending = owned.length > 0 && unowned.length > 0 ? inconclusive.concat(unread) : inconclusive;
+      const chance = reportedTokenOwnedChance(source, owned.length, unowned.length);
+      const pendingKept = owned.length > 0 && chance >= OWNED_CHANCE_CUTOFF;
+
+      for (const token of pending) {
+        if (pendingKept) keepSlugs.push(token.slug);
+        else if (source === 'goldrush') dropSlugs.push(token.slug);
+        else keepSlugs.push(token.slug);
+      }
+
+      if (owned.length > 0 && unowned.length > 0) continue;
+
+      const stat = sourceStats.get(source) ?? { owned: 0, unowned: 0 };
+      const sourceMissed = stat.owned === 0 && stat.unowned >= COLLECTION_UNOWNED_CHECKS;
+
+      for (const token of unread) {
+        if (owned.length > 0 || trustedSource.has(source)) {
+          keepSlugs.push(token.slug);
+          continue;
+        }
+
+        if (!settle && !sourceMissed) {
+          if (readSlugs.length < SOURCE_FOLLOW_UP_LIMIT) readSlugs.push(token.slug);
+          continue;
+        }
+
+        if (sourceMissed) {
+          dropSlugs.push(token.slug);
+          continue;
+        }
+
+        if (stat.owned > 0 && reportedTokenOwnedChance(source, stat.owned, stat.unowned) >= OWNED_CHANCE_CUTOFF) {
+          keepSlugs.push(token.slug);
+          continue;
+        }
+
+        if (source === 'goldrush') dropSlugs.push(token.slug);
+        else keepSlugs.push(token.slug);
+      }
+    }
+  }
+
+  return { keepSlugs, dropSlugs, readSlugs };
+};
 
 /** The first tokens of distinct contracts, up to the sample limit. */
 export const alchemyOwnerSample = <T extends { contractAddress: string }>(

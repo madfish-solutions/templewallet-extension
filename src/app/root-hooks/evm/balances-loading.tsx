@@ -20,6 +20,7 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { BalancesResponse, GoldrushChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isAbortError, withRateLimitRetry } from 'lib/apis/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { COLLECTIBLES_DETAILS_SYNC_INTERVAL, EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
@@ -227,8 +228,10 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
   // NFTs refresh is done above through inventory loading
   const getEvmBalancesFromApi = useCallback(
-    (walletAddress: string, chainId: GoldrushChainID) =>
-      getEvmBalances(walletAddress, chainId, false)
+    (walletAddress: string, chainId: GoldrushChainID, signal?: AbortSignal) => {
+      const retrySignal = signal ?? new AbortController().signal;
+
+      return withRateLimitRetry(() => getEvmBalances(walletAddress, chainId, false, retrySignal), retrySignal)
         .then(async data => {
           if (!(await shouldUseGoldrushData(data, chainId))) {
             console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);
@@ -238,7 +241,12 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
           return { data };
         })
-        .catch(error => ({ error })),
+        .catch(error => {
+          if (retrySignal.aborted || isAbortError(error)) throw error;
+
+          return { error };
+        });
+    },
     [shouldUseGoldrushData]
   );
   const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isGoldrushChainId);

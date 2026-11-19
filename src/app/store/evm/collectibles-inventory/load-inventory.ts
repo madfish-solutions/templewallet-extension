@@ -24,7 +24,12 @@ import {
   putEvmChainCollectiblesInventoryAction,
   setEvmCollectiblesInventoryLoadingAction
 } from './actions';
-import { readOwnerListSample } from './alchemy-owner-sample';
+import {
+  balanceOfByContractFromAnswers,
+  OwnerSampleAnswer,
+  readListedOwnership,
+  readOwnerListSample
+} from './alchemy-owner-sample';
 import { isAlchemyChainId, isOpenseaChainId } from './chains';
 import {
   collectAlchemyNfts,
@@ -41,6 +46,13 @@ import {
   withCloserGoldrushCounts
 } from './goldrush-balances';
 import { inventoryFromGoldrush, withoutProvenUnowned } from './goldrush-inventory';
+import {
+  listTokensBySource,
+  singleSourceFirst,
+  singleSourceTokensAfterSample,
+  SourcedToken,
+  unownedFromOwnerSample
+} from './ownership';
 import { InventoryContractRef } from './place-collections';
 import { forgetPreservedLoadedNfts, rememberLoadedBeyondFirstPage, withPreservedLoadedNfts } from './preserve-loaded';
 import { EvmChainCollectiblesInventory } from './state';
@@ -140,6 +152,81 @@ const readOwnerNfts = async (account: HexString, chainId: AlchemyChainID, signal
   throw lastError;
 };
 
+const includeSingleSourceTokens = (
+  collected: CollectedNfts,
+  contracts: readonly InventoryContractRef[],
+  goldrush: ReturnType<typeof inventoryFromGoldrush> | undefined,
+  decision: { keepSlugs: readonly string[] } | undefined
+) => {
+  const nextCollected: CollectedNfts = {
+    records: { ...collected.records },
+    loaded: collected.loaded.slice(),
+    slugs: collected.slugs.slice()
+  };
+  const nextContracts = contracts.slice();
+  if (!goldrush || !decision) return { collected: nextCollected, contracts: nextContracts, added: 0 };
+
+  const present = new Set(nextCollected.loaded.map(nft => nft.slug.toLowerCase()));
+  const contractsByAddress = new Set(nextContracts.map(contract => contract.address.toLowerCase()));
+  const keep = new Set(decision.keepSlugs.map(slug => slug.toLowerCase()));
+  let added = 0;
+
+  for (const nft of goldrush.collected.loaded) {
+    const key = nft.slug.toLowerCase();
+    if (!keep.has(key) || present.has(key)) continue;
+
+    present.add(key);
+    nextCollected.loaded.push(nft);
+    nextCollected.slugs.push(nft.slug);
+    const record = goldrush.collected.records[nft.slug];
+    if (record) nextCollected.records[nft.slug] = record;
+    added += 1;
+
+    const contractKey = nft.contractAddress.toLowerCase();
+    if (contractsByAddress.has(contractKey)) continue;
+
+    const contract = goldrush.contracts.find(item => item.address.toLowerCase() === contractKey);
+    if (!contract) continue;
+
+    const ownedHere = goldrush.collected.loaded.filter(
+      item => keep.has(item.slug.toLowerCase()) && item.contractAddress.toLowerCase() === contractKey
+    ).length;
+    contractsByAddress.add(contractKey);
+    nextContracts.push({ ...contract, distinctTokensOwned: ownedHere });
+  }
+
+  return { collected: nextCollected, contracts: nextContracts, added };
+};
+
+const resolveSingleSource = async (
+  account: HexString,
+  chainId: number,
+  sourced: readonly SourcedToken[],
+  answers: readonly OwnerSampleAnswer[],
+  signal: AbortSignal
+) => {
+  let next: OwnerSampleAnswer[] = answers.slice();
+  let decision = singleSourceTokensAfterSample(sourced, next);
+
+  for (let pass = 0; pass < 2 && decision.readSlugs.length; pass++) {
+    const wanted = new Set(decision.readSlugs.map(slug => slug.toLowerCase()));
+    const more = await readListedOwnership(
+      account,
+      chainId,
+      sourced.filter(token => wanted.has(token.slug.toLowerCase())),
+      signal
+    );
+    if (!more.length) break;
+
+    next = next.concat(more);
+    decision = singleSourceTokensAfterSample(sourced, next);
+  }
+
+  if (decision.readSlugs.length) decision = singleSourceTokensAfterSample(sourced, next, true);
+
+  return { decision, answers: next };
+};
+
 const readChainInventory = async (account: HexString, chainId: number, signal: AbortSignal): Promise<Action[]> => {
   if (!isAlchemyChainId(chainId)) return [];
 
@@ -197,28 +284,56 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
   if (!nfts) return replaceWithGoldrush();
 
   const collected = collectAlchemyNfts(nfts.ownedNfts);
-  const alchemySample = await readOwnerListSample(account, chainId, collected.loaded, 'alchemy', signal);
+  const goldrush = goldrushData ? inventoryFromGoldrush(goldrushData) : undefined;
+  const sourced = goldrush
+    ? listTokensBySource(collected.loaded, goldrush.collected.loaded)
+    : collected.loaded.map(nft => ({ ...nft, sources: ['alchemy' as const] }));
+  const sharedSlugs = goldrush
+    ? new Set(sourced.filter(token => token.sources.length > 1).map(token => token.slug.toLowerCase()))
+    : undefined;
+  const alchemySample = await readOwnerListSample(
+    account,
+    chainId,
+    singleSourceFirst(sourced),
+    'alchemy',
+    signal,
+    sharedSlugs
+  );
   if (alchemySample.rejectsList) return replaceWithGoldrush();
 
+  const singleSource = goldrush
+    ? await resolveSingleSource(account, chainId, sourced, alchemySample.answers, signal)
+    : undefined;
+  const ownershipAnswers = singleSource?.answers ?? alchemySample.answers;
+  const proved = unownedFromOwnerSample(ownershipAnswers);
   const trimmed = withoutProvenUnowned(
     collected,
     contracts,
-    alchemySample.unownedSlugs,
-    alchemySample.unownedContracts
+    proved.slugs.concat(singleSource?.decision.dropSlugs ?? []),
+    proved.contractAddresses
   );
-  const trusted = trimmed.collected;
-  const adjustedCounts = withCloserGoldrushCounts(
+  const withSingleSource = includeSingleSourceTokens(
+    trimmed.collected,
     trimmed.contracts,
+    goldrush,
+    singleSource?.decision
+  );
+  const adjustedCounts = withCloserGoldrushCounts(
+    withSingleSource.contracts,
     collections,
     goldrushData ? goldrushBalanceByContract(goldrushData) : undefined,
-    alchemySample.balanceOfByContract
+    balanceOfByContractFromAnswers(ownershipAnswers)
   );
   const inventoryContracts = adjustedCounts.contracts;
-  const nftTotalCount = Math.max(0, nfts.totalCount - trimmed.removed + adjustedCounts.delta);
+  const nftTotalCount = Math.max(
+    0,
+    nfts.totalCount - trimmed.removed + withSingleSource.added + adjustedCounts.delta
+  );
   const nftPageKey = nfts.pageKey;
+  const addedContracts = withSingleSource.contracts.length - trimmed.contracts.length;
   const contractsTotalCount =
     contractsResult.status === 'fulfilled'
-      ? Math.max(0, contractsResult.value.totalCount - trimmed.droppedContracts)
+      ? Math.max(0, contractsResult.value.totalCount - trimmed.droppedContracts + addedContracts)
       : undefined;
 
   const inventory: EvmChainCollectiblesInventory = {
@@ -228,11 +343,11 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
     contractsTotalCount,
     contracts: inventoryContracts,
     collections,
-    loaded: trusted.loaded
+    loaded: withSingleSource.collected.loaded
   };
 
   return [
-    ...publishCollected(account, chainId, trusted),
+    ...publishCollected(account, chainId, withSingleSource.collected),
     putEvmChainCollectiblesInventoryAction({ account, chainId, inventory })
   ];
 };

@@ -3,8 +3,11 @@ import {
   alchemyOwnerSampleRejectsList,
   attributeOwnedToken,
   collectionOwnedCount,
+  listTokensBySource,
   reconcileOwnership,
   reportedTokenOwnedChance,
+  singleSourceFirst,
+  singleSourceTokensAfterSample,
   unownedFromOwnerSample
 } from './ownership';
 
@@ -218,5 +221,151 @@ describe('alchemyOwnerSample', () => {
     const fourth = nft('0xADEb8BE17BA861E8847c23b2040C221607A70B21');
 
     expect(alchemyOwnerSample([first, sameContract, second, third, fourth])).toEqual([first, second, third]);
+  });
+
+  it('checks a token only one source reported before tokens both sources reported', () => {
+    const shared = { slug: 'shared', contractAddress: '0x01', sources: ['alchemy', 'goldrush'] as const };
+    const alchemyOnly = { slug: 'alchemy', contractAddress: '0x02', sources: ['alchemy'] as const };
+    const goldrushOnly = { slug: 'goldrush', contractAddress: '0x03', sources: ['goldrush'] as const };
+    const laterShared = { slug: 'later', contractAddress: '0x04', sources: ['alchemy', 'goldrush'] as const };
+
+    const sampled = alchemyOwnerSample(singleSourceFirst([shared, laterShared, alchemyOnly, goldrushOnly]));
+
+    expect(sampled.map(token => token.slug)).toEqual(['alchemy', 'goldrush', 'shared']);
+  });
+});
+
+describe('singleSourceTokensAfterSample', () => {
+  const goldrushOnly = (slug: string) => ({ slug, contractAddress: '0x01', sources: ['goldrush'] as const });
+  const alchemyOnly = (slug: string) => ({ slug, contractAddress: '0x02', sources: ['alchemy'] as const });
+
+  it('keeps a Goldrush token the chain says is owned when Alchemy left it out', () => {
+    const tokens = listTokensBySource([], [goldrushOnly('owned')]);
+
+    expect(singleSourceTokensAfterSample(tokens, [{ slug: 'owned', owned: true, balanceOf: 1 }])).toEqual({
+      keepSlugs: ['owned'],
+      dropSlugs: [],
+      readSlugs: []
+    });
+  });
+
+  it('keeps the other tokens only that source reported when every checked one is owned', () => {
+    const tokens = [goldrushOnly('checked'), goldrushOnly('rest')];
+
+    expect(singleSourceTokensAfterSample(tokens, [{ slug: 'checked', owned: true, balanceOf: 1 }]).keepSlugs).toEqual([
+      'checked',
+      'rest'
+    ]);
+  });
+
+  it('reads more of a contract before dropping it for one unowned token', () => {
+    const contract = (slug: string) => ({ slug, contractAddress: '0x01', sources: ['alchemy'] as const });
+    const other = { slug: 'other', contractAddress: '0x02', sources: ['alchemy'] as const };
+    const decision = singleSourceTokensAfterSample(
+      [contract('lie'), contract('next'), contract('later'), contract('tail'), other],
+      [{ slug: 'lie', owned: false, balanceOf: 2 }]
+    );
+
+    expect(decision.dropSlugs).toEqual(['lie']);
+    expect(decision.readSlugs).toEqual(['next', 'later', 'other']);
+    expect(decision.keepSlugs).toEqual([]);
+  });
+
+  it('drops the rest of a contract when several of its tokens are unowned and none are owned', () => {
+    const contract = (slug: string) => ({ slug, contractAddress: '0x01', sources: ['goldrush'] as const });
+    const other = { slug: 'other', contractAddress: '0x02', sources: ['alchemy'] as const };
+    const decision = singleSourceTokensAfterSample(
+      [contract('a'), contract('b'), contract('c'), contract('tail'), other],
+      [
+        { slug: 'a', owned: false, balanceOf: 4 },
+        { slug: 'b', owned: false, balanceOf: 4 },
+        { slug: 'c', owned: false, balanceOf: 4 }
+      ]
+    );
+
+    expect(decision.keepSlugs).toEqual([]);
+    expect(decision.readSlugs).toEqual(['other']);
+    expect(decision.dropSlugs).toEqual(['a', 'b', 'c', 'tail']);
+  });
+
+  it('reads the remaining tokens of a contract that has both an owned and an unowned token', () => {
+    const contract = (slug: string) => ({ slug, contractAddress: '0x01', sources: ['goldrush'] as const });
+    const decision = singleSourceTokensAfterSample(
+      [contract('lie'), contract('owned'), contract('left')],
+      [
+        { slug: 'lie', owned: false, balanceOf: 2 },
+        { slug: 'owned', owned: true, balanceOf: 2 }
+      ]
+    );
+
+    expect(decision.keepSlugs).toEqual(['owned']);
+    expect(decision.dropSlugs).toEqual(['lie']);
+    expect(decision.readSlugs).toEqual(['left']);
+  });
+
+  it('keeps an unread token when the contract answers still favor ownership', () => {
+    const contract = (slug: string) => ({ slug, contractAddress: '0x01', sources: ['goldrush'] as const });
+    const decision = singleSourceTokensAfterSample(
+      [contract('owned'), contract('lie'), contract('quiet')],
+      [
+        { slug: 'owned', owned: true, balanceOf: 2 },
+        { slug: 'lie', owned: false, balanceOf: 2 }
+      ],
+      true
+    );
+
+    expect(decision.readSlugs).toEqual([]);
+    expect(decision.keepSlugs.slice().sort()).toEqual(['owned', 'quiet']);
+    expect(decision.dropSlugs).toEqual(['lie']);
+  });
+
+  it('does not add a Goldrush-only token the chain did not answer', () => {
+    const tokens = [goldrushOnly('quiet'), alchemyOnly('listed')];
+    const decision = singleSourceTokensAfterSample(tokens, [{ slug: 'quiet', balanceOf: null }], true);
+
+    expect(decision.keepSlugs).toEqual(['listed']);
+    expect(decision.dropSlugs).toEqual(['quiet']);
+    expect(decision.readSlugs).toEqual([]);
+  });
+
+  it('reads Goldrush tokens the first sample did not reach, and drops Alchemy after several misses', () => {
+    const alchemy = (slug: string, contractAddress: string) => ({
+      slug,
+      contractAddress,
+      sources: ['alchemy'] as const
+    });
+    const goldrush = (slug: string, contractAddress: string) => ({
+      slug,
+      contractAddress,
+      sources: ['goldrush'] as const
+    });
+    const tokens = [
+      alchemy('a1', '0x01'),
+      alchemy('a2', '0x02'),
+      alchemy('a3', '0x03'),
+      alchemy('a4', '0x04'),
+      goldrush('g1', '0x11'),
+      goldrush('g2', '0x12')
+    ];
+    const sampled = [
+      { slug: 'a1', owned: false, balanceOf: 0 },
+      { slug: 'a2', owned: false, balanceOf: 1 },
+      { slug: 'a3', owned: false, balanceOf: 1 }
+    ];
+    const first = singleSourceTokensAfterSample(tokens, sampled);
+
+    expect(first.keepSlugs).toEqual([]);
+    expect(first.dropSlugs).toEqual(['a1', 'a2', 'a3', 'a4']);
+    expect(first.readSlugs).toEqual(['g1', 'g2']);
+
+    const second = singleSourceTokensAfterSample(tokens, [
+      ...sampled,
+      { slug: 'g1', owned: true, balanceOf: null },
+      { slug: 'g2', owned: true, balanceOf: null }
+    ]);
+
+    expect(second.keepSlugs).toEqual(['g1', 'g2']);
+    expect(second.dropSlugs).toEqual(['a1', 'a2', 'a3', 'a4']);
+    expect(second.readSlugs).toEqual([]);
   });
 });

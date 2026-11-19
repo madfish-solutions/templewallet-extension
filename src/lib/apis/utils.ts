@@ -70,6 +70,22 @@ export const withRateLimitRetry = async <T>(run: () => Promise<T>, signal: Abort
   }
 };
 
+/**
+ * Concurrent calls with the same key share one promise.
+ * The key is dropped when that promise settles, so the next call runs again.
+ */
+export const shareInFlight = <T>(bucket: Map<string, Promise<T>>, key: string, run: () => Promise<T>): Promise<T> => {
+  const current = bucket.get(key);
+  if (current) return current;
+
+  const request = run().finally(() => {
+    if (bucket.get(key) === request) bucket.delete(key);
+  });
+  bucket.set(key, request);
+
+  return request;
+};
+
 export const withAxiosDataExtract =
   <A extends unknown[], T>(fn: (...args: A) => Promise<AxiosResponse<T>>) =>
   async (...args: A) => {

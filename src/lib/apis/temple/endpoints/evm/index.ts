@@ -2,7 +2,7 @@ import { Route, RoutesResponse, Token, LiFiStep, StatusResponse, GetStatusReques
 import retry from 'async-retry';
 import axios from 'axios';
 
-import { isAbortError } from 'lib/apis/utils';
+import { isAbortError, shareInFlight } from 'lib/apis/utils';
 import { stripUndefinedProps } from 'lib/utils';
 
 import { templeWalletApi } from '../templewallet.api';
@@ -52,12 +52,24 @@ export type { OpenseaNftDetailed, OpenseaNftRef } from './opensea';
 export { ALCHEMY_NFT_EXCLUDE_SPAM };
 
 /** Fungible balances. Leave `includeNfts` false: that list can contain NFTs the account does not own. Owned NFTs come from the inventory load. */
-export const getEvmBalances = (walletAddress: string, chainId: GoldrushChainID, includeNfts = false) =>
-  buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId, params: { includeNfts } });
+export const getEvmBalances = (
+  walletAddress: string,
+  chainId: GoldrushChainID,
+  includeNfts = false,
+  signal?: AbortSignal
+) => buildEvmRequest<BalancesResponse>({ path: '/balances', walletAddress, chainId, params: { includeNfts }, signal });
 
-/** Response also contains exchange rates */
+const evmTokensMetadataInflight = new Map<string, Promise<BalancesResponse>>();
+
+/**
+ * Response also contains exchange rates.
+ * Rates refresh and token-metadata loading both request this for the same wallet and chain.
+ * They share one in-flight call so a second caller does not hit the network again.
+ */
 export const getEvmTokensMetadata = (walletAddress: string, chainId: GoldrushChainID) =>
-  buildEvmRequest<BalancesResponse>({ path: '/tokens-metadata', walletAddress, chainId });
+  shareInFlight(evmTokensMetadataInflight, `${walletAddress}:${chainId}`, () =>
+    buildEvmRequest<BalancesResponse>({ path: '/tokens-metadata', walletAddress, chainId })
+  );
 
 /** May return NFTs the wallet does not own. Used when Alchemy does not support the chain, and when Alchemy's owner list fails the ownership sample. */
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: GoldrushChainID, signal?: AbortSignal) =>
@@ -329,6 +341,9 @@ const buildEvmRequest = <T>({
     signal,
     ...(body instanceof Uint8Array ? { headers: { 'Content-Type': 'application/octet-stream' } } : {})
   };
+  if (path.includes('by-refs')) {
+    console.log('oy vey 1', { path, walletAddress, chainId, params, method, body });
+  }
   const request =
     method === 'post'
       ? templeWalletApi.post<T>(`evm${path}`, body, config)

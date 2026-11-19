@@ -20,7 +20,47 @@ interface OwnedNftBalanceInput {
   /** Slug of the loaded token, so the quantity can be kept on it. */
   storedSlug?: string;
   enabled: boolean;
+  /** Omitted outside the gallery. Off-screen tiles share `OFFSCREEN_PREFETCH_LIMIT`. */
+  presence?: 'visible' | 'offscreen' | 'pending';
 }
+
+/** Chain reads in flight for missing NFT balances. */
+const BALANCE_READ_CONCURRENCY = 3;
+/** Off-screen tiles that may read the chain. The rest wait until they scroll into view. */
+const OFFSCREEN_PREFETCH_LIMIT = 4;
+
+let balanceReadsInFlight = 0;
+let offscreenPrefetchStarted = 0;
+const balanceReadQueue: Array<() => void> = [];
+
+const finishBalanceRead = () => {
+  balanceReadsInFlight -= 1;
+  const next = balanceReadQueue.shift();
+  if (next) next();
+};
+
+const runBalanceRead = (task: () => Promise<void>) => {
+  let queued = false;
+  const start = () => {
+    queued = false;
+    balanceReadsInFlight += 1;
+    void task().finally(finishBalanceRead);
+  };
+
+  if (balanceReadsInFlight < BALANCE_READ_CONCURRENCY) start();
+  else {
+    queued = true;
+    balanceReadQueue.push(start);
+  }
+
+  return () => {
+    if (!queued) return;
+
+    const index = balanceReadQueue.indexOf(start);
+    if (index >= 0) balanceReadQueue.splice(index, 1);
+    queued = false;
+  };
+};
 
 /**
  * Quantity of one owned NFT. Uses a stored balance when there is one.
@@ -32,19 +72,28 @@ export const useOwnedNftBalance = ({
   assetSlug,
   knownBalance,
   storedSlug,
-  enabled
+  enabled,
+  presence
 }: OwnedNftBalanceInput) => {
   const [balance, setBalance] = useState<string>();
 
   useEffect(() => {
-    if (!enabled || (knownBalance != null && knownBalance !== '')) return;
+    if (!enabled || presence === 'pending' || (knownBalance != null && knownBalance !== '')) return;
 
     const [contractAddress, tokenId] = fromAssetSlug<HexString>(assetSlug);
     if (!tokenId) return;
 
-    const controller = new AbortController();
+    const prefetched = presence === 'offscreen';
+    if (prefetched) {
+      if (offscreenPrefetchStarted >= OFFSCREEN_PREFETCH_LIMIT) return;
 
-    void (async () => {
+      offscreenPrefetchStarted += 1;
+    }
+
+    const controller = new AbortController();
+    const cancelQueued = runBalanceRead(async () => {
+      if (controller.signal.aborted) return;
+
       try {
         const active = await getEvmChainsActiveRpcUrls();
         const rpcBaseURL =
@@ -73,10 +122,14 @@ export const useOwnedNftBalance = ({
       } catch (error) {
         if (!isAbortError(error)) console.error(error);
       }
-    })();
+    });
 
-    return () => controller.abort();
-  }, [account, assetSlug, chainId, enabled, knownBalance, storedSlug]);
+    return () => {
+      cancelQueued();
+      controller.abort();
+      if (prefetched) offscreenPrefetchStarted = Math.max(0, offscreenPrefetchStarted - 1);
+    };
+  }, [account, assetSlug, chainId, enabled, knownBalance, presence, storedSlug]);
 
   return balance;
 };

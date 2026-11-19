@@ -273,7 +273,12 @@ export function useEvmAssetBalance(
   address: HexString,
   network: EvmNetworkEssentials,
   forceFirstRefreshOnChain = false,
-  forceOnChainRefresh = false
+  forceOnChainRefresh = false,
+  /**
+   * Gallery tiles pass whether the tile is in the list window.
+   * Off-screen tiles share a small prefetch budget. Other screens omit this and read when the balance is missing.
+   */
+  nftBalancePresence?: 'visible' | 'offscreen' | 'pending'
 ) {
   const metadata = useEvmGenericAssetMetadata(assetSlug, network.chainId);
 
@@ -299,7 +304,8 @@ export function useEvmAssetBalance(
     assetSlug,
     knownBalance,
     storedSlug: loadedNft?.slug,
-    enabled: collectible && (knownBalance == null || knownBalance === '')
+    enabled: collectible && (knownBalance == null || knownBalance === ''),
+    presence: nftBalancePresence
   });
 
   const value = useMemo(() => {

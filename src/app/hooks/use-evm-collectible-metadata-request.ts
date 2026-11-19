@@ -2,7 +2,7 @@ import { RefCallback, useCallback, useEffect, useRef, useState } from 'react';
 
 import { throttle } from 'lodash';
 
-import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/containers';
+import { getAppScrollRoot } from 'app/layouts/containers';
 import {
   useEvmCollectibleMetadataSelector,
   useIsEvmCollectibleCheckedSelector
@@ -14,6 +14,8 @@ interface ObservedTarget {
   chainId: number;
   assetSlug: string;
   visible: boolean;
+  /** The first observation is reported even when the tile starts off screen. */
+  reported: boolean;
   requestsMetadata: boolean;
   onVisibilityChange: (visible: boolean) => void;
 }
@@ -94,7 +96,11 @@ const handleIntersections = (entries: IntersectionObserverEntry[]) => {
   for (const { target, isIntersecting } of entries) {
     const observed = targets.get(target);
 
-    if (!observed || observed.visible === isIntersecting) continue;
+    if (!observed) continue;
+
+    const first = !observed.reported;
+    observed.reported = true;
+    if (!first && observed.visible === isIntersecting) continue;
 
     observed.visible = isIntersecting;
 
@@ -107,10 +113,8 @@ const handleIntersections = (entries: IntersectionObserverEntry[]) => {
   }
 };
 
-const getScrollRoot = () => (SCROLL_DOCUMENT ? null : document.getElementById(APP_CONTENT_PAPER_DOM_ID));
-
 const observe = (element: Element, target: ObservedTarget): EmptyFn => {
-  const root = getScrollRoot();
+  const root = getAppScrollRoot();
   const shared = observers.get(root) ?? {
     observer: new IntersectionObserver(handleIntersections, { root, rootMargin: '50% 0px' }),
     count: 0
@@ -148,6 +152,7 @@ const showWithoutObserver = (target: ObservedTarget): EmptyFn => {
 
 const useEvmCollectibleTileObserver = (chainId: number, assetSlug: string, requestsMetadata: boolean) => {
   const [inView, setInView] = useState(typeof IntersectionObserver === 'undefined');
+  const [offScreen, setOffScreen] = useState(false);
   const targetRef = useRef<ObservedTarget | null>(null);
   const requestsMetadataRef = useUpdatableRef(requestsMetadata);
 
@@ -160,12 +165,18 @@ const useEvmCollectibleTileObserver = (chainId: number, assetSlug: string, reque
         chainId,
         assetSlug,
         visible: false,
+        reported: false,
         requestsMetadata: requestsMetadataRef.current,
         onVisibilityChange: visible => {
           clearTimeout(dwellTimeoutId);
 
-          if (visible) dwellTimeoutId = setTimeout(() => setInView(true), IN_VIEW_DWELL_MS);
-          else setInView(false);
+          if (visible) {
+            setOffScreen(false);
+            dwellTimeoutId = setTimeout(() => setInView(true), IN_VIEW_DWELL_MS);
+          } else {
+            setInView(false);
+            setOffScreen(true);
+          }
         }
       };
       targetRef.current = target;
@@ -186,7 +197,7 @@ const useEvmCollectibleTileObserver = (chainId: number, assetSlug: string, reque
     if (targetRef.current) setRequestsMetadata(targetRef.current, requestsMetadata);
   }, [requestsMetadata]);
 
-  return { wrapperElemRef, inView };
+  return { wrapperElemRef, inView, offScreen };
 };
 
 export const useEvmCollectibleTileMetadata = (
@@ -197,7 +208,13 @@ export const useEvmCollectibleTileMetadata = (
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
   const checked = useIsEvmCollectibleCheckedSelector(accountPkh, chainId, assetSlug);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const { wrapperElemRef, inView } = useEvmCollectibleTileObserver(chainId, assetSlug, !metadata?.image);
+  const { wrapperElemRef, inView, offScreen } = useEvmCollectibleTileObserver(chainId, assetSlug, !metadata?.image);
 
-  return { metadata, metadataLoading: (!checked && !metadata) || metadatasLoading, wrapperElemRef, inView };
+  return {
+    metadata,
+    metadataLoading: (!checked && !metadata) || metadatasLoading,
+    wrapperElemRef,
+    inView,
+    offScreen
+  };
 };

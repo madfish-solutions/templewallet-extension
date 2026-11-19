@@ -6,6 +6,7 @@ import { Anchor, IconBase, Loader } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
+import { getAppScrollRoot } from 'app/layouts/containers';
 import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
@@ -133,9 +134,13 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
       return;
     }
 
-    const observer = new IntersectionObserver(entries => {
-      if (entries.some(entry => entry.isIntersecting)) requestPreview();
-    });
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries.some(entry => entry.isIntersecting)) requestPreview();
+      },
+      // The next card just outside the scrollport may load. The rest of the list does not.
+      { root: getAppScrollRoot(), rootMargin: '160px 0px' }
+    );
     observer.observe(element);
 
     return () => observer.disconnect();

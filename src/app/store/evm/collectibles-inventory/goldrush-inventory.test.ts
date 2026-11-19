@@ -49,6 +49,27 @@ describe('inventoryFromGoldrush', () => {
     expect(inventory.collected.slugs[0]?.endsWith('_877')).toBe(true);
     expect(inventory.contracts[0]).toMatchObject({ distinctTokensOwned: 1, name: 'Goldrush' });
   });
+
+  it('keeps an ERC-1155 whose token id is 0', () => {
+    const inventory = inventoryFromGoldrush(
+      response([
+        contract([
+          {
+            token_id: '0',
+            token_url: '',
+            original_owner: '',
+            current_owner: '',
+            external_data: null,
+            asset_cached: false,
+            image_cached: false
+          }
+        ])
+      ])
+    );
+
+    expect(inventory.collected.slugs[0]?.endsWith('_0')).toBe(true);
+    expect(inventory.contracts).toHaveLength(1);
+  });
 });
 
 describe('withoutProvenUnowned', () => {
