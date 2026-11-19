@@ -15,7 +15,7 @@ import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadat
 import { isValidFetchedEvmMetadata } from 'app/store/evm/tokens-metadata/utils';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { useUpdatableRef } from 'lib/ui/hooks';
@@ -57,7 +57,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
       dispatchSetEvmTokensMetadataLoadingToTrue();
 
-      if (isSupportedChainId(chainId) && !isTestnetMode) {
+      if (isGoldrushChainId(chainId) && !isTestnetMode) {
         const fetcher = getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
           dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
 

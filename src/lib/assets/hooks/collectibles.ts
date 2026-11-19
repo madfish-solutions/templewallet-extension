@@ -8,22 +8,20 @@ import {
   useRawEvmAccountBalancesSelector,
   useRawEvmChainAccountBalancesSelector
 } from 'app/store/evm/balances/selectors';
+import { useEvmCollectiblesInventorySelector } from 'app/store/evm/collectibles-inventory/selectors';
 import { useChainAccountCollectiblesSelector, useAllCollectiblesSelector } from 'app/store/tezos/assets/selectors';
 import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
-import type { AccountAsset } from 'lib/assets/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { toChainAssetSlug } from '../utils';
 
-import { getAssetStatus } from './utils';
+import { evmAccountCollectiblesForChain, tezosAccountCollectibles, type AccountCollectible } from './collectibles-list';
 
-export interface AccountCollectible extends AccountAsset {
-  chainId: string | number;
-}
+export type { AccountCollectible };
 
 export const useTezosAccountCollectibles = (account: string) => {
   const enabledChains = useEnabledTezosChains();
@@ -42,13 +40,7 @@ export const useTezosAccountCollectibles = (account: string) => {
       const storedRaw = storedRecord[assetsKey] ?? EMPTY_FROZEN_OBJ;
       const balances = balancesRecord[balancesKey]?.data ?? EMPTY_FROZEN_OBJ;
 
-      accountCollectibles = accountCollectibles.concat(
-        Object.entries(storedRaw).map<AccountCollectible>(([slug, { status }]) => ({
-          slug,
-          status: getAssetStatus(balances[slug], status),
-          chainId
-        }))
-      );
+      accountCollectibles = accountCollectibles.concat(tezosAccountCollectibles(chainId, storedRaw, balances));
     }
 
     return accountCollectibles.filter(c => c.status !== 'removed');
@@ -63,17 +55,7 @@ export const useTezosChainAccountCollectibles = (account: string, chainId: strin
 
   const balances = useAllAccountBalancesSelector(account, chainId);
 
-  return useMemo(
-    () =>
-      Object.entries(stored)
-        .filter(([, asset]) => asset.status !== 'removed')
-        .map<AccountCollectible>(([slug, { status }]) => ({
-          slug,
-          status: getAssetStatus(balances[slug], status),
-          chainId
-        })),
-    [stored, balances, chainId]
-  );
+  return useMemo(() => tezosAccountCollectibles(chainId, stored, balances), [stored, balances, chainId]);
 };
 
 /**
@@ -84,28 +66,22 @@ export const useEvmAccountCollectibles = (account: HexString) => {
 
   const collectiblesRecord = useRawEvmAccountCollectiblesSelector(account);
   const balancesRecord = useRawEvmAccountBalancesSelector(account);
+  const inventoryByChain = useEvmCollectiblesInventorySelector(account);
 
   return useMemo<AccountCollectible[]>(() => {
     let accountCollectibles: AccountCollectible[] = [];
 
     for (const chain of enabledChains) {
       const chainId = chain.chainId;
-
       const chainTokensRecord = collectiblesRecord[chainId];
 
-      if (!chainTokensRecord) continue;
-
       accountCollectibles = accountCollectibles.concat(
-        Object.entries(chainTokensRecord).map<AccountCollectible>(([slug, { status }]) => ({
-          slug,
-          status: getAssetStatus(balancesRecord[chainId]?.[slug], status),
-          chainId
-        }))
+        evmAccountCollectiblesForChain(chainId, chainTokensRecord, balancesRecord[chainId], inventoryByChain[chainId])
       );
     }
 
     return accountCollectibles.filter(c => c.status !== 'removed');
-  }, [enabledChains, collectiblesRecord, balancesRecord]);
+  }, [enabledChains, collectiblesRecord, balancesRecord, inventoryByChain]);
 };
 
 /**
@@ -114,17 +90,11 @@ export const useEvmAccountCollectibles = (account: HexString) => {
 export const useEvmChainAccountCollectibles = (account: HexString, chainId: number) => {
   const stored = useRawEvmChainAccountCollectiblesSelector(account, chainId);
   const balances = useRawEvmChainAccountBalancesSelector(account, chainId);
+  const inventoryByChain = useEvmCollectiblesInventorySelector(account);
 
   return useMemo(
-    () =>
-      Object.entries(stored)
-        .filter(([, asset]) => asset.status !== 'removed')
-        .map<AccountCollectible>(([slug, { status }]) => ({
-          slug,
-          status: getAssetStatus(balances[slug], status),
-          chainId
-        })),
-    [stored, balances, chainId]
+    () => evmAccountCollectiblesForChain(chainId, stored, balances, inventoryByChain[chainId]),
+    [stored, balances, chainId, inventoryByChain]
   );
 };
 

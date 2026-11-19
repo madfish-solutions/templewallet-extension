@@ -9,6 +9,9 @@ if (process.env.SCROLL_DOCUMENT !== 'true') require('./PageLayout/custom-app-scr
 export const APP_CONTENT_WRAP_DOM_ID = 'app-content-wrap';
 export const APP_CONTENT_PAPER_DOM_ID = 'app-content-paper';
 
+/** The element that scrolls the wallet. `null` means the document viewport. */
+export const getAppScrollRoot = () => (SCROLL_DOCUMENT ? null : document.getElementById(APP_CONTENT_PAPER_DOM_ID));
+
 export const LAYOUT_CONTAINER_CLASSNAME = 'max-w-full w-96 mx-auto';
 export const FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME = 'min-h-80 rounded-md';
 

@@ -8,6 +8,7 @@ import { storageConfig } from 'lib/store';
 import { isPositiveCollectibleBalance, isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import {
+  enableEvmCollectiblesAction,
   processLoadedEvmAssetsAction,
   putNewEvmCollectibleAction,
   putNewEvmTokenAction,
@@ -86,6 +87,17 @@ const evmAssetsReducer = createReducer<EvmAssetsStateInterface>(EvmAssetsInitial
     const chainCollectibles = getChainRecords(collectibles, publicKeyHash, chainId);
 
     chainCollectibles[assetSlug] = { status: 'enabled', manual: true };
+  });
+
+  builder.addCase(enableEvmCollectiblesAction, ({ collectibles }, { payload }) => {
+    const chainCollectibles = getChainRecords(collectibles, payload.publicKeyHash, payload.chainId);
+
+    for (const slug of payload.slugs) {
+      const stored = chainCollectibles[slug];
+      if (stored?.status === 'disabled' || stored?.status === 'removed') continue;
+      if (!stored) chainCollectibles[slug] = { status: 'enabled' };
+      else if (stored.status === 'idle') stored.status = 'enabled';
+    }
   });
 });
 
