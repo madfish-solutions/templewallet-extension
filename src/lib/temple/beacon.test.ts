@@ -1,3 +1,4 @@
+import bs58check from 'bs58check';
 import browser from 'webextension-polyfill';
 
 // oxfmt-ignore
@@ -378,6 +379,21 @@ describe('Beacon', () => {
     });
   });
   describe('decodeMessage', () => {
+    it('reads a large UTF-8 message encoded by the legacy Beacon codec', () => {
+      const message = { payload: 'café'.repeat(512) };
+      const wire = bs58check.encode(Buffer.from(JSON.stringify(message)));
+      expect(decodeMessage(wire)).toEqual(message);
+    });
+
+    it('rejects a large message with a corrupted checksum', () => {
+      const wire = bs58check.encode(Buffer.from(JSON.stringify({ payload: 'ab'.repeat(1024) })));
+      // Changing the last digit by one alters the checksum and leaves the JSON intact.
+      const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      const digit = alphabet.indexOf(wire.slice(-1));
+      const corrupt = wire.slice(0, -1) + alphabet[digit === 0 ? 1 : digit - 1];
+      expect(() => decodeMessage(corrupt)).toThrow('Invalid checksum');
+    });
+
     it('To be valid payload', async () => {
       const msg = 'aRN6xNrZy8M6MiswDWzg68Npu69JqR';
       const req: Request = decodeMessage<Request>(msg);
