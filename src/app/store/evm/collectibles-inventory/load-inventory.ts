@@ -325,10 +325,7 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
     balanceOfByContractFromAnswers(ownershipAnswers)
   );
   const inventoryContracts = adjustedCounts.contracts;
-  const nftTotalCount = Math.max(
-    0,
-    nfts.totalCount - trimmed.removed + withSingleSource.added + adjustedCounts.delta
-  );
+  const nftTotalCount = Math.max(0, nfts.totalCount - trimmed.removed + withSingleSource.added + adjustedCounts.delta);
   const nftPageKey = nfts.pageKey;
   const addedContracts = withSingleSource.contracts.length - trimmed.contracts.length;
   const contractsTotalCount =

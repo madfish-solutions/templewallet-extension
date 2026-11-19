@@ -218,7 +218,7 @@ export const attributeOwnedToken = (
 /** How many tokens are checked before the owner list is trusted. One token per contract. */
 const ALCHEMY_OWNER_SAMPLE_LIMIT = 3;
 
-export type ListedBy = 'alchemy' | 'goldrush';
+type ListedBy = 'alchemy' | 'goldrush';
 
 export interface SourcedToken {
   slug: string;
@@ -264,7 +264,7 @@ export const listTokensBySource = (
   return Array.from(bySlug.values());
 };
 
-export interface SingleSourceSampleAnswer {
+interface SingleSourceSampleAnswer {
   slug: string;
   /** Missing when that token's call did not return. */
   owned?: boolean;
@@ -283,7 +283,7 @@ const answerSettled = (answer: SingleSourceSampleAnswer) => answer.owned != null
 
 const answerUnowned = (answer: SingleSourceSampleAnswer) => answer.owned === false || answer.balanceOf === 0;
 
-export interface SingleSourceDecision {
+interface SingleSourceDecision {
   keepSlugs: string[];
   dropSlugs: string[];
   /**

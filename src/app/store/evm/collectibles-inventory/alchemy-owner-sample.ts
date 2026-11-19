@@ -135,9 +135,7 @@ export const readOwnerListSample = async (
   if (!answers.length) return keptList();
 
   const unowned = unownedFromOwnerSample(answers);
-  const listAnswers = listSlugs
-    ? answers.filter(answer => listSlugs.has(answer.slug.toLowerCase()))
-    : answers;
+  const listAnswers = listSlugs ? answers.filter(answer => listSlugs.has(answer.slug.toLowerCase())) : answers;
 
   return {
     rejectsList: alchemyOwnerSampleRejectsList(listAnswers, source),
