@@ -1,3 +1,4 @@
+import bs58check from 'bs58check';
 import browser from 'webextension-polyfill';
 
 // oxfmt-ignore
@@ -29,7 +30,8 @@ import {
   encodeMessage,
   MessageType,
   PostMessagePairingRequest,
-  OperationRequest
+  OperationRequest,
+  openBeaconMessage
 } from './beacon';
 import { mockBrowserStorageLocal, mockCryptoUtil } from './beacon.mock';
 
@@ -245,6 +247,94 @@ describe('Beacon', () => {
       const message = await getSenderId();
       expect(message).toBe('44aQjTPHmtoriWAoTuz1e');
     });
+    it('Computes senderId for an explicit hex public key', async () => {
+      const senderId = await getSenderId(MOCK_PUBLIC_KEY);
+      expect(senderId).toBe('44aQjTPHmtoriWAoTuz1e');
+      expect(mockSodiumUtil.crypto_generichash).toBeCalledWith(5, Buffer.from(MOCK_PUBLIC_KEY, 'hex'));
+    });
+  });
+  describe('openBeaconMessage', () => {
+    const ORIGIN = 'something';
+
+    it('accepts an encrypted request when senderId matches the paired dApp public key', async () => {
+      const validRequest = encodeMessage({
+        type: MessageType.OperationRequest,
+        version: '2',
+        id: 'req-1',
+        senderId: '44aQjTPHmtoriWAoTuz1e',
+        network: { type: 'mainnet' },
+        operationDetails: [],
+        sourceAddress: 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
+      });
+      mockSodiumUtil.crypto_secretbox_open_easy.mockReturnValueOnce(validRequest);
+      const validCipherHex = Buffer.alloc(48, 1).toString('hex');
+
+      const result = await openBeaconMessage(ORIGIN, validCipherHex, true);
+      expect(result.payload).toBeNull();
+      expect(result.req).toMatchObject({
+        type: MessageType.OperationRequest,
+        id: 'req-1',
+        senderId: '44aQjTPHmtoriWAoTuz1e'
+      });
+    });
+
+    it('rejects an encrypted request when inner senderId does not match the paired dApp public key', async () => {
+      const forgedRequest = encodeMessage({
+        type: MessageType.OperationRequest,
+        version: '2',
+        id: 'req-forged',
+        senderId: 'forgedSenderId123',
+        network: { type: 'mainnet' },
+        operationDetails: [],
+        sourceAddress: 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
+      });
+      mockSodiumUtil.crypto_secretbox_open_easy.mockReturnValueOnce(forgedRequest);
+      const validCipherHex = Buffer.alloc(48, 1).toString('hex');
+
+      const result = await openBeaconMessage(ORIGIN, validCipherHex, true);
+      expect(result.req).toBeNull();
+    });
+
+    it('does not delete the stored dApp public key when decryption fails', async () => {
+      const shortCipherHex = 'deadbeef';
+      const result = await openBeaconMessage(ORIGIN, shortCipherHex, true);
+      expect(result.req).toBeNull();
+      expect(result.payload).not.toBeNull();
+      expect(mockBrowserStorageLocal.remove).not.toHaveBeenCalled();
+    });
+
+    it('rejects unencrypted post-handshake operation requests', async () => {
+      const unencryptedOp = encodeMessage({
+        type: MessageType.OperationRequest,
+        version: '2',
+        id: 'req-plain',
+        senderId: '44aQjTPHmtoriWAoTuz1e',
+        network: { type: 'mainnet' },
+        operationDetails: [],
+        sourceAddress: 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
+      });
+
+      const result = await openBeaconMessage(ORIGIN, unencryptedOp, false);
+      expect(result.req).toBeNull();
+    });
+
+    it('accepts unencrypted HandshakeRequest when senderId matches publicKey', async () => {
+      const handshake = encodeMessage({
+        type: MessageType.HandshakeRequest,
+        version: '2',
+        id: 'pair-1',
+        senderId: '44aQjTPHmtoriWAoTuz1e',
+        name: 'Test DApp',
+        publicKey: MOCK_PUBLIC_KEY
+      });
+
+      const result = await openBeaconMessage(ORIGIN, handshake, false);
+      expect(result.req).toMatchObject({
+        type: MessageType.HandshakeRequest,
+        id: 'pair-1',
+        publicKey: MOCK_PUBLIC_KEY
+      });
+    });
   });
   describe('formatOpParams', () => {
     it('To be valid payload without changes', async () => {
@@ -281,6 +371,21 @@ describe('Beacon', () => {
     });
   });
   describe('decodeMessage', () => {
+    it('reads a large UTF-8 message encoded by the legacy Beacon codec', () => {
+      const message = { payload: 'café'.repeat(512) };
+      const wire = bs58check.encode(Buffer.from(JSON.stringify(message)));
+      expect(decodeMessage(wire)).toEqual(message);
+    });
+
+    it('rejects a large message with a corrupted checksum', () => {
+      const wire = bs58check.encode(Buffer.from(JSON.stringify({ payload: 'ab'.repeat(1024) })));
+      // Changing the last digit by one alters the checksum and leaves the JSON intact.
+      const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      const digit = alphabet.indexOf(wire.slice(-1));
+      const corrupt = wire.slice(0, -1) + alphabet[digit === 0 ? 1 : digit - 1];
+      expect(() => decodeMessage(corrupt)).toThrow('Invalid checksum');
+    });
+
     it('To be valid payload', async () => {
       const msg = 'aRN6xNrZy8M6MiswDWzg68Npu69JqR';
       const req: Request = decodeMessage<Request>(msg);
