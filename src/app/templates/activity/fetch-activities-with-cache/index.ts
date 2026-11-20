@@ -345,7 +345,7 @@ export const fetchTezosActivitiesWithCache = async ({
         assetSlug,
         maxItems: TEZOS_ACTIVITIES_PSEUDO_LIMIT
       }),
-    fetchActivities: async currentOlderThan => {
+    fetchActivities: async () => {
       const operations = await fetchOperations(
         chainId,
         rpcBaseURL,
@@ -361,7 +361,7 @@ export const fetchTezosActivitiesWithCache = async ({
       );
 
       const newHashes = hashes.filter(hash => !alreadyKnownActivitiesByHashes[hash]);
-      const newGroups = await fetchOperGroupsForOperations(chainId, newHashes, currentOlderThan);
+      const newGroups = await fetchOperGroupsForOperations(chainId, newHashes);
       const newActivitiesByHashes = Object.fromEntries(
         newGroups.map(group => [group.hash, parseTezosOperationsGroup(group, chainId, accountAddress)])
       );

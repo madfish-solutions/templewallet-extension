@@ -1,12 +1,9 @@
 import React, { memo, useMemo } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
-import { EvmActivity, EvmActivityAsset } from 'lib/activity';
-import { isTransferActivityOperKind } from 'lib/activity/utils';
-import { fromAssetSlug, toEvmAssetSlug } from 'lib/assets/utils';
+import { EvmActivity } from 'lib/activity';
 import { useGetEvmChainAssetMetadata } from 'lib/metadata';
-import { useBooleanState } from 'lib/ui/hooks';
-import { ZERO } from 'lib/utils/numbers';
+import { useBooleanState, useMemoWithCompare } from 'lib/ui/hooks';
 import { BasicEvmChain } from 'temple/front/chains';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
@@ -14,7 +11,8 @@ import { TempleChainKind } from 'temple/types';
 
 import { ActivityItemBaseAssetProp, ActivityOperationBaseComponent } from './ActivityOperationBase';
 import { BundleModalContent } from './BundleModal';
-import { EvmActivityOperationComponent } from './EvmActivityOperation';
+import { EvmActivityOperationComponent, buildEvmOperationAsset } from './EvmActivityOperation';
+import { getEvmBundleFace, getEvmNftUnitsSigned } from './utils';
 
 interface Props {
   activity: EvmActivity;
@@ -73,58 +71,26 @@ const EvmActivityBatchComponent = memo<BatchProps>(({ activity, chain, assetSlug
 
   const getMetadata = useGetEvmChainAssetMetadata(chain.chainId);
 
-  const faceSlug = useMemo(() => {
-    if (assetSlug) return assetSlug;
+  const batchAsset = useMemoWithCompare<ActivityItemBaseAssetProp | undefined>(() => {
+    const face = getEvmBundleFace(operations, assetSlug, (slug, asset) =>
+      Boolean(buildEvmOperationAsset(asset, getMetadata(slug)))
+    );
 
-    for (const { kind, asset } of operations) {
-      if (asset?.amountSigned && Number(asset.amountSigned) !== 0 && isTransferActivityOperKind(kind)) {
-        const slug = toEvmAssetSlug(asset.contract, asset.tokenId);
+    if (!face) return;
 
-        const decimals = getMetadata(slug)?.decimals ?? asset.decimals;
+    const { slug, asset, amountSigned } = face;
 
-        if (decimals != null) return slug;
-      }
+    if (asset.nft) {
+      return {
+        ...asset,
+        amountSigned: getEvmNftUnitsSigned(operations, amountSigned.startsWith('-')),
+        decimals: 0,
+        symbol: 'NFT'
+      };
     }
 
-    return;
+    return buildEvmOperationAsset({ ...asset, amountSigned }, getMetadata(slug));
   }, [getMetadata, operations, assetSlug]);
-
-  const batchAsset = useMemo<ActivityItemBaseAssetProp | undefined>(() => {
-    if (!faceSlug) return;
-
-    let faceAssetBase: EvmActivityAsset | undefined;
-    let faceAmount = ZERO;
-
-    for (const { kind, asset } of operations) {
-      if (
-        isTransferActivityOperKind(kind) &&
-        asset?.amountSigned &&
-        toEvmAssetSlug(asset.contract, asset.tokenId) === faceSlug
-      ) {
-        faceAmount = faceAmount.plus(asset.amountSigned);
-        if (!faceAssetBase) faceAssetBase = asset;
-      }
-    }
-
-    const assetMetadata = getMetadata(faceSlug);
-
-    const decimals = assetMetadata?.decimals ?? faceAssetBase?.decimals;
-
-    if (decimals == null) return;
-
-    const symbol = assetMetadata?.symbol || faceAssetBase?.symbol;
-
-    const [contract, tokenId] = fromAssetSlug(faceSlug);
-
-    return {
-      ...faceAssetBase,
-      contract,
-      tokenId,
-      amountSigned: faceAmount.toFixed(),
-      decimals,
-      symbol
-    };
-  }, [getMetadata, operations, faceSlug]);
 
   return (
     <>

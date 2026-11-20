@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect } from 'react';
 
 import { once } from 'lodash';
 import * as ViemUtils from 'viem/utils';
@@ -17,9 +17,12 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';
+import { useMetadataLoadAttempts } from 'lib/metadata/load-attempts';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();
@@ -30,8 +33,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
   const storedTokensRecord = useEvmStoredTokensRecordSelector();
   const tokensMetadataRecord = useEvmTokensMetadataRecordSelector();
   const tokensMetadataRecordRef = useUpdatableRef(tokensMetadataRecord);
-
-  const checkedRef = useRef<Record<number, string[]>>({});
+  const { attempts, retryTick } = useMetadataLoadAttempts();
 
   useEffect(() => {
     if (isLoadingRef.current) return;
@@ -47,15 +49,16 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
       const chainMetadataRecord = tokensMetadataRecordRef.current[chainId];
 
       const allSlugs = chainTokensRecord ? Object.keys(chainTokensRecord) : [];
-      const checkedSlugs = checkedRef.current[chainId] ?? [];
 
-      const slugsWithoutMeta = allSlugs.filter(slug => !chainMetadataRecord?.[slug] && !checkedSlugs.includes(slug));
+      const slugsWithoutMeta = allSlugs.filter(
+        slug => !chainMetadataRecord?.[slug] && attempts.isDue(toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+      );
 
       if (!slugsWithoutMeta.length) return [];
 
-      checkedRef.current[chainId] = checkedSlugs.concat(slugsWithoutMeta);
-
       dispatchSetEvmTokensMetadataLoadingToTrue();
+
+      const attemptKeys = slugsWithoutMeta.map(slug => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
 
       if (isSupportedChainId(chainId) && !isTestnetMode) {
         const fetcher = getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
@@ -71,21 +74,29 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
           return loadEvmTokensMetadataFromChain(slugsLeftWithoutMeta, chain);
         });
 
-        return [fetcher];
+        return [attempts.track(attemptKeys, fetcher)];
       }
 
-      return [loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain)];
+      return [attempts.track(attemptKeys, loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain))];
     });
 
     Promise.allSettled(fetchers).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
-  }, [evmChains, isLoadingRef, tokensMetadataRecordRef, storedTokensRecord, publicKeyHash, isTestnetMode]);
+  }, [
+    evmChains,
+    isLoadingRef,
+    tokensMetadataRecordRef,
+    storedTokensRecord,
+    publicKeyHash,
+    isTestnetMode,
+    attempts,
+    retryTick
+  ]);
 
   return null;
 });
 
 function loadEvmTokensMetadataFromChain(slugsWithoutMeta: string[], chain: EvmChain) {
   return fetchEvmTokensMetadataFromChain(chain, slugsWithoutMeta).then(
-    fetchedMetadata => void dispatch(putEvmTokensMetadataAction({ chainId: chain.chainId, records: fetchedMetadata })),
-    error => void console.error(error)
+    fetchedMetadata => void dispatch(putEvmTokensMetadataAction({ chainId: chain.chainId, records: fetchedMetadata }))
   );
 }

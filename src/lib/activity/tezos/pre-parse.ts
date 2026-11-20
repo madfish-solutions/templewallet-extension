@@ -23,6 +23,8 @@ import type {
   TezosPreActivityOperation
 } from './types';
 
+export const SAPLING_CONTRACT_ADDRESS = 'KT1KzAPQdpziH3bxxJXQNmNQA46oo8tnDQfj';
+
 export function preparseTezosOperationsGroup(
   { hash, operations: groupOperations }: TempleTzktOperationsGroup,
   address: string,
@@ -31,7 +33,9 @@ export function preparseTezosOperationsGroup(
   const lastOperation = groupOperations[groupOperations.length - 1]!;
   const addedAt = lastOperation.timestamp;
   const operations = groupOperations.map(op => reduceOneTzktOperation(op, address)).filter(isTruthy);
-  const status = deriveActivityStatus(operations);
+  const status = deriveActivityStatus(
+    operations.length ? operations : groupOperations.map(op => ({ status: stringToActivityStatus(op.status) }))
+  );
 
   return {
     hash,
@@ -117,9 +121,15 @@ function reduceOneTzktTransactionOperation(
   const parameter = operation.parameter;
 
   if (parameter == null) {
-    if (operation.target.address !== address && operation.sender.address !== address) return null;
+    const from =
+      operation.sender.address === SAPLING_CONTRACT_ADDRESS &&
+      operation.target.address !== address &&
+      operation.initiator?.address === address
+        ? operation.initiator
+        : operation.sender;
 
-    const from = operation.sender;
+    if (operation.target.address !== address && from.address !== address) return null;
+
     const to = operation.target;
     const amount = String(operation.amount);
     const contract = TEZ_TOKEN_SLUG;
