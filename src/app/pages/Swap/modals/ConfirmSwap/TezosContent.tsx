@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
@@ -15,22 +14,19 @@ import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTypedSWR } from 'lib/swr';
-import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
-import { estimateBatchWithGasRebalance } from 'lib/utils/estimate-with-gas-rebalance';
-import { serializeEstimate } from 'lib/utils/serialize-estimate';
-import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner, useTezosNetworkTiming } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosReviewData } from '../../form/interfaces';
+import { estimateTezosSwap } from '../../preparation/tezos/estimate-swap';
 
 interface TezosContentProps {
   data: TezosReviewData;
@@ -70,21 +66,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     }
   );
 
-  const estimate = useCallback(async () => {
-    const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
-    const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
-
-    const estimatedBaseFee = mutezToTz(
-      BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
-    );
-
-    return {
-      estimates: estimates.map(serializeEstimate),
-      baseFee: estimatedBaseFee,
-      gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
-      revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
-    };
-  }, [sourcePkh, tezos, opParams]);
+  const estimate = useCallback(() => estimateTezosSwap(tezos, sourcePkh, opParams), [sourcePkh, tezos, opParams]);
 
   const {
     data: estimationData,

@@ -16,11 +16,12 @@ import { AccountForChain } from 'temple/accounts';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { UserAction } from '../../evm/user-actions';
 import { Route3EvmRoute, getCommonStepProps, isLifiStep } from '../../form/interfaces';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 import { EvmContent } from './EvmContent';
-import { InitialInputData, UserAction } from './types';
+import { InitialInputData } from './types';
 
 interface ConfirmEvmUserActionProps {
   account: AccountForChain<TempleChainKind.EVM>;

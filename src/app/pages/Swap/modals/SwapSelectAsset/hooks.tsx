@@ -13,16 +13,13 @@ import {
   useLifiConnectedEvmChainTokensMetadataSelector,
   useLifiConnectedEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
-import { erc20AllowanceAbi } from 'lib/abi/erc20';
 import { toChainAssetSlug } from 'lib/assets/utils';
-import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { toBigInt, ZERO } from 'lib/utils/numbers';
-import { getViemPublicClient } from 'temple/evm';
 import { useAllEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { Route3EvmRoute, getCommonStepProps } from '../../form/interfaces';
+import { fetchEvmStepsAllowances } from '../../evm/fetch-evm-allowances';
+import { Route3EvmRoute } from '../../form/interfaces';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
@@ -134,35 +131,11 @@ export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAl
       setError(undefined);
 
       try {
-        const results = await Promise.all(
-          stableSteps.map(async step => {
-            const { fromChainId, fromToken, fromAmount, fromAddress, approvalAddress } = getCommonStepProps(step);
-            const network = allEvmChains[fromChainId];
-            const evmToolkit = network ? getViemPublicClient(network) : undefined;
-
-            if (!network || !evmToolkit) return { sufficient: true, allowance: toBigInt(ZERO) };
-
-            if (EVM_ZERO_ADDRESS === fromToken.address) {
-              return { sufficient: true, allowance: toBigInt(ZERO) };
-            }
-
-            const onChainAllowance = await evmToolkit.readContract({
-              address: fromToken.address as HexString,
-              abi: [erc20AllowanceAbi],
-              functionName: 'allowance',
-              args: [fromAddress as HexString, approvalAddress as HexString]
-            });
-
-            return {
-              sufficient: onChainAllowance >= BigInt(fromAmount),
-              allowance: onChainAllowance
-            };
-          })
-        );
+        const allowances = await fetchEvmStepsAllowances(stableSteps, allEvmChains);
 
         if (!cancelled) {
-          setAllowanceSufficient(results.map(r => r.sufficient));
-          setOnChainAllowances(results.map(r => r.allowance));
+          setAllowanceSufficient(allowances.map(({ sufficient }) => sufficient));
+          setOnChainAllowances(allowances.map(({ onChain }) => onChain));
         }
       } catch (e) {
         if (!cancelled) setError(e);

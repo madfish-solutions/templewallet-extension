@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import { encodeFunctionData } from 'viem';
+import { isAddress } from 'viem';
 import { toHex } from 'viem/utils';
 
 import { Anchor, IconBase } from 'app/atoms';
@@ -14,8 +14,8 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
+import { buildApprovalTxData } from 'lib/evm/approval';
 import { T } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
@@ -73,11 +73,11 @@ const ApproveModal: FC<ApproveModalProps> = ({
     useLedgerApprovalModalState();
 
   const txData = useMemo(() => {
-    return encodeFunctionData({
-      abi: [erc20ApproveAbi],
-      functionName: 'approve',
-      args: [approvalAddress as HexString, approvalAmount]
-    });
+    if (!approvalAddress || !isAddress(approvalAddress, { strict: false })) {
+      throw new Error('Invalid approval address');
+    }
+
+    return buildApprovalTxData(approvalAddress, approvalAmount);
   }, [approvalAmount, approvalAddress]);
 
   const assetSlug = useMemo(() => toTokenSlug(fromToken.address, 0), [fromToken.address]);
