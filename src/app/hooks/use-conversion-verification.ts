@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { isAxiosError } from 'axios';
 
@@ -23,6 +23,7 @@ export const useConversionVerification = () => {
     () => accounts.find((acc): acc is StoredHDAccount => acc.type === TempleAccountType.HD),
     [accounts]
   );
+  const registrationRestoreAttemptedRef = useRef(false);
 
   useEffect(() => {
     if (!fullPage && !ready) {
@@ -42,7 +43,21 @@ export const useConversionVerification = () => {
         });
     } else if (referralWalletRegistered) {
       // TODO: use fetched data when it becomes necessary, for example, for referral fees
-      fetchConversionAccount().catch(e => console.error(e));
+      fetchConversionAccount().catch(e => {
+        console.error(e);
+
+        if (
+          !firstHdAccount ||
+          registrationRestoreAttemptedRef.current ||
+          !isAxiosError(e) ||
+          e.response?.status !== 400
+        ) {
+          return;
+        }
+
+        registrationRestoreAttemptedRef.current = true;
+        registerWallet(firstHdAccount.tezosAddress, firstHdAccount.evmAddress).catch(e => console.error(e));
+      });
     } else if (firstHdAccount) {
       registerWallet(firstHdAccount.tezosAddress, firstHdAccount.evmAddress)
         .then(() => {
