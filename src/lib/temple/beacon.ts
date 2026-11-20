@@ -117,7 +117,7 @@ interface OperationResponse extends BaseMessage {
   transactionHash: string;
 }
 
-export interface SignRequest extends BaseMessage {
+interface SignRequest extends BaseMessage {
   type: MessageType.SignPayloadRequest;
   sourceAddress: string;
   payload: string;
@@ -126,7 +126,6 @@ export interface SignRequest extends BaseMessage {
 
 interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
-  signingType?: SigningType;
   signature: string;
   signingType?: SigningType;
 }

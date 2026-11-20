@@ -1021,7 +1021,9 @@ const formatTempleReq = async (
             ...resBase,
             type: Beacon.MessageType.SignPayloadResponse,
             signature: templeRes.signature,
-            signingType: (req.type === Beacon.MessageType.SignPayloadRequest ? req.signingType : undefined) ?? Beacon.SigningType.RAW
+            signingType:
+              (req.type === Beacon.MessageType.SignPayloadRequest ? req.signingType : undefined) ??
+              Beacon.SigningType.RAW
           };
 
         case TempleDAppMessageType.BroadcastResponse:
