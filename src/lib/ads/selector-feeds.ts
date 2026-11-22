@@ -2,11 +2,20 @@
 // @ts-ignore Optional package is absent from core builds.
 import type { ParsedSelectorFeed, SelectorSnapshot } from '@temple-wallet/extension-ads';
 
+import { EnvVars } from 'lib/env';
+
+export const SELECTOR_STORAGE_VERSION = 2;
+export const TEMPLE_SELECTOR_FEED_ID = 'temple';
+const TEMPLE_SELECTOR_FORMAT_VERSION = 1;
+
+export const supportsTempleSelectorFeed = (adsModule: object): boolean =>
+  Reflect.get(adsModule, 'TEMPLE_SELECTOR_FORMAT_VERSION') === TEMPLE_SELECTOR_FORMAT_VERSION;
+
 export interface SelectorFeedDefinition {
   id: string;
   url: string;
   refreshMs: number;
-  license: string;
+  license?: string;
   enabled: boolean;
 }
 
@@ -25,7 +34,7 @@ export interface SelectorFeedState {
 }
 
 export interface SelectorStorage {
-  migrationVersion: 1;
+  migrationVersion: typeof SELECTOR_STORAGE_VERSION;
   registry: SelectorFeedDefinition[];
   feeds: Record<string, SelectorFeedState>;
   snapshot: SelectorSnapshot;
@@ -44,6 +53,12 @@ export const SELECTOR_FEEDS: SelectorFeedDefinition[] = [
     refreshMs: 4 * 24 * 60 * 60 * 1000,
     license: 'CC-BY-SA-3.0; The EasyList authors (https://easylist.to/)',
     enabled: true
+  },
+  {
+    id: TEMPLE_SELECTOR_FEED_ID,
+    url: `${EnvVars.TEMPLE_ADS_API_URL?.replace(/\/+$/, '')}/ads-config/v${TEMPLE_SELECTOR_FORMAT_VERSION}/temple-overrides.txt`,
+    refreshMs: 60 * 60 * 1000,
+    enabled: Boolean(EnvVars.TEMPLE_ADS_API_URL)
   }
 ];
 

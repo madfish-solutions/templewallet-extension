@@ -146,7 +146,19 @@ const updateAdsActionTriggers = () => {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ['class', 'id', 'style', 'src', 'width', 'height', 'hidden']
+        attributeFilter: [
+          'class',
+          'id',
+          'style',
+          'src',
+          'width',
+          'height',
+          'hidden',
+          'data-vignette-loaded',
+          'data-google-query-id',
+          'data-module-name',
+          'data-ads-target'
+        ]
       });
       // Content scripts use an isolated world; a history wrapper cannot observe page-world calls.
       routeInterval = setInterval(requestRouteScan, 1000);

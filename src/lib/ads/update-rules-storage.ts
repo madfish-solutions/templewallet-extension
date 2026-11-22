@@ -10,7 +10,9 @@ import {
   SELECTOR_FEEDS,
   SelectorFeedState,
   SelectorRefreshResult,
-  SelectorStorage
+  SelectorStorage,
+  supportsTempleSelectorFeed,
+  TEMPLE_SELECTOR_FEED_ID
 } from './selector-feeds';
 import { migrateAdSelectorStorage } from './selector-migration';
 import { compileSelectorStorage } from './selector-snapshot';
@@ -77,6 +79,7 @@ const refresh = async (): Promise<SelectorRefreshResult> => {
   const previous = await migrateAdSelectorStorage();
   const feeds = { ...previous.feeds };
   const errors: string[] = [];
+  const adsModule = await importExtensionAdsModule();
   let successes = 0;
   let changed = false;
   for (const feed of SELECTOR_FEEDS) {
@@ -89,7 +92,9 @@ const refresh = async (): Promise<SelectorRefreshResult> => {
       checksum: '',
       parsed: { sourceVersion: '', rules: [], pageExceptions: [], unsupported: {} }
     };
-    if (!feed.enabled || state.nextCheckAt > Date.now()) continue;
+    const isTempleFeed = feed.id === TEMPLE_SELECTOR_FEED_ID;
+    if (!feed.enabled || state.nextCheckAt > Date.now() || (isTempleFeed && !supportsTempleSelectorFeed(adsModule)))
+      continue;
     const now = Date.now();
     let serverDelay = 0;
     try {
@@ -108,10 +113,10 @@ const refresh = async (): Promise<SelectorRefreshResult> => {
           error: undefined
         };
       } else {
-        const { parseSelectorFeed } = await importExtensionAdsModule();
-        const parsed = parseSelectorFeed(text, feed.id);
+        const parsed = adsModule.parseSelectorFeed(text, feed.id, isTempleFeed);
         const count = parsed.rules.filter(rule => rule.kind === 'selector').length;
-        if (count === 0) throw new Error('Feed contains no selectors');
+        if (isTempleFeed ? parsed.rules.length + parsed.pageExceptions.length === 0 : count === 0)
+          throw new Error('Feed contains no selectors');
         const checksum = await checksumSelectorText(text);
         const staged: SelectorFeedState = {
           parsed,

@@ -1,22 +1,40 @@
 import { importExtensionAdsModule } from './import-extension-ads-module';
-import { checksumSelectorText, SELECTOR_FEEDS, SelectorFeedState, SelectorStorage } from './selector-feeds';
+import {
+  checksumSelectorText,
+  SELECTOR_FEEDS,
+  SELECTOR_STORAGE_VERSION,
+  SelectorFeedState,
+  SelectorStorage,
+  supportsTempleSelectorFeed,
+  TEMPLE_SELECTOR_FEED_ID
+} from './selector-feeds';
 import offlineText from './selectors/easylist-minimum.txt?raw';
 import overridesText from './selectors/temple-overrides.txt?raw';
 
 export const compileSelectorStorage = async (feeds: Record<string, SelectorFeedState>): Promise<SelectorStorage> => {
-  feeds = Object.fromEntries(SELECTOR_FEEDS.filter(feed => feeds[feed.id]).map(feed => [feed.id, feeds[feed.id]]));
-  const { parseSelectorFeed, SELECTOR_SCHEMA_VERSION, SELECTOR_PARSER_VERSION, SELECTOR_LIMITS } =
-    await importExtensionAdsModule();
-  const overrides = parseSelectorFeed(overridesText, 'temple', true);
-  const overrideRevision = await checksumSelectorText(overridesText);
-  const selected = SELECTOR_FEEDS.filter(feed => feed.enabled && feeds[feed.id]);
+  feeds = Object.fromEntries(
+    SELECTOR_FEEDS.filter(feed => feed.enabled && feeds[feed.id]).map(feed => [feed.id, feeds[feed.id]])
+  );
+  const adsModule = await importExtensionAdsModule();
+  const { parseSelectorFeed, SELECTOR_SCHEMA_VERSION, SELECTOR_PARSER_VERSION, SELECTOR_LIMITS } = adsModule;
+  const supportsTempleFeed = supportsTempleSelectorFeed(adsModule);
+  const publishedOverrides = supportsTempleFeed ? feeds[TEMPLE_SELECTOR_FEED_ID] : undefined;
+  // The pinned prerelease can load the bundled URL exclusions before it supports protected elements.
+  const bundledOverrides = supportsTempleFeed
+    ? overridesText
+    : overridesText.replace(/^[^#!\r\n]*#~#[^\r\n]*(?:\r?\n|$)/gm, '');
+  const overrides = publishedOverrides?.checksum
+    ? publishedOverrides.parsed
+    : parseSelectorFeed(bundledOverrides, TEMPLE_SELECTOR_FEED_ID, true);
+  const overrideRevision = publishedOverrides?.checksum || (await checksumSelectorText(bundledOverrides));
+  const selected = SELECTOR_FEEDS.filter(feed => feed.id !== TEMPLE_SELECTOR_FEED_ID && feeds[feed.id]);
   const parsed = selected.map(feed => feeds[feed.id].parsed);
   const feedVersions = Object.fromEntries(selected.map(feed => [feed.id, feeds[feed.id].checksum]));
   const revision = await checksumSelectorText(
     JSON.stringify([SELECTOR_SCHEMA_VERSION, SELECTOR_PARSER_VERSION, feedVersions, overrideRevision])
   );
   const storage: SelectorStorage = {
-    migrationVersion: 1,
+    migrationVersion: SELECTOR_STORAGE_VERSION,
     registry: SELECTOR_FEEDS,
     feeds,
     snapshot: {
@@ -32,7 +50,7 @@ export const compileSelectorStorage = async (feeds: Record<string, SelectorFeedS
   const { rules, pageExceptions } = storage.snapshot;
   if (
     rules.length + pageExceptions.length > SELECTOR_LIMITS.rules ||
-    rules.filter(rule => rule.kind === 'exception').length + pageExceptions.length > SELECTOR_LIMITS.exceptions
+    rules.filter(rule => rule.kind !== 'selector').length + pageExceptions.length > SELECTOR_LIMITS.exceptions
   ) {
     throw new Error('Aggregate selector rule limit');
   }

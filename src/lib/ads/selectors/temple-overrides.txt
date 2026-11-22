@@ -1,11 +1,12 @@
 [Adblock Plus 2.0]
 ! Title: Temple ad replacement overrides
 ! Version: 1
+
 ! Filter syntax: https://help.adblockplus.org/adblock-plus-help-center/how-to-write-filters
-! Temple supports native CSS selectors (##), exact selector exceptions (#@#), and page exceptions ($elemhide, $generichide, $document).
-! Temple uses matched elements as ad replacement candidates.
-! Exceptions apply to exact selector text across all feeds.
-! Add verified publisher selectors and exact exceptions here.
+
+! General overrides
+! Use ## to find ad placements with CSS selectors.
+! Use #@# to cancel an exact selector from any feed.
 
 dextools.io##.ad-banner
 dextools.io##.banner-content
@@ -37,3 +38,27 @@ publish0x.com##iframe[data-aa="2308443"]
 
 dexview.com##iframe[data-aa="2177768"]
 dexview.com##hype-banner
+
+! Blacklisted domains
+! Use $document to disable website ad replacement on a domain and its subdomains.
+
+@@||chainlist.org^$document
+@@||www.fxstreet.com^$document
+@@||apespace.io^$document
+@@||www.livemint.com^$document
+@@||google.com^$document
+
+@@||templewallet-ads-new.netlify.app^$document
+@@||ads.templewallet.com^$document
+@@||prodlike-tw-ads.netlify.app^$document
+
+! Blacklisted selectors
+! Use #~# to protect matching elements, their ancestors, and their descendants.
+
+#~#[data-vignette-loaded]
+#~#ins[style*='z-index: 2147483647'][data-google-query-id]
+#~#.coin-ad-banner
+#~#[data-module-name='Coin-stats'] [data-google-query-id]
+#~#[data-module-name='Coin-Community'] [data-google-query-id]
+#~#main [data-ads-target='banner'] [data-google-query-id]
+#~##sky

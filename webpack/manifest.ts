@@ -126,7 +126,10 @@ const AUTHOR_URL = 'https://madfish.solutions';
 
 const COMMON_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const COMMON_HOST_PERMISSIONS: string[] = ['http://localhost:8732/', ...(!shouldDisableAds ? ['https://easylist.to/*'] : [])];
+const COMMON_HOST_PERMISSIONS: string[] = [
+  'http://localhost:8732/',
+  ...(!shouldDisableAds ? ['https://easylist.to/*', `${new URL(envFilesData.TEMPLE_ADS_API_URL).origin}/*`] : [])
+];
 
 const OPTIONS_UI = {
   page: 'options.html',

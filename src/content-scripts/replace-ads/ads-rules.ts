@@ -1,5 +1,5 @@
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import { SelectorStorage } from 'lib/ads/selector-feeds';
+import { SELECTOR_STORAGE_VERSION, SelectorStorage } from 'lib/ads/selector-feeds';
 import { getOfflineSelectorStorage } from 'lib/ads/selector-snapshot';
 import { AD_SELECTORS_STORAGE_KEY } from 'lib/constants';
 import { IS_DEV_ENV } from 'lib/env';
@@ -17,7 +17,8 @@ export const getRulesFromStorage = async (locationOrHref: Location | string): Pr
   const { resolveSelectorSnapshot, setWebsiteSelectorRules, SELECTOR_SCHEMA_VERSION, SELECTOR_PARSER_VERSION } =
     await importExtensionAdsModule();
   const storage = await (cache ??= fetchFromStorage<SelectorStorage>(AD_SELECTORS_STORAGE_KEY).then(stored =>
-    stored?.snapshot?.schemaVersion === SELECTOR_SCHEMA_VERSION &&
+    stored?.migrationVersion === SELECTOR_STORAGE_VERSION &&
+    stored.snapshot?.schemaVersion === SELECTOR_SCHEMA_VERSION &&
     stored.snapshot.parserVersion === SELECTOR_PARSER_VERSION
       ? stored
       : getOfflineSelectorStorage()
