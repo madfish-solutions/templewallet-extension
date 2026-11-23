@@ -8,6 +8,7 @@ import {
 import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
+import type { SelectorRefreshResult } from 'lib/ads/selector-feeds';
 import {
   ContentScriptType,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
@@ -112,15 +113,11 @@ const updateAdsActionTriggers = () => {
       if (!pageIsActive || currentGeneration !== generation) return;
       activeAdsModule = adsModule;
       if (IS_DEV_ENV) {
-        console.debug(
-          '[Temple Ads]',
-          'ads-enabled',
-          JSON.stringify({
-            websiteAdsEnabled: inBrowserAdsEnabled,
-            chatbotAdsEnabled: aiChatAdsEnabled,
-            generation: currentGeneration
-          })
-        );
+        console.info('[Temple Ads] ads-enabled', {
+          websiteAdsEnabled: inBrowserAdsEnabled,
+          chatbotAdsEnabled: aiChatAdsEnabled,
+          generation: currentGeneration
+        });
       }
       // Restore first so an older configuration cannot retain website placements.
       adsModule.restoreWebsiteAds();
@@ -168,14 +165,10 @@ const updateAdsActionTriggers = () => {
 
 const startAdsReplacement = () => {
   if (IS_DEV_ENV) {
-    console.debug(
-      '[Temple Ads]',
-      'content-script-start',
-      JSON.stringify({
-        hostname: window.location.hostname,
-        visibility: document.visibilityState
-      })
-    );
+    console.info('[Temple Ads] content-script-start', {
+      hostname: window.location.hostname,
+      visibility: document.visibilityState
+    });
   }
   updateAdsActionTriggers();
   browser.storage.local.onChanged.addListener(changes => {
@@ -230,7 +223,18 @@ const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
   const now = Date.now();
   if (now >= nextRulesRefreshAt) {
     nextRulesRefreshAt = now + AD_RULES_REFRESH_INTERVAL;
-    void browser.runtime.sendMessage({ type: ContentScriptType.RefreshAdSelectors }).catch(console.error);
+    void browser.runtime
+      .sendMessage({ type: ContentScriptType.RefreshAdSelectors })
+      .then((result: SelectorRefreshResult) => {
+        if (IS_DEV_ENV) {
+          if (result.status === 'partial' || result.status === 'failure') {
+            console.warn('[Temple Ads] selector-refresh', result);
+          } else {
+            console.info('[Temple Ads] selector-refresh', result);
+          }
+        }
+      })
+      .catch(error => console.error('[Temple Ads] selector-refresh-message-error', error));
   }
   const adsModule = await importExtensionAdsModule();
   if (!scanIsCurrent(scanGeneration, href)) return;
@@ -322,17 +326,13 @@ const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number
       const adsActions = await getAdsActions(adsRules, request);
       if (!scanIsCurrent(scanGeneration, href) || revisionGeneration !== selectorGeneration) {
         if (IS_DEV_ENV) {
-          console.debug(
-            '[Temple Ads]',
-            'scan-discarded',
-            JSON.stringify({
-              scanGeneration,
-              generation,
-              revisionGeneration,
-              selectorGeneration,
-              visibility: document.visibilityState
-            })
-          );
+          console.info('[Temple Ads] scan-discarded', {
+            scanGeneration,
+            generation,
+            revisionGeneration,
+            selectorGeneration,
+            visibility: document.visibilityState
+          });
         }
         return;
       }
