@@ -16,7 +16,7 @@ export {
 } from './types';
 export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMessage } from './types';
 
-export type { TzktApiChainId } from './api';
+export type { TzktApiChainId, GetAccountOperationsParams, GetOperationsTransactionsParams } from './api';
 export {
   isKnownChainId,
   createTzktWsConnection,

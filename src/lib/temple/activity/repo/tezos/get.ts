@@ -2,6 +2,8 @@ import { Collection } from 'dexie';
 
 import { TezosActivity } from 'lib/activity';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
+import { isShieldedTezosOperation } from 'lib/activity/utils';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 
 import { DbTezosActivity, TezosActivitiesInterval, db, tezosActivities, tezosActivitiesIntervals } from '../db';
 
@@ -89,29 +91,42 @@ export const getClosestTezosActivitiesInterval = async ({
     let lowerLimit = interval.lowerLimit;
     const { upperLimit, assetSlug: intervalAssetSlug } = interval;
     const searchUpperLimit = olderThan && compareLimits(olderThan, upperLimit) < 0 ? olderThan : upperLimit;
-    const allRawActivitiesCollection = tezosActivities
-      .where(['chainId', 'account', 'assetSlug', activityTsPath])
-      .between(
-        [chainId, account, intervalAssetSlug, getPointerTimestamp(lowerLimit)],
-        [chainId, account, intervalAssetSlug, getPointerTimestamp(searchUpperLimit)],
-        true,
-        false
-      )
-      .reverse();
+    const queryRawActivities = (lowerPointer: TezosActivityOlderThan) =>
+      tezosActivities
+        .where(['chainId', 'account', 'assetSlug', activityTsPath])
+        .between(
+          [chainId, account, intervalAssetSlug, getPointerTimestamp(lowerPointer)],
+          [chainId, account, intervalAssetSlug, getPointerTimestamp(searchUpperLimit)],
+          true,
+          false
+        )
+        .reverse();
     let rawActivities: DbTezosActivity[];
     if (Number.isInteger(maxItems) && maxItems > 0) {
-      rawActivities = await allRawActivitiesCollection.limit(maxItems).sortBy(activityTsPath);
-      if (rawActivities.length > 0) {
-        lowerLimit = getIntervalLimit(rawActivities.at(-1)!);
+      rawActivities = await queryRawActivities(lowerLimit).limit(maxItems).sortBy(activityTsPath);
+      const oldestActivity = rawActivities.at(-1);
+
+      if (oldestActivity) {
+        if (rawActivities.length === maxItems) {
+          rawActivities = await queryRawActivities(oldestActivity).sortBy(activityTsPath);
+        }
+
+        lowerLimit = getIntervalLimit(oldestActivity);
       }
     } else {
-      rawActivities = await allRawActivitiesCollection.sortBy(activityTsPath);
+      rawActivities = await queryRawActivities(lowerLimit).sortBy(activityTsPath);
     }
 
     return {
       activities: rawActivities
         .map(toFrontTezosActivity)
-        .filter(activity => !assetSlug || activity.operations.some(op => op.assetSlug === assetSlug)),
+        .filter(
+          activity =>
+            !assetSlug ||
+            activity.operations.some(
+              op => op.assetSlug === assetSlug || (assetSlug === TEZ_TOKEN_SLUG && isShieldedTezosOperation(op))
+            )
+        ),
       upperLimit: searchUpperLimit,
       lowerLimit
     };

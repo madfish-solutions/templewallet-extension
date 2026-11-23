@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { ActivityOperKindEnum, TezosOperation, ActivityStatus } from 'lib/activity';
+import { isBridgeOperation, isShieldedTezosOperation } from 'lib/activity/utils';
 import { fromAssetSlug } from 'lib/assets';
 import { AssetMetadataBase, isTezosCollectibleMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { BasicTezosChain } from 'temple/front/chains';
@@ -45,6 +46,8 @@ export const TezosActivityOperationComponent = memo<Props>(
         status={status}
         blockExplorerUrl={blockExplorerUrl ?? undefined}
         withoutAssetIcon={withoutAssetIcon}
+        isShielded={isShieldedTezosOperation(operation)}
+        isBridge={isBridgeOperation(operation)}
         addressChip={addressChip}
       />
     );

@@ -141,6 +141,7 @@ interface SignRequest extends BaseMessage {
 interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
+  signingType?: SigningType;
 }
 
 interface BroadcastRequest extends BaseMessage {
