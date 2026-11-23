@@ -20,6 +20,8 @@ import { LedgerOperationState } from 'lib/ui';
 import { EvmChain, OneOfChains } from 'temple/front';
 import { AssetsAmounts } from 'temple/types';
 
+import { useReportScreenComplete } from '../../preparation/screen-complete';
+
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
   onLedgerModalClose: EmptyFn;
@@ -92,6 +94,10 @@ export const BaseContent = <T extends TxParamsFormData>({
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
   const formState = useFormState<T>({ control });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const submitLoading = submitLoadingOverride ?? formState.isSubmitting;
+  useReportScreenComplete(
+    Boolean(latestSubmitError || estimationError) || (someBalancesChanges && Boolean(displayedFee) && !submitLoading)
+  );
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
   const actionButtons = (
@@ -106,7 +112,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         color="primary"
         size="L"
         className="w-full"
-        loading={submitLoadingOverride ?? formState.isSubmitting}
+        loading={submitLoading}
         disabled={!formState.isValid || Boolean(submitDisabled)}
       >
         <T id={latestSubmitError || retry ? 'retry' : 'confirm'} />

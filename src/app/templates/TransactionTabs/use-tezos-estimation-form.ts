@@ -45,6 +45,7 @@ interface TezosEstimationFormHookParams {
   simulateOperation?: boolean;
   sourcePkIsRevealed?: boolean;
   estimationDataLoading?: boolean;
+  initialBalancesChanges?: AssetsAmounts;
 }
 
 export const useTezosEstimationForm = ({
@@ -54,7 +55,8 @@ export const useTezosEstimationForm = ({
   network,
   simulateOperation,
   sourcePkIsRevealed = true,
-  estimationDataLoading = false
+  estimationDataLoading = false,
+  initialBalancesChanges
 }: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -70,7 +72,7 @@ export const useTezosEstimationForm = ({
   const tezos = getTezosToolkitWithSigner(network, sender, true);
   const estimates = estimationData?.estimates;
   const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
-  const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>({});
+  const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>(initialBalancesChanges ?? {});
   const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
   const [simulationError, setSimulationError] = useSafeState<unknown>(null);
 

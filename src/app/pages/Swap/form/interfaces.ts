@@ -14,6 +14,8 @@ import { EvmChain } from 'temple/front';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
+import type { PreparedEvmAction, PreparedEvmSwap, PreparedTezosReview } from '../preparation/types';
+
 export type { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 
 export type BridgeDetails = {
@@ -35,11 +37,13 @@ export interface EvmStepReviewData {
     symbol: string;
   };
   routeStep: LiFiStep | Route3EvmRoute;
+  prepared?: PreparedEvmAction;
 }
 
 interface EvmSwapReviewData {
   handleResetForm: EmptyFn;
   swapRoute: LiFiRoute | Route3EvmRoute;
+  prepared?: PreparedEvmSwap;
 }
 
 interface TezosSwapReviewData {
@@ -50,6 +54,7 @@ interface TezosSwapReviewData {
     amount: string;
     symbol: string;
   };
+  prepared?: PreparedTezosReview;
 }
 
 export interface ChainAssetInfo<T extends TempleChainKind = TempleChainKind> {

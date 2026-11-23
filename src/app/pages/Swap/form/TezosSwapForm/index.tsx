@@ -13,6 +13,8 @@ import { ChainAssetInfo, SwapFieldName, TezosReviewData } from 'app/pages/Swap/f
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { buildTezosSwapOperations, TezosSwapBuildInput } from 'app/pages/Swap/preparation/tezos/build-swap-operations';
+import { prepareTezosSwap } from 'app/pages/Swap/preparation/tezos/prepare-tezos-swap';
+import { useSwapPreparation } from 'app/pages/Swap/preparation/use-swap-preparation';
 import { dispatch, useSelector } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
@@ -467,6 +469,34 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     };
   };
 
+  const draftKey =
+    inputValue.assetSlug &&
+    outputValue.assetSlug &&
+    fromRoute3Token &&
+    toRoute3Token &&
+    atomsInputValue.gt(0) &&
+    atomsInputValue.lte(tokensToAtoms(inputTokenMaxAmount, inputAssetMetadata.decimals)) &&
+    !otherOperationsPending &&
+    !tezBalanceTooLow
+      ? JSON.stringify([
+          publicKeyHash,
+          inputValue.assetSlug,
+          outputValue.assetSlug,
+          atomsInputValue.toFixed(),
+          slippageTolerance
+        ])
+      : null;
+
+  const { takePrepared } = useSwapPreparation({
+    draftKey,
+    ready: !swapParams.isLoading && isDefined(swapParams.data.output) && !hopsAreAbsent,
+    prepare: signal => {
+      const build = getBuildInput();
+
+      return build ? prepareTezosSwap({ build, network, account }, signal) : Promise.reject(new Error('No route'));
+    }
+  });
+
   const onSubmit = async () => {
     if (isSubmitting) return;
 
@@ -500,7 +530,13 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     try {
       setTezosOperation(undefined);
 
-      const operations = await buildTezosSwapOperations(buildInput);
+      const preparation = await takePrepared();
+      if (preparation.kind === 'superseded') {
+        return;
+      }
+
+      const operations =
+        preparation.kind === 'prepared' ? preparation.value : await buildTezosSwapOperations(buildInput);
 
       if (!operations) {
         return;
@@ -514,6 +550,14 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         opParams,
         cashbackInTkey,
         minimumReceived,
+        prepared:
+          preparation.kind === 'prepared'
+            ? {
+                estimationData: preparation.value.estimationData,
+                balancesChanges: preparation.value.balancesChanges,
+                preparedAt: preparation.value.preparedAt
+              }
+            : undefined,
         onConfirm: (operation, startingBlockLevel) => {
           resetForm();
           setTezosOperation(operation, startingBlockLevel);

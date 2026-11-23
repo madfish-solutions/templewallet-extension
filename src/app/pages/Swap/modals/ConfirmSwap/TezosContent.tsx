@@ -34,7 +34,7 @@ interface TezosContentProps {
 }
 
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
-  const { opParams, account, network, cashbackInTkey, minimumReceived, onConfirm } = data;
+  const { opParams, account, network, cashbackInTkey, minimumReceived, onConfirm, prepared } = data;
   const { chainId } = network;
 
   const accountPkh = account.address;
@@ -68,14 +68,17 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const estimate = useCallback(() => estimateTezosSwap(tezos, sourcePkh, opParams), [sourcePkh, tezos, opParams]);
 
+  // preparedAt keeps a cached estimate of identical operations from replacing the prepared one
   const {
     data: estimationData,
     isLoading: estimationDataLoading,
     error: estimationError
-  } = useTypedSWR(() => ['tezos-estimation-data', chainId, accountPkh, opParams], estimate, {
+  } = useTypedSWR(() => ['tezos-estimation-data', chainId, accountPkh, opParams, prepared?.preparedAt], estimate, {
     shouldRetryOnError: false,
     focusThrottleInterval: 10_000,
-    dedupingInterval: blockDurationMs
+    dedupingInterval: blockDurationMs,
+    fallbackData: prepared?.estimationData,
+    revalidateOnMount: prepared ? false : undefined
   });
 
   const {
@@ -96,9 +99,11 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     basicParams: opParams,
     senderAccount: account,
     simulateOperation: true,
-    estimationDataLoading,
+    // fallbackData is not cached, so a refetching reports loading while the prepared estimate is still valid
+    estimationDataLoading: estimationDataLoading && !estimationData,
     network,
-    sourcePkIsRevealed
+    sourcePkIsRevealed,
+    initialBalancesChanges: prepared?.balancesChanges
   });
   const { formState } = form;
   useTezosGasOnRamp(chainId, sourcePkh, latestSubmitError || estimationError || simulationError);
