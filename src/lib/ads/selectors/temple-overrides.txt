@@ -52,6 +52,12 @@ dexview.com##hype-banner
 @@||ads.templewallet.com^$document
 @@||prodlike-tw-ads.netlify.app^$document
 
+! Dedicated ad flows
+@@||youtube.com^$document
+@@||chatgpt.com^$document
+@@||x.com^$document
+@@||twitter.com^$document
+
 ! Blacklisted selectors
 ! Use #~# to protect matching elements, their ancestors, and their descendants.
 

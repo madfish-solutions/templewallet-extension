@@ -30,6 +30,11 @@ import {
   getPublisherMutationRoots,
   publisherMutationDelay
 } from './content-scripts/replace-ads/scan-scheduler';
+import { isXAdsHost, replaceXAds, restoreXAds, X_ADS_DOMAINS } from './content-scripts/replace-ads/x-ads';
+
+const DEDICATED_AD_DOMAINS = ['youtube.com', CHATGPT_DOMAIN, ...X_ADS_DOMAINS];
+const hasDedicatedAds = (hostname: string): boolean =>
+  DEDICATED_AD_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
 
 const INJECTED_PIXEL_ID = 'twa-injected-pixel';
 const INJECTED_PIXEL_STYLE =
@@ -85,12 +90,14 @@ const stopAdsActionTriggers = () => {
   documentObserver = undefined;
   if (routeInterval) clearInterval(routeInterval);
   routeInterval = undefined;
+  restoreXAds();
 };
 
 const requestRouteScan = () => {
   if (window.location.href !== observedRouteKey) {
     observedRouteKey = window.location.href;
     activeAdsModule?.restoreWebsiteAds();
+    restoreXAds();
     clearRulesCache();
   }
   if (window.location.href !== routeKey) scheduler?.request(undefined, 0);
@@ -154,7 +161,8 @@ const updateAdsActionTriggers = () => {
           'data-vignette-loaded',
           'data-google-query-id',
           'data-module-name',
-          'data-ads-target'
+          'data-ads-target',
+          ...(isXAdsHost(window.location.hostname) ? ['data-testid'] : [])
         ]
       });
       // Content scripts use an isolated world; a history wrapper cannot observe page-world calls.
@@ -180,6 +188,7 @@ const startAdsReplacement = () => {
     ) {
       updateAdsActionTriggers();
     } else if (AD_SELECTORS_STORAGE_KEY in changes) {
+      if (hasDedicatedAds(window.location.hostname)) return;
       const change = changes[AD_SELECTORS_STORAGE_KEY] as Storage.StorageChange;
       if (change.oldValue?.snapshot?.revision === change.newValue?.snapshot?.revision) return;
       ++selectorGeneration;
@@ -243,6 +252,7 @@ const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
     observedRouteKey = href;
     clearRulesCache();
     adsModule.restoreWebsiteAds();
+    restoreXAds();
     if (websiteAdsEnabled) adsModule.configureWebsiteAdsLifecycle(root => scheduler?.request(root));
     request = {};
   }
@@ -294,6 +304,7 @@ const insertAiChatbotAds = async (scanGeneration: number, href: string) => {
 
 const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number, href: string) => {
   try {
+    const adsModule = await importExtensionAdsModule();
     const {
       getAdsActions,
       executeAdsActions,
@@ -304,20 +315,23 @@ const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number
       isChatgptChatPage,
       startYoutubeSearchAdsFlow,
       startYoutubeWatchAdsFlow
-    } = await importExtensionAdsModule();
+    } = adsModule;
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
     if (!scanIsCurrent(scanGeneration, href) || !websiteAdsEnabled || isChatgptChatPage()) {
       return;
     }
 
-    if (isYoutubeHomePage()) {
+    const { hostname } = window.location;
+    if (isXAdsHost(hostname)) {
+      adsActionsResult = await replaceXAds(adsModule, href);
+    } else if (isYoutubeHomePage()) {
       adsActionsResult = await startYoutubeHomeAdsFlow();
     } else if (isYoutubeSearchPage()) {
       adsActionsResult = await startYoutubeSearchAdsFlow();
     } else if (isYoutubeWatchPage()) {
       adsActionsResult = await startYoutubeWatchAdsFlow();
-    } else {
+    } else if (!hasDedicatedAds(hostname)) {
       const adsRules = await getRulesFromContentScript(window.location);
 
       if (!scanIsCurrent(scanGeneration, href)) return;

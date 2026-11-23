@@ -129,7 +129,7 @@ const isYouTubePage = (locationHref: string) => {
 
 const NATIVE_AD_MIN_WIDTH = 200;
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
+export const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
   const hypelabPlacementSlug = isYouTubePage(locationHref)
     ? EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG
     : EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG;
