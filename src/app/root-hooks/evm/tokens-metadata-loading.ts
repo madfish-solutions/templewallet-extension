@@ -58,6 +58,8 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
       dispatchSetEvmTokensMetadataLoadingToTrue();
 
+      const attemptKeys = slugsWithoutMeta.map(slug => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+
       if (isGoldrushChainId(chainId) && !isTestnetMode) {
         const fetcher = getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
           dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
