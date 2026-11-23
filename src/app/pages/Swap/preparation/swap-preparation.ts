@@ -9,7 +9,7 @@ import {
   WAIT_LIMIT_MS
 } from './constants';
 
-export type PreparationResult<T> = { kind: 'prepared'; value: T } | { kind: 'none' } | { kind: 'superseded' };
+type PreparationResult<T> = { kind: 'prepared'; value: T } | { kind: 'none' } | { kind: 'superseded' };
 
 export type PrepareFn<T> = (signal: AbortSignal) => Promise<T>;
 
@@ -154,5 +154,3 @@ export const createSwapPreparation = <T>() => {
     }
   };
 };
-
-export type SwapPreparation<T> = ReturnType<typeof createSwapPreparation<T>>;
