@@ -19,17 +19,13 @@ import { buildApprovalTxData } from 'lib/evm/approval';
 import { T } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
-import {
-  EvmTransactionRequestWithSender,
-  SerializedEvmEstimationDataWithFallback,
-  TempleAccountType,
-  TempleEvmDAppTransactionPayload
-} from 'lib/temple/types';
+import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { delay } from 'lib/utils';
+import { serializeBigints } from 'temple/evm/utils';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
@@ -103,23 +99,27 @@ const ApproveModal: FC<ApproveModalProps> = ({
   useReportScreenComplete(Boolean(estimationData || estimationError));
   useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
-  const request = useMemo(() => {
-    return {
+  const request = useMemo<EvmTransactionRequestWithSender>(() => {
+    const base = {
       to: fromToken.address as HexString,
       from: fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(0n),
-      maxFeePerGas: toOptionalHex(estimationData?.maxFeePerGas),
-      gas: toOptionalHex(estimationData?.gas),
-      gasPrice: toOptionalHex(estimationData?.gasPrice)
+      gas: toOptionalHex(estimationData?.gas)
     };
+
+    if (estimationData?.maxFeePerGas !== undefined) {
+      return { ...base, maxFeePerGas: toHex(estimationData.maxFeePerGas) };
+    }
+
+    return { ...base, gasPrice: toOptionalHex(estimationData?.gasPrice) };
   }, [estimationData, finalEvmTransaction, fromToken.address, fromAddress, txData]);
 
   const payload = useMemo<TempleEvmDAppTransactionPayload>(() => {
     return {
-      type: 'confirm_operations' as const,
-      req: request as EvmTransactionRequestWithSender,
-      estimationData: estimationData as SerializedEvmEstimationDataWithFallback | undefined,
+      type: 'confirm_operations',
+      req: request,
+      estimationData: estimationData && serializeBigints(estimationData),
       chainId: inputNetwork.chainId.toString(),
       chainType: TempleChainKind.EVM,
       origin: appUrl,
@@ -177,6 +177,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
       prepareNextStep,
       isLedgerAccount,
       guard,
+      setLoading,
       setLedgerApprovalModalState,
       preconnectIfNeeded
     ]

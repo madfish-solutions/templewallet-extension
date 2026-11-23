@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
 
@@ -101,8 +101,9 @@ export const use3RouteEvmAllTokensSlugs = () => {
 };
 
 export const useFirstValue = <T,>(value: T): T => {
-  const ref = useRef(value);
-  return ref.current;
+  const [firstValue] = useState(() => value);
+
+  return firstValue;
 };
 
 interface EvmAllowanceArrays {

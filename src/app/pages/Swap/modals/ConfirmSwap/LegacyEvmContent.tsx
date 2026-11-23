@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 
 import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -86,12 +86,13 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
+  const [prevRouteStep, setPrevRouteStep] = useState(routeStep);
+  if (prevRouteStep !== routeStep) {
+    setPrevRouteStep(routeStep);
+    setStepFinalized(false);
+  }
   const [submitLoading, setSubmitLoading] = useState(false);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
-
-  useEffect(() => {
-    setStepFinalized(false);
-  }, [routeStep]);
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, inputNetwork);
 
@@ -108,7 +109,7 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo && !stepFinalized && !cancelledRef?.current,
+    toFilled: isValidTxTo && !stepFinalized,
     paused: submitLoading,
     amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
     silent: true,

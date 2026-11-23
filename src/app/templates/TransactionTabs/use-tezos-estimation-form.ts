@@ -160,6 +160,9 @@ export const useTezosEstimationForm = ({
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>(
     defaultValues.gasFee ? null : DEFAULT_FEE_OPTION
   );
+  if (gasFeeValue && selectedFeeOption) {
+    setSelectedFeeOption(null);
+  }
 
   const { setData } = useTezosEstimationDataState();
 
@@ -206,10 +209,6 @@ export const useTezosEstimationForm = ({
 
     return mutezToTz(new BigNumber(storageLimit).times(minimalFeePerStorageByteMutez)).toString();
   }, [basicParams, estimates, debouncedStorageLimit, totalDefaultStorageLimit]);
-
-  useEffect(() => {
-    if (gasFeeValue && selectedFeeOption) setSelectedFeeOption(null);
-  }, [gasFeeValue, selectedFeeOption]);
 
   const makeFinalOpParams = useCallback(
     (gasFee: string, storageLimit: string, revealFee: BigNumber, displayedFeeOptions?: DisplayedFeeOptions) => {

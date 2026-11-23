@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
@@ -20,7 +20,7 @@ export function usePrefetchEvmStepTransactions(args: {
   actionsInitialized: boolean;
   steps: LiFiStep[] | Route3EvmRoute[];
   senderAddress?: string;
-  cancelledRef: React.MutableRefObject<boolean>;
+  cancelledRef: RefObject<boolean>;
 }) {
   const { opened, actionsInitialized, steps, senderAddress, cancelledRef } = args;
   const stableSteps = useMemoWithCompare(() => steps, [steps]);
@@ -30,14 +30,18 @@ export function usePrefetchEvmStepTransactions(args: {
 
   const [prefetchedStepsByIndex, setPrefetchedStepsByIndex] = useState<Record<number, LiFiStep | Route3EvmRoute>>({});
   const [progressionBlocked, setProgressionBlocked] = useState(false);
+  const [prevOpened, setPrevOpened] = useState(opened);
+  if (prevOpened !== opened) {
+    setPrevOpened(opened);
+    setPrefetchedStepsByIndex({});
+    setProgressionBlocked(false);
+  }
 
   const prefetchErrorHandledRef = useRef(false);
   const shownInsufficientGasRef = useRef(false);
   const inflightByKeyRef = useRef<Record<string, Promise<LiFiStep | Route3EvmRoute | null> | undefined>>({});
 
   useEffect(() => {
-    setPrefetchedStepsByIndex({});
-    setProgressionBlocked(false);
     prefetchErrorHandledRef.current = false;
     shownInsufficientGasRef.current = false;
   }, [opened]);

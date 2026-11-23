@@ -69,7 +69,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const publicKeyHash = account.address;
   const tezos = getTezosToolkitWithSigner(network, publicKeyHash);
-  const swapFormControl = useSwapFormControl();
+  const swapFormControlRef = useSwapFormControl();
 
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   useTezosTokensMetadataPresenceCheck(network, route3tokensSlugs);
@@ -351,33 +351,35 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   );
 
   useEffect(() => {
-    if (!swapFormControl) return;
+    if (!swapFormControlRef) {
+      return;
+    }
     const next = {
-      ...(swapFormControl.current ?? {}),
+      ...(swapFormControlRef.current ?? {}),
       resetForm,
       setTezosOperation,
       handleSelectedAssetChange
     };
-    swapFormControl.current = next;
+    swapFormControlRef.current = next;
 
     return () => {
-      if (swapFormControl.current?.resetForm === resetForm) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.resetForm;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
-      if (swapFormControl.current?.setTezosOperation === setTezosOperation) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.setTezosOperation === setTezosOperation) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.setTezosOperation;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
-      if (swapFormControl.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.handleSelectedAssetChange;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
     };
-  }, [handleSelectedAssetChange, swapFormControl, resetForm, setTezosOperation]);
+  }, [handleSelectedAssetChange, swapFormControlRef, resetForm, setTezosOperation]);
 
   useEffect(() => {
     const currentOutput = swapParams.data.output;
