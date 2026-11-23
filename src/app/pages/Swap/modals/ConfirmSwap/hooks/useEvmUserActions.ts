@@ -29,18 +29,30 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     batchBusyRef.current = busy;
     setBatchBusyState(busy);
   }, []);
+  const prepared = reviewData && isSwapEvmReviewData(reviewData) ? reviewData.prepared : undefined;
+  const preparedAllowances = prepared?.path === 'steps' ? prepared.allowances : undefined;
   const eligible = !legacy && isAlchemyBatchEligible(evmSteps, batchConfig);
-  const {
-    allowanceSufficient,
-    onChainAllowances,
-    loading: allowancesLoading
-  } = useEvmAllowances(opened && batchConfig !== undefined && !eligible ? evmSteps : []);
+  const fetchedAllowances = useEvmAllowances(
+    opened && batchConfig !== undefined && !eligible && !preparedAllowances ? evmSteps : []
+  );
+  const allowanceSufficient =
+    preparedAllowances?.map(({ sufficient }) => sufficient) ?? fetchedAllowances.allowanceSufficient;
+  const onChainAllowances = preparedAllowances?.map(({ onChain }) => onChain) ?? fetchedAllowances.onChainAllowances;
+  const allowancesLoading = preparedAllowances ? false : fetchedAllowances.loading;
 
   useEffect(() => {
-    if (!opened || !reviewData || !isSwapEvmReviewData(reviewData)) return;
+    if (!opened) {
+      setBatchConfig(undefined);
+      return;
+    }
+    if (!reviewData || !isSwapEvmReviewData(reviewData)) return;
     const controller = new AbortController();
     setBatchConfig(undefined);
     setLegacy(false);
+    if (reviewData.prepared) {
+      setBatchConfig(reviewData.prepared.walletConfig);
+      return;
+    }
     if (!needsAlchemyWalletConfig(reviewData.account.type, evmSteps)) {
       setBatchConfig(null);
       return;

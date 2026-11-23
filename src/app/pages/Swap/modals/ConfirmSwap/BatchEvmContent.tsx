@@ -44,7 +44,12 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
   const accountPkh = account.address as HexString;
   const batchKey = getBatchKey(batchSteps);
   const alreadyPending = useSelector(state => hasPendingEvmBatch(state, accountPkh, inputNetwork.chainId, batchKey));
-  const batch = useAlchemySwapBatch({ steps: batchSteps, account: accountPkh, network: inputNetwork });
+  const batch = useAlchemySwapBatch({
+    steps: batchSteps,
+    account: accountPkh,
+    network: inputNetwork,
+    prepared: stepReviewData.prepared?.kind === 'batch' ? stepReviewData.prepared : undefined
+  });
   const form = useForm<EvmTxParamsFormData>({
     defaultValues: { gasPrice: '', gasLimit: '', nonce: '', data: '', rawTransaction: '' }
   });

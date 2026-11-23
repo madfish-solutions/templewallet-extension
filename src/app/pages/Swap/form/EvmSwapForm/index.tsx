@@ -34,6 +34,7 @@ import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { useEvmSwapPreparation } from '../../preparation/evm/use-evm-swap-preparation';
 import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../hooks';
 import {
   ChainAssetInfo,
@@ -526,6 +527,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     [slippageTolerance]
   );
 
+  const draftRouteParams = buildSwapRouteParams();
+  const draftKey =
+    draftRouteParams && atomsInputValue.lte(tokensToAtoms(inputTokenMaxAmount, inputAssetMetadata?.decimals ?? 0))
+      ? getRouteParamsKey(draftRouteParams)
+      : null;
+
+  const { takePrepared } = useEvmSwapPreparation({
+    account,
+    accountPkh: publicKeyHash,
+    draftKey,
+    route: swapRoute,
+    routeLoading: isRouteLoading
+  });
+
   const onSubmit = useCallback(async () => {
     if (isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
@@ -551,11 +566,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     try {
       formAnalytics.trackSubmit(analyticsProperties);
 
+      const preparation = await takePrepared();
+      if (preparation.kind === 'superseded') return;
+
       onReview({
         account,
         network: inputNetwork,
         handleResetForm: resetForm,
-        swapRoute
+        swapRoute,
+        prepared: preparation.kind === 'prepared' ? preparation.value : undefined
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -580,6 +599,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     resetForm,
     sourceAssetInfo?.chainId,
     swapRoute,
+    takePrepared,
     targetAssetInfo?.chainId
   ]);
 

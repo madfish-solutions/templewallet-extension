@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { LiFiStep } from '@lifi/sdk';
 import { formatUnits, type Hex } from 'viem';
 
-import { prepareAlchemySwapBatch } from 'lib/evm/alchemy/prepare-batch';
+import { prepareAlchemySwapBatch, type PreparedAlchemySwapBatch } from 'lib/evm/alchemy/prepare-batch';
 import type { AlchemyBatchQuote, AlchemyFeeOption } from 'lib/evm/alchemy/types';
 import { ALCHEMY_FEE_MULTIPLIERS, getAlchemyMaxFee, getAlchemyOperation } from 'lib/evm/alchemy/validation';
 import { useTempleClient } from 'lib/temple/front';
@@ -14,6 +14,7 @@ interface Params {
   steps: LiFiStep[];
   account: Hex;
   network: EvmChain;
+  prepared?: PreparedAlchemySwapBatch;
 }
 interface BatchPreview {
   quote: AlchemyBatchQuote;
@@ -28,6 +29,11 @@ function getBatchPreview(state: BatchState): BatchPreview | undefined {
   if ('quote' in state) return state;
   return state.phase === 'preparing' ? state.preview : undefined;
 }
+
+const getInitialState = (prepared?: PreparedAlchemySwapBatch): BatchState =>
+  prepared && prepared.quote.feeOption === DEFAULT_FEE_OPTION && Date.now() < prepared.quote.expiresAt
+    ? { phase: 'ready', quote: prepared.quote, steps: prepared.steps }
+    : { phase: 'preparing' };
 
 const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint => {
   const fromPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[from] * 100));
@@ -44,9 +50,10 @@ const getFeeOptions = (quote: AlchemyBatchQuote, decimals: number): Record<Alche
   return { slow: formatOption('slow'), mid: formatOption('mid'), fast: formatOption('fast') };
 };
 
-export function useAlchemySwapBatch({ steps, account, network }: Params) {
+export function useAlchemySwapBatch({ steps, account, network, prepared }: Params) {
   const { submitAlchemyBatch } = useTempleClient();
-  const [state, setState] = useState<BatchState>({ phase: 'preparing' });
+  const [state, setState] = useState<BatchState>(() => getInitialState(prepared));
+  const skipFirstPrepare = useRef(state.phase === 'ready');
   const [callId, setCallId] = useState<Hex>();
   const callIdRef = useRef<Hex | undefined>(undefined);
   const [executing, setExecuting] = useState(false);
@@ -73,6 +80,10 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     const previous = previousParams.current;
     const sameRequest = previous?.steps === steps && previous.account === account && previous.network === network;
     previousParams.current = { steps, account, network };
+    if (skipFirstPrepare.current) {
+      skipFirstPrepare.current = false;
+      return;
+    }
     // Preserve the current review during fee updates, but never submit this preview.
     setState(current => ({
       phase: 'preparing',

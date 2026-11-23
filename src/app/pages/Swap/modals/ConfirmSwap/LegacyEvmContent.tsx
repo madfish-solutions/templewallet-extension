@@ -58,6 +58,7 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
   initialInputData,
   onClose,
   onStepCompleted,
+  prepareNextStep,
   cancelledRef,
   skipStatusWait,
   submitDisabled
@@ -110,7 +111,8 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
     toFilled: isValidTxTo && !stepFinalized && !cancelledRef?.current,
     paused: submitLoading,
     amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
-    silent: true
+    silent: true,
+    fallbackData: stepReviewData.prepared?.kind === 'execute' ? stepReviewData.prepared.estimation : undefined
   });
   useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
@@ -355,6 +357,7 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
       console.warn('Failed to ensure output token is added to wallet', err);
     }
 
+    await prepareNextStep?.();
     if (cancelledRef?.current) return;
     setStepFinalized(true);
     onStepCompleted();

@@ -90,6 +90,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   <ConfirmEvmUserAction
                     account={reviewData.account}
                     userAction={currentUserAction.value}
+                    preparedAction={currentUserAction.index === 0 ? reviewData.prepared?.firstAction : undefined}
+                    nextUserAction={userActions.at(currentUserAction.index + 1)}
                     firstExecuteAction={firstExecuteAction.value}
                     onStepCompleted={onStepCompleted}
                     onRequestClose={handleRequestClose}

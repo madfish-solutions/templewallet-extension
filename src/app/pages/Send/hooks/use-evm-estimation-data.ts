@@ -19,6 +19,7 @@ interface EvmEstimationInput {
   amount?: string;
   silent?: boolean;
   paused?: boolean;
+  fallbackData?: EvmEstimationData;
 }
 
 export const useEvmEstimationData = ({
@@ -29,7 +30,8 @@ export const useEvmEstimationData = ({
   toFilled,
   amount,
   silent,
-  paused = false
+  paused = false,
+  fallbackData
 }: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
@@ -57,7 +59,8 @@ export const useEvmEstimationData = ({
       shouldRetryOnError: false,
       isPaused: () => paused,
       focusThrottleInterval: 10_000,
-      dedupingInterval: 10_000
+      dedupingInterval: 10_000,
+      fallbackData
     }
   );
 };

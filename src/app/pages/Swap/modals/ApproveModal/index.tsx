@@ -36,6 +36,7 @@ import { TempleChainKind } from 'temple/types';
 import Route3ImgSrc from '../../form/assets/3route.png';
 import LiFiImgSrc from '../../form/assets/lifi.png';
 import { EvmStepReviewData, getCommonStepProps, isLifiStep } from '../../form/interfaces';
+import { useReportScreenComplete } from '../../preparation/screen-complete';
 import { parseTxRequestToViem } from '../ConfirmSwap/utils';
 
 import { useEstimationData } from './use-estimation-data';
@@ -44,6 +45,7 @@ interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
+  prepareNextStep?: () => Promise<void>;
   submitDisabled?: boolean;
   resetAllowance?: boolean;
 }
@@ -52,6 +54,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
   stepReviewData,
   onClose,
   onStepCompleted,
+  prepareNextStep,
   submitDisabled,
   resetAllowance = false
 }) => {
@@ -88,12 +91,16 @@ const ApproveModal: FC<ApproveModalProps> = ({
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
+  const currentTxData = finalEvmTransaction?.data ?? txData;
+  const preparedApproval = stepReviewData.prepared?.kind === 'approval' ? stepReviewData.prepared : undefined;
   const { data: estimationData, error: estimationError } = useEstimationData({
     assetSlug,
     accountPkh: accountAddress,
     network: inputNetwork,
-    txData: finalEvmTransaction?.data ?? txData
+    txData: currentTxData,
+    fallbackData: preparedApproval?.txData === currentTxData ? preparedApproval.estimation : undefined
   });
+  useReportScreenComplete(Boolean(estimationData || estimationError));
   useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
   const request = useMemo(() => {
@@ -137,6 +144,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
         const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
         await delay(1000);
+        await prepareNextStep?.();
 
         onStepCompleted();
       };
@@ -166,6 +174,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
       inputNetwork,
       getActiveBlockExplorer,
       onStepCompleted,
+      prepareNextStep,
       isLedgerAccount,
       guard,
       setLedgerApprovalModalState,

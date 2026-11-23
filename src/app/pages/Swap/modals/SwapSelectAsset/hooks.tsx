@@ -105,18 +105,22 @@ export const useFirstValue = <T,>(value: T): T => {
   return ref.current;
 };
 
-interface UseEvmAllowancesResult {
+interface EvmAllowanceArrays {
   allowanceSufficient: boolean[];
   onChainAllowances: bigint[];
+}
+
+interface UseEvmAllowancesResult extends EvmAllowanceArrays {
   loading: boolean;
   error?: unknown;
 }
 
+const NO_ALLOWANCES: EvmAllowanceArrays = { allowanceSufficient: [], onChainAllowances: [] };
+
 export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAllowancesResult {
   const allEvmChains = useAllEvmChains();
 
-  const [allowanceSufficient, setAllowanceSufficient] = useState<boolean[]>([]);
-  const [onChainAllowances, setOnChainAllowances] = useState<bigint[]>([]);
+  const [fetched, setFetched] = useState<EvmAllowanceArrays & { steps: LiFiStep[] | Route3EvmRoute[] }>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown>();
 
@@ -134,8 +138,11 @@ export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAl
         const allowances = await fetchEvmStepsAllowances(stableSteps, allEvmChains);
 
         if (!cancelled) {
-          setAllowanceSufficient(allowances.map(({ sufficient }) => sufficient));
-          setOnChainAllowances(allowances.map(({ onChain }) => onChain));
+          setFetched({
+            steps: stableSteps,
+            allowanceSufficient: allowances.map(({ sufficient }) => sufficient),
+            onChainAllowances: allowances.map(({ onChain }) => onChain)
+          });
         }
       } catch (e) {
         if (!cancelled) setError(e);
@@ -150,6 +157,8 @@ export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAl
       cancelled = true;
     };
   }, [stableSteps, allEvmChains]);
+
+  const { allowanceSufficient, onChainAllowances } = fetched?.steps === stableSteps ? fetched : NO_ALLOWANCES;
 
   return { allowanceSufficient, onChainAllowances, loading, error };
 }
