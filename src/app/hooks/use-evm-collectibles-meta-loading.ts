@@ -11,6 +11,7 @@ import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { useEnabledEvmChains } from 'temple/front';
 
+import { useDeadEvmCollectiblePreviewVersion } from './evm-collectible-dead-preview';
 import {
   getRequestedEvmCollectibleSlugs,
   getRequestedEvmCollectiblesSnapshot,
@@ -29,6 +30,7 @@ export const useEvmCollectiblesMetadataLoading = (
     subscribeToRequestedEvmCollectibles,
     getRequestedEvmCollectiblesSnapshot
   );
+  const deadPreviewVersion = useDeadEvmCollectiblePreviewVersion();
 
   useEffect(() => {
     dispatch(
@@ -46,6 +48,7 @@ export const useEvmCollectiblesMetadataLoading = (
     publicKeyHash,
     isTestnetMode,
     requestedSlugsSnapshot,
+    deadPreviewVersion,
     readAllInBackground,
     selectedChainIds
   ]);

@@ -1,9 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { isNil, omitBy } from 'lodash';
-import { persistReducer } from 'redux-persist';
+import { createMigrate, persistReducer, type PersistedState } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
+import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { storageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
@@ -15,7 +16,7 @@ import {
   putEvmCollectiblesMetadataAction
 } from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
-import { buildEvmCollectibleMetadataFromFetched } from './utils';
+import { assignSingleContractCollectionNames, buildEvmCollectibleMetadataFromFetched } from './utils';
 
 // TODO: figure out how to get rid of unused metadata
 
@@ -54,6 +55,8 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
           if (countFilledFields(merged) > countFilledFields(stored)) chainTokensMetadata[slug] = merged;
         }
       }
+
+      assignSingleContractCollectionNames(chainTokensMetadata);
     });
 
     builder.addCase(putEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
@@ -76,6 +79,8 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         const merged = { ...metadata, ...omitBy(stored, isMissingValue) };
         if (countFilledFields(merged) > countFilledFields(stored)) chainCollectiblesMetadata[slug] = merged;
       }
+
+      assignSingleContractCollectionNames(chainCollectiblesMetadata);
     });
 
     builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash } }) => {
@@ -111,9 +116,44 @@ const EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST: Array<keyof EvmCollectiblesMe
 export const evmCollectiblesMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesMetadata',
+    version: 1,
     ...storageConfig,
     blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST,
-    throttle: 5_000
+    throttle: 5_000,
+    migrate: createMigrate({
+      1: persistedState => addStoredCollectibleImageVariants(persistedState)
+    })
   },
   evmCollectiblesMetadataReducer
 );
+
+const addStoredCollectibleImageVariants = (persistedState: PersistedState): PersistedState => {
+  if (!persistedState || typeof persistedState !== 'object' || !('metadataRecord' in persistedState)) {
+    return persistedState;
+  }
+
+  const source = persistedState.metadataRecord;
+  if (!source || typeof source !== 'object') return persistedState;
+
+  const metadataRecord: EvmCollectiblesMetadataState['metadataRecord'] = {};
+
+  for (const [chainId, chainMetadata] of Object.entries(source)) {
+    if (!chainMetadata || typeof chainMetadata !== 'object') continue;
+
+    const nextChain: Record<string, EvmCollectibleMetadata> = {};
+
+    for (const [slug, metadata] of Object.entries(chainMetadata)) {
+      if (!isCollectibleMetadata(metadata)) continue;
+
+      nextChain[slug] =
+        !metadata.images?.length && metadata.image ? { ...metadata, images: [metadata.image] } : metadata;
+    }
+
+    metadataRecord[Number(chainId)] = nextChain;
+  }
+
+  return Object.assign({ ...persistedState }, { metadataRecord });
+};
+
+const isCollectibleMetadata = (value: unknown): value is EvmCollectibleMetadata =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);

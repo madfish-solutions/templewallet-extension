@@ -5,6 +5,11 @@ import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'l
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { MAX_EVM_ALLOWANCE } from 'lib/constants';
 
+export const splitErc1155Batch = (transfer: AssetTransfersWithMetadataResult): AssetTransfersWithMetadataResult[] =>
+  transfer.erc1155Metadata && transfer.erc1155Metadata.length > 1
+    ? transfer.erc1155Metadata.map(entry => ({ ...transfer, erc1155Metadata: [entry] }))
+    : [transfer];
+
 export function parseTransfer(
   transfer: AssetTransfersWithMetadataResult,
   accAddress: string,

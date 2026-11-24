@@ -3,7 +3,7 @@ import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 
-import { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm';
 import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData
@@ -16,7 +16,7 @@ import { TempleChainKind } from 'temple/types';
 
 import type { PreparedEvmAction, PreparedEvmSwap, PreparedTezosReview } from '../preparation/types';
 
-export type { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+export type { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm';
 
 export type BridgeDetails = {
   tools: StepToolDetails[];

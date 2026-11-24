@@ -12,6 +12,7 @@ import {
   useRawEvmAssetBalanceSelector
 } from 'app/store/evm/balances/selectors';
 import { AssetSlugBalanceRecord, ChainIdTokenSlugsBalancesRecord } from 'app/store/evm/balances/state';
+import { useEvmLoadedNftSelector } from 'app/store/evm/collectibles-inventory/loaded-by-slug';
 import { useEvmBalancesLoadingStateSelector, useEvmChainBalancesLoadingSelector } from 'app/store/evm/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import {
@@ -20,7 +21,7 @@ import {
   useBalancesAtomicRecordSelector
 } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
 import { evmBalanceOnChainRequestedAt, getEvmBalanceOnChainRequestKey } from 'lib/evm/on-chain/balance';
 import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscriptions';
@@ -43,6 +44,7 @@ import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
+import { useOwnedNftBalance } from './owned-nft-balance';
 
 const useGetBalanceWithDecimals = <RawBalances, ChainId>(
   rawBalances: RawBalances,
@@ -212,7 +214,7 @@ function useEvmAssetRawBalance(
   const loadingFromApiError = isTruthy(loadingFromApiState?.error);
 
   const usingOnchainRequests = useMemo(() => {
-    if (!isSupportedChainId(chainId) || currentAccountAddress !== address) {
+    if (!isGoldrushChainId(chainId) || currentAccountAddress !== address) {
       return true;
     }
 
@@ -271,12 +273,17 @@ export function useEvmAssetBalance(
   address: HexString,
   network: EvmNetworkEssentials,
   forceFirstRefreshOnChain = false,
-  forceOnChainRefresh = false
+  forceOnChainRefresh = false,
+  /**
+   * Gallery tiles pass whether the tile is in the list window.
+   * Off-screen tiles share a small prefetch budget. Other screens omit this and read when the balance is missing.
+   */
+  nftBalancePresence?: 'visible' | 'offscreen' | 'pending'
 ) {
   const metadata = useEvmGenericAssetMetadata(assetSlug, network.chainId);
 
   const {
-    value: rawValue,
+    value: storedRaw,
     isSyncing,
     error,
     refresh
@@ -288,13 +295,29 @@ export function useEvmAssetBalance(
     forceFirstRefreshOnChain,
     forceOnChainRefresh
   );
+  const collectible = isEvmCollectible(metadata);
+  const loadedNft = useEvmLoadedNftSelector(collectible ? address : undefined, network.chainId, assetSlug);
+  const knownBalance = storedRaw ?? loadedNft?.balance;
+  const chainBalance = useOwnedNftBalance({
+    chainId: network.chainId,
+    account: address,
+    assetSlug,
+    knownBalance,
+    storedSlug: loadedNft?.slug,
+    enabled: collectible && (knownBalance == null || knownBalance === ''),
+    presence: nftBalancePresence
+  });
 
-  const value = useMemo(
-    () => (rawValue && metadata ? atomsToTokens(new BigNumber(rawValue), metadata.decimals ?? 0) : undefined),
-    [rawValue, metadata]
-  );
+  const value = useMemo(() => {
+    if (storedRaw) return metadata ? atomsToTokens(new BigNumber(storedRaw), metadata.decimals ?? 0) : undefined;
 
-  return { rawValue, value, isSyncing, error, refresh, metadata };
+    const quantity = loadedNft?.balance ?? chainBalance;
+    if (quantity == null || quantity === '') return undefined;
+
+    return new BigNumber(quantity);
+  }, [chainBalance, loadedNft?.balance, metadata, storedRaw]);
+
+  return { rawValue: storedRaw, value, isSyncing, error, refresh, metadata };
 }
 
 export function useEvmTokenBalance(assetSlug: string, address: HexString, network: EvmNetworkEssentials) {

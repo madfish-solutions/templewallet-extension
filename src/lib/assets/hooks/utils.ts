@@ -20,3 +20,13 @@ export const getAssetStatus = (
 
   return storedStatus;
 };
+
+/** A manually added NFT stays visible when its balance is missing or zero. Disabled and removed stay as stored. */
+export const getCollectibleAssetStatus = (
+  atomicBalance: string | undefined,
+  stored?: { status?: StoredAssetStatus; manual?: boolean }
+) => {
+  if (stored?.manual && stored.status !== 'disabled' && stored.status !== 'removed') return 'enabled';
+
+  return getAssetStatus(atomicBalance, stored?.status);
+};

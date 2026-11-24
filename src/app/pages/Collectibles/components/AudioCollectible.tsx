@@ -1,62 +1,41 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 
-import { TezosAssetImageStacked } from 'app/templates/AssetImage';
 import { CollectibleImageFallback } from 'app/templates/collectibles/collectible-image-fallback';
-import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
-import { AssetMetadataBase } from 'lib/metadata';
 
 import { Player } from './VideoPlayer/Player';
 
 interface Props {
   uri: string;
-  metadata?: AssetMetadataBase;
+  poster?: ReactNode;
   className?: string;
-  style?: React.CSSProperties;
   onAudioError?: EmptyFn;
 }
 
-export const AudioCollectible = memo<Props>(({ uri, metadata, className, style, onAudioError = emptyFn }) => {
+export const AudioCollectible = memo<Props>(({ uri, poster, className, onAudioError = emptyFn }) => {
   const playerRef = useRef<HTMLAudioElement>(null);
   const [isAudioLoading, setIsAudioLoading] = useState(true);
-  const [isImageLoading, setIsImageLoading] = useState(true);
-
-  const ready = !isAudioLoading && !isImageLoading;
 
   useEffect(() => {
-    if (ready) {
-      playerRef.current?.play();
-    }
-  }, [ready]);
+    if (isAudioLoading) return;
+
+    playerRef.current?.play().catch(() => undefined);
+  }, [isAudioLoading]);
 
   const handleAudioLoaded = useCallback(() => setIsAudioLoading(false), []);
-  const handleImageLoaded = useCallback(() => setIsImageLoading(false), []);
 
   return (
-    <>
-      <Player
-        ref={playerRef}
-        src={uri}
-        autoPlay={false}
-        audioPlayer
-        loop
-        hidden={!ready}
-        audioPoster={
-          <TezosAssetImageStacked
-            metadata={metadata}
-            fullViewCollectible
-            fallback={<CollectibleImageFallback large isAudioCollectible />}
-            className={className}
-            style={style}
-            onStackLoaded={handleImageLoaded}
-            onStackFailed={handleImageLoaded}
-          />
-        }
-        onLoadedMetadata={handleAudioLoaded}
-        onError={onAudioError}
-      />
-      <CollectibleImageLoader large className={ready ? 'hidden' : undefined} />
-    </>
+    <Player
+      ref={playerRef}
+      src={uri}
+      autoPlay={false}
+      audioPlayer
+      loop
+      audioPoster={poster ?? <CollectibleImageFallback large isAudioCollectible />}
+      className={className}
+      onLoadedMetadata={handleAudioLoaded}
+      onError={onAudioError}
+    />
   );
 });

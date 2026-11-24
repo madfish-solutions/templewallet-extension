@@ -1,4 +1,9 @@
-import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
+import type {
+  GetAccountOperationsParams,
+  GetOperationsTransactionsParams,
+  TzktApiChainId,
+  TzktOperation
+} from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
 import { refetchOnce429 } from 'lib/apis/utils';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -6,6 +11,7 @@ import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
+import { SAPLING_CONTRACT_ADDRESS } from './pre-parse';
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
 const LIQUIDITY_BAKING_DEX_ADDRESS = 'KT1TxqZ8QtKvLu3V3JH7Gx58n7Co8pgtpQU5';
@@ -46,19 +52,35 @@ export async function fetchOperations(
   return await fetchOperations_Any(chainId, accAddress, pseudoLimit, olderThan);
 }
 
-const fetchOperations_TEZ = (
+const fetchOperations_TEZ = async (
   chainId: TzktApiChainId,
   accountAddress: string,
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
-) =>
-  TZKT.fetchGetOperationsTransactions(chainId, {
-    'anyof.sender.target.initiator': accountAddress,
-    ...buildOlderThanParam(olderThan),
-    limit: pseudoLimit,
-    'sort.desc': 'id',
-    'amount.ne': '0'
-  });
+) => {
+  const transfers = await fetchTransactionsPage(
+    chainId,
+    { 'anyof.sender.target.initiator': accountAddress, 'amount.ne': '0' },
+    buildOlderThanParam(olderThan),
+    pseudoLimit
+  );
+  const oldestTransfer = transfers.at(-1);
+
+  const saplingCalls = await refetchOnce429(
+    () =>
+      TZKT.fetchGetOperationsTransactions(chainId, {
+        sender: accountAddress,
+        target: SAPLING_CONTRACT_ADDRESS,
+        amount: '0',
+        'sort.desc': 'id',
+        ...buildOlderThanParam(olderThan),
+        ...(oldestTransfer ? { 'timestamp.ge': oldestTransfer.timestamp, limit: 1000 } : { limit: pseudoLimit })
+      }),
+    1000
+  );
+
+  return transfers.concat(saplingCalls).sort((b, a) => a.id - b.id);
+};
 
 const fetchOperations_Contract = (
   chainId: TzktApiChainId,
@@ -67,14 +89,12 @@ const fetchOperations_Contract = (
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
 ) =>
-  TZKT.fetchGetOperationsTransactions(chainId, {
-    target: contractAddress,
-    initiator: accountAddress,
-    limit: pseudoLimit,
-    entrypoint: 'mintOrBurn',
-    'sort.desc': 'level',
-    'level.lt': olderThan?.oldestTzktOperation.level
-  });
+  fetchTransactionsPage(
+    chainId,
+    { target: contractAddress, initiator: accountAddress, entrypoint: 'mintOrBurn' },
+    buildOlderThanLevelParam(olderThan),
+    pseudoLimit
+  );
 
 const fetchOperations_Token_Fa_1_2 = (
   chainId: TzktApiChainId,
@@ -83,14 +103,16 @@ const fetchOperations_Token_Fa_1_2 = (
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
 ) =>
-  TZKT.fetchGetOperationsTransactions(chainId, {
-    limit: pseudoLimit,
-    entrypoint: 'transfer',
-    'sort.desc': 'level',
-    target: contractAddress,
-    'parameter.in': `[{"from":"${accountAddress}"},{"to":"${accountAddress}"}]`,
-    'level.lt': olderThan?.oldestTzktOperation.level
-  });
+  fetchTransactionsPage(
+    chainId,
+    {
+      entrypoint: 'transfer',
+      target: contractAddress,
+      'parameter.in': `[{"from":"${accountAddress}"},{"to":"${accountAddress}"}]`
+    },
+    buildOlderThanLevelParam(olderThan),
+    pseudoLimit
+  );
 
 const fetchOperations_Token_Fa_2 = (
   chainId: TzktApiChainId,
@@ -100,17 +122,19 @@ const fetchOperations_Token_Fa_2 = (
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
 ) =>
-  TZKT.fetchGetOperationsTransactions(chainId, {
-    limit: pseudoLimit,
-    entrypoint: 'transfer',
-    'sort.desc': 'level',
-    target: contractAddress,
-    'parameter.[*].in': JSON.stringify([
-      { from_: accountAddress, txs: [{ token_id: tokenId }] },
-      { txs: [{ to_: accountAddress, token_id: tokenId }] }
-    ]),
-    'level.lt': olderThan?.oldestTzktOperation.level
-  });
+  fetchTransactionsPage(
+    chainId,
+    {
+      entrypoint: 'transfer',
+      target: contractAddress,
+      'parameter.[*].in': JSON.stringify([
+        { from_: accountAddress, txs: [{ token_id: tokenId }] },
+        { txs: [{ to_: accountAddress, token_id: tokenId }] }
+      ])
+    },
+    buildOlderThanLevelParam(olderThan),
+    pseudoLimit
+  );
 
 async function fetchOperations_Any(
   chainId: TzktApiChainId,
@@ -120,12 +144,18 @@ async function fetchOperations_Any(
 ) {
   const limit = pseudoLimit;
 
-  const accOperations = await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    types: ['delegation', 'origination', 'transaction'],
-    ...buildOlderThanParam(olderThan),
+  const fetchAccountOperations = (params: GetAccountOperationsParams) =>
+    TZKT.fetchGetAccountOperations(chainId, accountAddress, {
+      types: ['delegation', 'origination', 'transaction'],
+      sort: 1,
+      ...params
+    });
+
+  const accOperations = await withRestOfOldestBlock(
+    await fetchAccountOperations({ ...buildOlderThanParam(olderThan), limit }),
     limit,
-    sort: 1
-  });
+    oldest => fetchAccountOperations({ lastId: oldest.id, 'timestamp.ge': oldest.timestamp, limit: 1000 })
+  );
 
   let newerThen: string | undefined = accOperations[accOperations.length - 1]?.timestamp;
 
@@ -196,14 +226,8 @@ function fetchIncomingOperTransactions_Fa_2(
 /**
  * @return groups[number].operations // sorted new-to-old
  */
-export async function fetchOperGroupsForOperations(
-  chainId: TzktApiChainId,
-  hashes: string[],
-  olderThan?: TezosActivityOlderThan
-) {
+export async function fetchOperGroupsForOperations(chainId: TzktApiChainId, hashes: string[]) {
   const uniqueHashes = filterUnique(hashes);
-
-  if (olderThan && uniqueHashes[0] === olderThan.hash) uniqueHashes.splice(1);
 
   const groups: TempleTzktOperationsGroup[] = [];
   for (const hash of uniqueHashes) {
@@ -218,11 +242,38 @@ export async function fetchOperGroupsForOperations(
   return groups;
 }
 
-/**
- * > (!) When using `lastId` param, TZKT API might error with:
- * > `{"code":400,"errors":{"lastId":"The value '331626822238208' is not valid."}}`
- * > when it's not true!
- */
 const buildOlderThanParam = (olderThan?: TezosActivityOlderThan) => ({
   'timestamp.lt': olderThan?.oldestTzktOperation?.timestamp
 });
+
+const buildOlderThanLevelParam = (olderThan?: TezosActivityOlderThan) => ({
+  'level.lt': olderThan?.oldestTzktOperation.level
+});
+
+const fetchTransactionsPage = async (
+  chainId: TzktApiChainId,
+  baseParams: GetOperationsTransactionsParams,
+  olderThanParams: GetOperationsTransactionsParams,
+  pseudoLimit: number
+) => {
+  const fetchTransactions = (params: GetOperationsTransactionsParams) =>
+    TZKT.fetchGetOperationsTransactions(chainId, { ...baseParams, 'sort.desc': 'id', ...params });
+
+  return withRestOfOldestBlock(
+    await fetchTransactions({ ...olderThanParams, limit: pseudoLimit }),
+    pseudoLimit,
+    oldest => fetchTransactions({ 'id.lt': oldest.id, 'timestamp.ge': oldest.timestamp, limit: 1000 })
+  );
+};
+
+const withRestOfOldestBlock = async (
+  operations: TzktOperation[],
+  limit: number,
+  fetchRest: (oldest: TzktOperation) => Promise<TzktOperation[]>
+) => {
+  const oldest = operations.at(-1);
+
+  return oldest && operations.length >= limit
+    ? operations.concat(await refetchOnce429(() => fetchRest(oldest), 1000))
+    : operations;
+};

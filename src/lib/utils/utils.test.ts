@@ -1,4 +1,4 @@
-import { isTruthy, PromisesQueue, delay, fifoResolve, PromisesQueueCounters } from './index';
+import { isTruthy, PromisesQueue, delay, fifoResolve, PromisesQueueCounters, stripUndefinedProps } from './index';
 
 /** See: https://developer.mozilla.org/en-US/docs/Glossary/Falsy */
 const ALL_FALSY_VALUES = [false, 0, -0, BigInt(0), '', NaN, null, undefined];
@@ -87,6 +87,16 @@ describe('fifoResolve', () => {
     expect(t1 - t0).toBeGreaterThanOrEqual(300);
     expect(t1 - t0).toBeLessThan(400);
     expect(ids).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+});
+
+describe('stripUndefinedProps', () => {
+  it('removes undefined properties from the same object', () => {
+    const record = { kept: 1, empty: '', zero: 0, missing: undefined, nothing: null };
+
+    expect(stripUndefinedProps(record)).toBe(record);
+    expect(record).toEqual({ kept: 1, empty: '', zero: 0, nothing: null });
+    expect('missing' in record).toEqual(false);
   });
 });
 

@@ -147,7 +147,7 @@ interface EvmDetailsProps {
 
 export const EvmDetails = memo<EvmDetailsProps>(
   ({ network, accountPkh, assetSlug, metadata, shouldShowEmptyRows = true }) => {
-    const { value: balance } = useEvmAssetBalance(assetSlug, accountPkh, network);
+    const { value: amount } = useEvmAssetBalance(assetSlug, accountPkh, network);
 
     const [contractAddress, tokenId] = useMemo(() => fromAssetSlug(assetSlug), [assetSlug]);
 
@@ -225,7 +225,7 @@ export const EvmDetails = memo<EvmDetailsProps>(
 
         {shouldShowEmptyRows && (
           <PlainChartListItem title={<T id="amount" />} bottomSeparator={false}>
-            {getValueWithFallback(balance)}
+            {getValueWithFallback(amount)}
           </PlainChartListItem>
         )}
       </InfoContainer>

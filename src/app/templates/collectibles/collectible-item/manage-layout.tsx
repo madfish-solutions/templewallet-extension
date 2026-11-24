@@ -41,7 +41,8 @@ const ManageCollectibleListItemLayoutHOC = <
 >(
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
   >,
   toggleTokenStatus: (
     newStatus: 'enabled' | 'disabled',
@@ -99,7 +100,7 @@ const ManageCollectibleListItemLayoutHOC = <
               className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
             >
               {isVisible ? (
-                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
               ) : (
                 <div className="w-full h-full z-1 bg-grey-3" />
               )}
@@ -190,7 +191,15 @@ export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<
   ManageCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
 >(
   EvmNetworkLogo,
-  ({ metadata, inView }) => <EvmCollectibleItemImage metadata={metadata} inView={inView} className="object-cover" />,
+  ({ metadata, assetSlug, chainId, inView }) => (
+    <EvmCollectibleItemImage
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      inView={inView}
+      className="object-cover"
+    />
+  ),
   (status, assetSlug, chainId, account) =>
     void dispatch(setEvmCollectibleStatusAction({ account, chainId, slug: assetSlug, status })),
   (assetSlug, chainId, account) =>
