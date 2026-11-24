@@ -26,8 +26,8 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
   const evmCollectiblesMetadataRef = useUpdatableRef(evmCollectiblesMetadata);
 
   return useCallback(
-    async (walletAddress: HexString, chainId: number, assetSlugsOverride?: string[]) => {
-      let assetsSlugs = assetSlugsOverride ?? Object.keys(rawBalancesRef.current[chainId] ?? {});
+    async (walletAddress: HexString, chainId: number) => {
+      let assetsSlugs = Object.keys(rawBalancesRef.current[chainId] ?? {});
 
       if (assetsSlugs.length === 0) {
         assetsSlugs = [EVM_TOKEN_SLUG];

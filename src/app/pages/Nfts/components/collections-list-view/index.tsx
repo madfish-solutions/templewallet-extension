@@ -1,16 +1,19 @@
-import { FC, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 
 import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useLoadedItemsCount, useRememberLoadedItemsCount } from 'app/hooks/use-loaded-items-count';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
+import { t } from 'lib/i18n';
 import { CollectiblesListItemElement, makeGetCollectionsElementsIndexesFunction } from 'lib/ui/collectibles-list';
+import { useAccountAddressForEvm } from 'temple/front';
 
 import { CollectiblesCollection } from '../../types';
 import { ListView } from '../list-view';
 
-import { CollectionsListItem } from './item';
+import { CollectionsListItem, requestEvmCollectionTokens } from './item';
+import { isStorefrontPseudocollection, orderCollections } from './order-collections';
 
 const COLLECTIONS_PER_PAGE = 10;
 
@@ -31,12 +34,27 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   openCustomTokenModal,
   tezDetailsReady
 }) => {
+  const accountEvmAddress = useAccountAddressForEvm();
   const [openedCollections, setOpenedCollections] = useState<string[]>([]);
   const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
   const listRef = useRef<InfiniteScroll>(null);
+  const collectionsBySlug = new Map(collections.map(entry => [entry[0].collectionSlug, entry]));
+  const orderedCollections = orderCollections(
+    collections.map(([collection, chainSlugs]) => ({
+      collectionSlug: collection.collectionSlug,
+      chainSlugs,
+      size: collection.ownedCount,
+      pinnedToBottom: isStorefrontPseudocollection(collection.title, t('unknownCollection'), chainSlugs)
+    }))
+  ).flatMap(slug => {
+    const entry = collectionsBySlug.get(slug);
+
+    return entry ? [entry] : [];
+  });
+
   const rememberedCount = useLoadedItemsCount('collections') ?? 0;
   const { paginatedItems: shownCollections, loadNext } = useSimplePaginationLogic(
-    collections,
+    orderedCollections,
     [],
     COLLECTIONS_PER_PAGE,
     COLLECTIONS_PER_PAGE,
@@ -44,11 +62,26 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   );
   useRememberLoadedItemsCount('collections', shownCollections.length);
 
-  const toggleCollectionOpened = useCallback((collectionSlug: string) => {
+  const toggleCollectionOpened = (collectionSlug: string) => {
+    const opening = !openedCollections.includes(collectionSlug);
+    const collection = collectionsBySlug.get(collectionSlug)?.[0];
+
+    if (
+      opening &&
+      accountEvmAddress &&
+      collection &&
+      typeof collection.chainId === 'number' &&
+      collection.contractAddresses?.length
+    )
+      requestEvmCollectionTokens(accountEvmAddress, collection.chainId, collection.contractAddresses, {
+        collectionSlug: collection.collectionSlug,
+        title: collection.title
+      });
+
     setOpenedCollections(prev =>
       prev.includes(collectionSlug) ? prev.filter(slug => slug !== collectionSlug) : prev.concat(collectionSlug)
     );
-  }, []);
+  };
 
   const getElementsIndexes = useMemo(
     () =>

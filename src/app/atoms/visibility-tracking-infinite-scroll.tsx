@@ -27,7 +27,7 @@ interface ListItemsVisibility {
   Narrow the initial window so the first paint only renders a few items fully;
   the real window expands once updateScrollDimensions runs after layout.
 */
-const INITIAL_VISIBLE_COUNT = 20;
+const INITIAL_VISIBLE_COUNT = 2;
 
 interface VisibilityStore {
   subscribe: (listener: EmptyFn) => EmptyFn;
@@ -37,6 +37,7 @@ interface VisibilityStore {
 
 const createVisibilityStore = (): VisibilityStore => {
   let rendered: ListItemsVisibility = { top: 0, bottom: INITIAL_VISIBLE_COUNT };
+  let measured = false;
   const listeners = new Set<EmptyFn>();
 
   return {
@@ -50,8 +51,10 @@ const createVisibilityStore = (): VisibilityStore => {
       // an empty getElementsIndexes result arrives as ±Infinity through Math.min/max
       if (!Number.isFinite(next.top) || !Number.isFinite(next.bottom)) return;
 
-      const top = Math.min(rendered.top, next.top);
-      const bottom = Math.max(rendered.bottom, next.bottom);
+      // The first measurement replaces the estimate. Later scrolls keep rows that were already on screen.
+      const top = measured ? Math.min(rendered.top, next.top) : next.top;
+      const bottom = measured ? Math.max(rendered.bottom, next.bottom) : next.bottom;
+      measured = true;
 
       if (top === rendered.top && bottom === rendered.bottom) return;
 

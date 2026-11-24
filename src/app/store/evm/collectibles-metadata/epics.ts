@@ -1,6 +1,6 @@
 import { partition } from 'lodash';
 import { Action } from 'redux';
-import { Epic, StateObservable } from 'redux-observable';
+import { combineEpics, Epic, StateObservable } from 'redux-observable';
 import { asapScheduler, concat, defer, EMPTY, from, merge, Observable, of, race, Subject, timer } from 'rxjs';
 import {
   auditTime,
@@ -28,8 +28,8 @@ import { ofType } from 'ts-action-operators';
 import { setEvmCollectiblesMetadataLoading } from 'app/store/evm/actions';
 import { RootState } from 'app/store/root-state.type';
 import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm';
-import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { GoldrushChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { fetchEvmCollectibleMetadataFromChainInBulk } from 'lib/evm/on-chain/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
@@ -45,6 +45,8 @@ import {
   processLoadedEvmCollectiblesMetadataAction,
   putEvmCollectiblesMetadataAction
 } from './actions';
+import { loadOpenseaStorefrontCollectionEpic, retryOpenseaCollectiblesMetadataEpic } from './opensea-metadata-retry';
+import { loadVisibleOpenseaCollectiblesEpic } from './opensea-visible-load';
 
 const API_DUMP_RETRY_MS = 60_000;
 const API_DUMP_TIMEOUT_MS = 30_000;
@@ -60,7 +62,7 @@ interface Session {
   state$: StateObservable<RootState>;
   apiDumps: ApiDumps;
   requests$: Observable<LoadPayload>;
-  dumpSettled: Subject<ChainID>;
+  dumpSettled: Subject<GoldrushChainID>;
   chains: Map<number, EvmNetworkEssentials>;
   priorityChainIds: readonly number[];
   visibleSlugs: Map<number, readonly string[]>;
@@ -97,7 +99,7 @@ interface ChainBackgroundWork {
 
 interface ApiDumpSettlement {
   publicKeyHash: HexString;
-  chainId: ChainID;
+  chainId: GoldrushChainID;
 }
 
 const getApiDumpKey = (publicKeyHash: HexString, chainId: number) => `${publicKeyHash}:${chainId}`;
@@ -118,7 +120,7 @@ class ApiDumps {
   readonly actions$ = this.actions.asObservable();
   readonly settled$ = this.settlements.asObservable();
 
-  request(publicKeyHash: HexString, chainId: ChainID): void {
+  request(publicKeyHash: HexString, chainId: GoldrushChainID): void {
     const key = getApiDumpKey(publicKeyHash, chainId);
 
     if (this.pending.has(key)) return;
@@ -150,14 +152,14 @@ class ApiDumps {
     return this.retryAt.get(getApiDumpKey(publicKeyHash, chainId)) ?? 0;
   }
 
-  private settle(key: string, publicKeyHash: HexString, chainId: ChainID): void {
+  private settle(key: string, publicKeyHash: HexString, chainId: GoldrushChainID): void {
     this.pending.delete(key);
     this.settlements.next({ publicKeyHash, chainId });
   }
 }
 
 const isApiDumpOwed = (state: RootState, publicKeyHash: HexString, chainId: number) =>
-  isSupportedChainId(chainId) &&
+  isGoldrushChainId(chainId) &&
   !state.settings.isTestnetModeEnabled &&
   !state.evmCollectiblesMetadata.seenChainsByAccount[publicKeyHash]?.includes(chainId);
 
@@ -340,7 +342,7 @@ const relayDumpSettlements = (session: Session): Observable<Action> =>
     })
   );
 
-const retryApiDumpWhenDue = (session: Session, chainId: ChainID): Observable<never> =>
+const retryApiDumpWhenDue = (session: Session, chainId: GoldrushChainID): Observable<never> =>
   defer(() => {
     const { publicKeyHash, state$, apiDumps } = session;
 
@@ -357,7 +359,7 @@ const retryApiDumpWhenDue = (session: Session, chainId: ChainID): Observable<nev
     return EMPTY;
   });
 
-const retryApiDumps = (session: Session, chainIds: ChainID[]): Observable<Action> =>
+const retryApiDumps = (session: Session, chainIds: GoldrushChainID[]): Observable<Action> =>
   merge(from(chainIds), session.dumpSettled).pipe(mergeMap(chainId => retryApiDumpWhenDue(session, chainId)));
 
 const pickReadBatch = (work: ChainBackgroundWork[]): BackgroundPick | undefined => {
@@ -482,7 +484,7 @@ const startLoadingSession = (
       state$,
       apiDumps,
       requests$,
-      dumpSettled: new Subject<ChainID>(),
+      dumpSettled: new Subject<GoldrushChainID>(),
       chains: new Map(chains.map(chain => [chain.chainId, chain])),
       priorityChainIds: initial.priorityChainIds,
       visibleSlugs: new Map(),
@@ -491,7 +493,7 @@ const startLoadingSession = (
       initialDumps: new Set(),
       backgroundDone: false
     };
-    const supportedChainIds = chains.map(({ chainId }) => chainId).filter(isSupportedChainId);
+    const supportedChainIds = chains.map(({ chainId }) => chainId).filter(isGoldrushChainId);
 
     for (const chainId of supportedChainIds) {
       if (shouldRequestApiDump(session, chainId)) apiDumps.request(publicKeyHash, chainId);
@@ -521,7 +523,7 @@ const startLoadingSession = (
     );
   });
 
-export const evmCollectiblesMetadataEpics: Epic<Action, Action, RootState> = (action$, state$) => {
+const loadEvmCollectiblesMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) => {
   const apiDumps = new ApiDumps();
   const loads$ = action$.pipe(
     ofType(loadEvmCollectiblesMetadataAction),
@@ -558,3 +560,10 @@ export const evmCollectiblesMetadataEpics: Epic<Action, Action, RootState> = (ac
 
   return merge(apiDumps.actions$, sessions$);
 };
+
+export const evmCollectiblesMetadataEpics = combineEpics(
+  loadEvmCollectiblesMetadataEpic,
+  loadVisibleOpenseaCollectiblesEpic,
+  retryOpenseaCollectiblesMetadataEpic,
+  loadOpenseaStorefrontCollectionEpic
+);

@@ -33,7 +33,8 @@ const DefaultCollectibleListItemLayoutHOC = <
   chainKind: T,
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
@@ -95,7 +96,7 @@ const DefaultCollectibleListItemLayoutHOC = <
           {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
           {(!metadatasLoading || metadata) && isVisible && (
             <>
-              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
 
               {network && (
                 <NetworkLogo
@@ -161,8 +162,15 @@ export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<
 >(
   TempleChainKind.EVM,
   EvmNetworkLogo,
-  ({ metadata, inView }) => (
-    <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} inView={inView} className="object-contain" />
+  ({ metadata, assetSlug, chainId, inView }) => (
+    <EvmCollectibleItemImage
+      shouldUseBlurredBg
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      inView={inView}
+      className="object-contain"
+    />
   ),
   useEvmChainByChainId
 );

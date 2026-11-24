@@ -50,17 +50,19 @@ const v1Stores = {
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
 };
 db.version(1).stores(v1Stores);
+
+const v2Stores = {
+  ...v1Stores,
+  [Table.evmActivities]: indexes(
+    '++id',
+    'account',
+    '[chainId+account+hash]',
+    '[chainId+account+blockHeight]',
+    '[chainId+account+contract+blockHeight]'
+  )
+};
 db.version(2)
-  .stores({
-    ...v1Stores,
-    [Table.evmActivities]: indexes(
-      '++id',
-      'account',
-      '[chainId+account+hash]',
-      '[chainId+account+blockHeight]',
-      '[chainId+account+contract+blockHeight]'
-    )
-  })
+  .stores(v2Stores)
   .upgrade(tx =>
     tx
       .table<DbEvmActivity>(Table.evmActivities)
@@ -70,6 +72,16 @@ db.version(2)
         activity.fee = null;
         activity.value = null;
       })
+  );
+db.version(3)
+  .stores(v2Stores)
+  .upgrade(tx =>
+    Promise.all([
+      tx.table(Table.tezosActivities).clear(),
+      tx.table(Table.tezosActivitiesIntervals).clear(),
+      tx.table(Table.evmActivities).clear(),
+      tx.table(Table.evmActivitiesIntervals).clear()
+    ])
   );
 
 export interface TezosActivitiesInterval extends EntityWithId {
