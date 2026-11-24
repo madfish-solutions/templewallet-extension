@@ -2,6 +2,7 @@ import { FC, Ref, useRef } from 'react';
 
 import { useEvmCollectibleTileMetadata } from 'app/hooks/use-evm-collectible-metadata-request';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
+import { evmStoredCollectionName, isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
@@ -12,8 +13,8 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
-import { getAssetStatus } from 'lib/assets/hooks/utils';
-import { getTezCollectionName } from 'lib/assets/utils';
+import { getCollectibleAssetStatus } from 'lib/assets/hooks/utils';
+import { fromAssetSlug, getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -66,7 +67,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
 
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
-  const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
+  const checked = getCollectibleAssetStatus(balanceAtomic, storedToken) === 'enabled';
 
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
@@ -122,21 +123,31 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   testID,
   nameTestID
 }) => {
-  const { metadata, metadataLoading, wrapperElemRef, inView } = useEvmCollectibleTileMetadata(
+  const { metadata, metadataLoading, wrapperElemRef, inView, offScreen } = useEvmCollectibleTileMetadata(
     accountPkh,
     evmChainId,
     assetSlug
   );
   const chain = useEvmChainByChainId(evmChainId);
-  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+  const { value: balance = ZERO } = useEvmAssetBalance(
+    assetSlug,
+    accountPkh,
+    chain!,
+    false,
+    false,
+    isVisible && inView ? 'visible' : offScreen ? 'offscreen' : 'pending'
+  );
   const balanceBeforeTruncate = balance.toString();
 
   const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 
-  const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
+  const checked = getCollectibleAssetStatus(balanceBeforeTruncate, storedToken) === 'enabled';
 
   const assetName = getCollectibleName(metadata);
-  const collectionName = getCollectionName(metadata);
+  const storedCollectionName = evmStoredCollectionName(metadata, assetSlug);
+  const collectionName = isSharedStorefrontTokenId(metadata?.tokenId ?? fromAssetSlug(assetSlug)[1])
+    ? storedCollectionName || getCollectionName(undefined)
+    : getCollectionName(metadata);
 
   const commonProps = {
     wrapperElemRef,

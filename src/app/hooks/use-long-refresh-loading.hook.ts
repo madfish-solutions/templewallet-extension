@@ -3,21 +3,20 @@ import { loadExchangeRates } from 'app/store/currency/actions';
 import { loadNotificationsAction } from 'app/store/notifications/actions';
 import { getTezosNotificationAccountAddresses } from 'app/store/notifications/utils';
 import { NOTIFICATIONS_SYNC_INTERVAL, RATES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useMemoWithCompare } from 'lib/ui/hooks';
 import { useAllAccounts } from 'temple/front';
 
 export const useLongRefreshLoading = () => {
   const allAccounts = useAllAccounts();
+  const tezosAccountAddresses = useMemoWithCompare(
+    () => getTezosNotificationAccountAddresses(allAccounts).sort(),
+    [allAccounts]
+  );
 
   useInterval(() => dispatch(loadExchangeRates.submit()), [], RATES_SYNC_INTERVAL);
 
   useInterval(
-    () =>
-      dispatch(
-        loadNotificationsAction.submit({
-          accountAddresses: getTezosNotificationAccountAddresses(allAccounts)
-        })
-      ),
+    () => dispatch(loadNotificationsAction.submit({ accountAddresses: tezosAccountAddresses })),
     [allAccounts],
     NOTIFICATIONS_SYNC_INTERVAL
   );

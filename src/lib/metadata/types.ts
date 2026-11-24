@@ -2,7 +2,7 @@ import type { RequiredBy } from 'viem';
 
 import { TempleChainKind } from 'temple/types';
 
-import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
+import { NftCollectionAttribute } from '../apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from '../assets/defaults';
 import { EvmAssetStandard } from '../evm/types';
 
@@ -75,12 +75,28 @@ export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
   address: HexString;
   tokenId: string;
   metadataUri?: string;
+  /** Preferred image for the detail view. */
   image?: string;
+  /**
+   * Image URLs from OpenSea, Goldrush, and on-chain metadata.
+   * Previews try them in order, smaller display images first.
+   */
+  images?: string[];
   collectibleName?: string;
+  /**
+   * OpenSea collection slug for a shared-storefront token. Goldrush's contract name is not a
+   * collection there, so this is the only title used to group those tokens.
+   */
+  openseaCollection?: string;
   description?: string;
   attributes?: NftCollectionAttribute[];
   externalUrl?: string;
   animationUrl?: string;
+  /**
+   * Playable or viewable file when the collectible is not a still image:
+   * video, audio, a 3D model, or HTML. The preview stays in `image` / `images`.
+   */
+  artifactUrl?: string;
   originalOwner?: string;
 }
 

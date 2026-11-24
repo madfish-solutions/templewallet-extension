@@ -274,7 +274,11 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               status: 'enabled' as const
             };
 
-            dispatch(assetIsCollectible ? putCollectiblesAsIsAction([asset]) : putTokensAsIsAction([asset]));
+            dispatch(
+              assetIsCollectible
+                ? putCollectiblesAsIsAction([{ ...asset, manual: true }])
+                : putTokensAsIsAction([asset])
+            );
           } else {
             if (!evmMetadataRef.current) throw new Error('Oops, Something went wrong!');
 
