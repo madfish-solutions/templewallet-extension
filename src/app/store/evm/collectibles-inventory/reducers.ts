@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 
 import {
   appendEvmChainCollectiblesInventoryAction,
@@ -109,8 +109,9 @@ const INVENTORY_PERSIST_BLACKLIST: Array<keyof EvmCollectiblesInventoryState> = 
 export const evmCollectiblesInventoryPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesInventory',
-    ...storageConfig,
-    blacklist: INVENTORY_PERSIST_BLACKLIST
+    ...stringStorageConfig,
+    blacklist: INVENTORY_PERSIST_BLACKLIST,
+    throttle: 5_000
   },
   evmCollectiblesInventoryReducer
 );
