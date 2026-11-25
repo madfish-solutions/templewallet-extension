@@ -3,7 +3,7 @@ import { isNil, omitBy } from 'lodash';
 import { createMigrate, persistReducer, type PersistedState } from 'redux-persist';
 import { getAddress } from 'viem';
 
-import { toTokenSlug } from 'lib/assets';
+import { fromAssetSlug, toTokenSlug } from 'lib/assets';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { stringStorageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
@@ -56,7 +56,10 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         }
       }
 
-      assignSingleContractCollectionNames(chainTokensMetadata);
+      assignSingleContractCollectionNames(
+        chainTokensMetadata,
+        new Set(contracts.map(contract => contract.contract_address.toLowerCase()))
+      );
     });
 
     builder.addCase(putEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
@@ -80,7 +83,10 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         if (countFilledFields(merged) > countFilledFields(stored)) chainCollectiblesMetadata[slug] = merged;
       }
 
-      assignSingleContractCollectionNames(chainCollectiblesMetadata);
+      assignSingleContractCollectionNames(
+        chainCollectiblesMetadata,
+        new Set(Object.keys(records).map(slug => fromAssetSlug(slug)[0].toLowerCase()))
+      );
     });
 
     builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash } }) => {

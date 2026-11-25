@@ -5,31 +5,17 @@ import { NetworkChipChain, NetworkChips as NetworkChipsTemplate } from 'app/temp
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TempleChainKind } from 'temple/types';
 
-import { CollectiblesCollection } from './types';
-
 interface NetworkChipsProps {
-  collections: Array<[CollectiblesCollection, string[]]>;
+  /** NFT count per chain, in the order the chains first appear. */
+  counts: Array<[string | number, number]>;
 }
 
-/** One chip per chain. Its number is the sum of that chain's collection counters. */
-const countsByChain = (collections: Array<[CollectiblesCollection, string[]]>) => {
-  const counts = new Map<string | number, number>();
-
-  for (const [collection, chainSlugs] of collections) {
-    const count = collection.ownedCount ?? chainSlugs.length;
-    if (count <= 0) continue;
-    counts.set(collection.chainId, (counts.get(collection.chainId) ?? 0) + count);
-  }
-
-  return counts;
-};
-
-export const NetworkChips: FC<NetworkChipsProps> = ({ collections }) => {
+export const NetworkChips: FC<NetworkChipsProps> = ({ counts }) => {
   const { selectedChains, setSelectedChains } = useCollectiblesSelectedChainsState();
 
   const chipsProps = useMemoWithCompare(
     () =>
-      Array.from(countsByChain(collections).entries())
+      [...counts]
         .sort((a, b) => b[1] - a[1])
         .map(([chainId, amount]): { chain: NetworkChipChain; label: ReactChildren } => ({
           chain:
@@ -38,7 +24,7 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ collections }) => {
               : { kind: TempleChainKind.Tezos, chainId },
           label: amount.toString()
         })),
-    [collections]
+    [counts]
   );
 
   return (

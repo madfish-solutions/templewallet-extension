@@ -297,7 +297,7 @@ export const singleContractCollectionNames = (metadataByChain: EvmCollectibleMet
   if (!metadataByChain) return names;
 
   for (const [chainId, records] of Object.entries(metadataByChain)) {
-    for (const [key, collection] of contractCollections(records)) {
+    for (const [key, collection] of contractCollections(records ? Object.values(records) : [])) {
       if (!collection.blocked && collection.name) names.set(`${chainId}:${key}`, collection.name);
     }
   }
@@ -340,18 +340,30 @@ export const evmStoredCollectionName = (metadata: EvmCollectibleMetadata | undef
  * A shared-storefront contract, or a contract that already has two names, is left unchanged.
  * A storefront token keeps a collection name only after OpenSea has returned its slug.
  */
-export const assignSingleContractCollectionNames = (records: StringRecord<EvmCollectibleMetadata> | undefined) => {
+export const assignSingleContractCollectionNames = (
+  records: StringRecord<EvmCollectibleMetadata> | undefined,
+  /** Lowercase contract addresses to update. All contracts when omitted. */
+  addresses?: ReadonlySet<string>
+) => {
   if (!records) return;
 
-  for (const metadata of Object.values(records)) {
+  const scoped = addresses
+    ? Object.keys(records).flatMap(slug => {
+        const metadata = addresses.has(fromAssetSlug(slug)[0].toLowerCase()) ? records[slug] : undefined;
+
+        return metadata ? [metadata] : [];
+      })
+    : Object.values(records);
+
+  for (const metadata of scoped) {
     if (!metadata || !isSharedStorefrontTokenId(metadata.tokenId) || metadata.openseaCollection) continue;
 
     delete metadata.name;
   }
 
-  const collections = contractCollections(records);
+  const collections = contractCollections(scoped);
 
-  for (const metadata of Object.values(records)) {
+  for (const metadata of scoped) {
     if (!metadata?.address || metadata.name) continue;
 
     const collection = collections.get(metadata.address.toLowerCase());
@@ -361,11 +373,10 @@ export const assignSingleContractCollectionNames = (records: StringRecord<EvmCol
   }
 };
 
-const contractCollections = (records: StringRecord<EvmCollectibleMetadata> | undefined) => {
+const contractCollections = (records: ReadonlyArray<EvmCollectibleMetadata | undefined>) => {
   const collections = new Map<string, ContractCollection>();
-  if (!records) return collections;
 
-  for (const metadata of Object.values(records)) {
+  for (const metadata of records) {
     if (!metadata?.address) continue;
 
     const key = metadata.address.toLowerCase();

@@ -135,7 +135,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
     isSyncing,
     loadNext,
     searchedSlugsByCollections,
-    chipCollections,
+    chipCounts,
     tezDetailsReady,
     searchableSlugs
   } = useCollectiblesListingLogic(allCollectibles, sortPredicate);
@@ -175,7 +175,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
       <FadeTransition trigger={manageActive}>
         {!manageActive && !chainIsGloballySelected && (
           <div className="px-4 mb-1">
-            <NetworkChips collections={chipCollections} />
+            <NetworkChips counts={chipCounts} />
           </div>
         )}
 
