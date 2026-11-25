@@ -1,5 +1,6 @@
 import { FC, useMemo, useRef, useState } from 'react';
 
+import { omit } from 'lodash';
 import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
@@ -95,14 +96,11 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
       });
     if (opening) verifyShownTiles(collectionSlug, 0, COLLECTION_TILES_PER_PAGE);
 
-    setShownTilesBySlug(prev => {
-      if (prev[collectionSlug] === undefined) return { ...prev, [collectionSlug]: COLLECTION_TILES_PER_PAGE };
-
-      const next = { ...prev };
-      delete next[collectionSlug];
-
-      return next;
-    });
+    setShownTilesBySlug(prev =>
+      prev[collectionSlug] === undefined
+        ? { ...prev, [collectionSlug]: COLLECTION_TILES_PER_PAGE }
+        : omit(prev, collectionSlug)
+    );
   };
 
   const showMoreTiles = (collectionSlug: string) => {

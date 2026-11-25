@@ -20,6 +20,7 @@ import {
   searchEvmCollectiblesAction
 } from 'app/store/evm/collectibles-inventory/actions';
 import { isAlchemyChainId, isAlchemyOpenseaChainId } from 'app/store/evm/collectibles-inventory/chains';
+import { loadedNftsBySlug } from 'app/store/evm/collectibles-inventory/loaded-by-slug';
 import { InventoryLoadedNft } from 'app/store/evm/collectibles-inventory/place-collections';
 import {
   useEvmCollectiblesInventoryLoadingSelector,
@@ -126,18 +127,6 @@ const evmChainIdOfSlug = (slug: string) => {
 };
 
 const NO_CONTRACT_COLLECTION_NAMES: ReadonlyMap<string, string> = new Map();
-
-const loadedSlugSets = new WeakMap<readonly InventoryLoadedNft[], ReadonlySet<string>>();
-
-const loadedSlugSet = (loaded: readonly InventoryLoadedNft[]) => {
-  const cached = loadedSlugSets.get(loaded);
-  if (cached) return cached;
-
-  const slugs = new Set(loaded.map(nft => nft.slug.toLowerCase()));
-  loadedSlugSets.set(loaded, slugs);
-
-  return slugs;
-};
 
 export const useCollectiblesListingLogic = (
   allAccountCollectibles: AccountCollectible[],
@@ -356,7 +345,7 @@ export const useCollectiblesListingLogic = (
       ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
       : evmCollectionTitle(chainId as number, assetSlug);
 
-  const loadedSlugsByChain = new Map<number, ReadonlySet<string>>();
+  const loadedSlugsByChain = new Map<number, ReadonlyMap<string, InventoryLoadedNft>>();
   const shownInventoryChainIds: number[] = [];
   if (accountAddressForEvm) {
     for (const chainIdKey of Object.keys(inventoryByChain)) {
@@ -364,7 +353,7 @@ export const useCollectiblesListingLogic = (
       const inventory = inventoryByChain[chainId];
       if (!inventory?.settled || !enabledEvmChainIds.has(chainId)) continue;
 
-      loadedSlugsByChain.set(chainId, loadedSlugSet(inventory.loaded));
+      loadedSlugsByChain.set(chainId, loadedNftsBySlug(inventory.loaded));
       if (isAlchemyChainId(chainId)) shownInventoryChainIds.push(chainId);
     }
   }

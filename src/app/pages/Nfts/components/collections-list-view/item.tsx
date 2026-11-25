@@ -1,4 +1,4 @@
-import { FC, Ref, useEffect, useEffectEvent, useRef } from 'react';
+import { FC, Ref, useEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -24,6 +24,7 @@ import { t } from 'lib/i18n';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { ImageStacked } from 'lib/ui/ImageStacked';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { useAccountAddressForEvm } from 'temple/front';
 
@@ -137,22 +138,16 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   const hasMoreTiles = shownTilesCount !== undefined && chainSlugs.length > shownTilesCount;
   const gridChainSlugs = hasMoreTiles ? chainSlugs.slice(0, shownTilesCount) : chainSlugs;
   const moreTilesRef = useRef<HTMLDivElement>(null);
-  const showMoreTiles = useEffectEvent(() => onShowMoreTiles(collectionSlug));
-
-  useEffect(() => {
-    const element = moreTilesRef.current;
-    if (!element || !hasMoreTiles || typeof IntersectionObserver === 'undefined') return;
-
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries.some(entry => entry.isIntersecting)) showMoreTiles();
-      },
-      { root: getAppScrollRoot(), rootMargin: '400px 0px' }
-    );
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [hasMoreTiles, shownTilesCount]);
+  useIntersectionObserver(
+    moreTilesRef,
+    entry => {
+      if (entry.isIntersecting) onShowMoreTiles(collectionSlug);
+    },
+    () => ({ root: getAppScrollRoot() }),
+    hasMoreTiles,
+    '400px 0px',
+    shownTilesCount
+  );
 
   useEffect(() => {
     const element = cardRef.current;

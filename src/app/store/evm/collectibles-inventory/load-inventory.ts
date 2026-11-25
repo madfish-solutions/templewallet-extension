@@ -1,3 +1,4 @@
+import { countBy, keyBy, uniqBy } from 'lodash';
 import { Action } from 'redux';
 import { Epic } from 'redux-observable';
 import { EMPTY, concat, from, of } from 'rxjs';
@@ -169,18 +170,12 @@ const includeSingleSourceTokens = (
   const present = new Set(nextCollected.loaded.map(nft => nft.slug.toLowerCase()));
   const contractsByAddress = new Set(nextContracts.map(contract => contract.address.toLowerCase()));
   const keep = new Set(decision.keepSlugs.map(slug => slug.toLowerCase()));
-  const goldrushContracts = new Map<string, InventoryContractRef>();
-  for (const contract of goldrush.contracts) {
-    const key = contract.address.toLowerCase();
-    if (!goldrushContracts.has(key)) goldrushContracts.set(key, contract);
-  }
-  const keptByContract = new Map<string, number>();
-  for (const item of goldrush.collected.loaded) {
-    if (!keep.has(item.slug.toLowerCase())) continue;
-
-    const key = item.contractAddress.toLowerCase();
-    keptByContract.set(key, (keptByContract.get(key) ?? 0) + 1);
-  }
+  const addressKey = (contract: InventoryContractRef) => contract.address.toLowerCase();
+  const goldrushContracts = keyBy(uniqBy(goldrush.contracts, addressKey), addressKey);
+  const keptByContract = countBy(
+    goldrush.collected.loaded.filter(item => keep.has(item.slug.toLowerCase())),
+    item => item.contractAddress.toLowerCase()
+  );
   let added = 0;
 
   for (const nft of goldrush.collected.loaded) {
@@ -197,11 +192,11 @@ const includeSingleSourceTokens = (
     const contractKey = nft.contractAddress.toLowerCase();
     if (contractsByAddress.has(contractKey)) continue;
 
-    const contract = goldrushContracts.get(contractKey);
+    const contract: InventoryContractRef | undefined = goldrushContracts[contractKey];
     if (!contract) continue;
 
     contractsByAddress.add(contractKey);
-    nextContracts.push({ ...contract, distinctTokensOwned: keptByContract.get(contractKey) ?? 0 });
+    nextContracts.push({ ...contract, distinctTokensOwned: keptByContract[contractKey] ?? 0 });
   }
 
   return { collected: nextCollected, contracts: nextContracts, added };
