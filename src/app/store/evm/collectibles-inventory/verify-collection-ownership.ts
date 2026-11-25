@@ -46,13 +46,7 @@ interface VerifiedCollectionOwnership {
   metadata: StringRecord<EvmCollectibleMetadata>;
 }
 
-const contractKey = (address: string) => {
-  try {
-    return getAddress(address).toLowerCase();
-  } catch {
-    return address.toLowerCase();
-  }
-};
+const contractKey = (address: string) => address.toLowerCase();
 
 const identityOf = (contractAddress: string, tokenId: string) =>
   `${contractKey(contractAddress)}:${tokenIdKey(tokenId)}`;
@@ -89,7 +83,9 @@ export const verifyCollectionOwnership = async (
   partialSources: readonly OwnershipSource[],
   stored: readonly InventoryLoadedNft[],
   collections: readonly InventoryCollectionRef[],
-  signal: AbortSignal
+  signal: AbortSignal,
+  /** False when `stored` is only part of the stored NFTs on these contracts. */
+  storedComplete = true
 ): Promise<VerifiedCollectionOwnership | null> => {
   const network = await networkForChain(chainId);
   if (!network) return null;
@@ -265,10 +261,14 @@ export const verifyCollectionOwnership = async (
     const addresses = collection.contractAddresses.map(contractKey);
     if (!addresses.every(address => contracts.includes(address))) return [];
     if (!addresses.every(address => ownedByContract.get(address)?.settled)) return [];
+    const soleOnContract = (address: string) => collectionsForContract(collections, address).length === 1;
+    const countedByChain = (address: string) =>
+      soleOnContract(address) && ownedByContract.get(address)?.balanceOf != null;
+    if (!storedComplete && !addresses.every(countedByChain)) return [];
 
     const itemCount = addresses.reduce((sum, address) => {
       const owned = ownedByContract.get(address);
-      const sole = collectionsForContract(collections, address).length === 1;
+      const sole = soleOnContract(address);
       const attributed = upsert.filter(
         nft => nft.collectionSlug === collection.slug && contractKey(nft.contractAddress) === address
       ).length;

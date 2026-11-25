@@ -1,4 +1,4 @@
-import { FC, Ref, useEffect, useRef } from 'react';
+import { FC, Ref, useEffect, useEffectEvent, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,7 +12,10 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
 import { getAppScrollRoot } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
-import { loadEvmCollectionTokensAction } from 'app/store/evm/collectibles-inventory/actions';
+import {
+  loadEvmCollectionTokensAction,
+  verifyEvmCollectionTokensAction
+} from 'app/store/evm/collectibles-inventory/actions';
 import { openseaCollectionSlugFromCard } from 'app/store/evm/collectibles-inventory/collection-load';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { setTestID } from 'lib/analytics';
@@ -31,8 +34,10 @@ interface CollectionsListItemProps {
   collection: CollectiblesCollection;
   chainSlugs: string[];
   index: number;
-  opened: boolean;
+  /** Tiles shown while the card is open. Undefined while it is collapsed. */
+  shownTilesCount?: number;
   onToggleOpened: (collectionSlug: string) => void;
+  onShowMoreTiles: (collectionSlug: string) => void;
   firstItemRef?: Ref<CollectiblesListItemElement>;
 }
 
@@ -51,6 +56,24 @@ export const requestEvmCollectionTokens = (
       contractAddresses: contractAddresses.slice(),
       openseaCollection: openseaCollectionSlugFromCard(card?.collectionSlug),
       collectionName: card?.title
+    })
+  );
+};
+
+export const verifyShownEvmCollectionTokens = (
+  account: HexString,
+  chainId: number,
+  contractAddresses: readonly string[],
+  shownChainSlugs: readonly string[]
+) => {
+  if (!contractAddresses.length || !shownChainSlugs.length) return;
+
+  dispatch(
+    verifyEvmCollectionTokensAction({
+      account,
+      chainId,
+      contractAddresses: contractAddresses.slice(),
+      shownSlugs: shownChainSlugs.map(chainSlug => parseChainAssetSlug(chainSlug)[2])
     })
   );
 };
@@ -94,9 +117,10 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   collection,
   chainSlugs,
   index,
-  opened,
+  shownTilesCount,
   firstItemRef,
-  onToggleOpened
+  onToggleOpened,
+  onShowMoreTiles
 }) => {
   const { collectionSlug, title = t('unknownCollection'), logoSources = EMPTY_FROZEN_ARRAY, chainId } = collection;
   const itemsCount = collection.ownedCount ?? chainSlugs.length;
@@ -109,6 +133,26 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const { searchValue } = useCollectiblesSearchState();
   const previewCount = Math.min(COLLAPSED_COLLECTION_PREVIEW_COUNT, itemsCount);
+  const opened = shownTilesCount !== undefined;
+  const hasMoreTiles = shownTilesCount !== undefined && chainSlugs.length > shownTilesCount;
+  const gridChainSlugs = hasMoreTiles ? chainSlugs.slice(0, shownTilesCount) : chainSlugs;
+  const moreTilesRef = useRef<HTMLDivElement>(null);
+  const showMoreTiles = useEffectEvent(() => onShowMoreTiles(collectionSlug));
+
+  useEffect(() => {
+    const element = moreTilesRef.current;
+    if (!element || !hasMoreTiles || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries.some(entry => entry.isIntersecting)) showMoreTiles();
+      },
+      { root: getAppScrollRoot(), rootMargin: '400px 0px' }
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [hasMoreTiles, shownTilesCount]);
 
   useEffect(() => {
     const element = cardRef.current;
@@ -221,7 +265,7 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
       {chainSlugs.length > 0 ? (
         <CollectiblesGroupGrid
           isCollapsed={!opened}
-          chainSlugs={chainSlugs}
+          chainSlugs={gridChainSlugs}
           colsCount={COLLAPSED_COLLECTION_PREVIEW_COUNT}
           isVisible={isVisible}
           areDetailsShown
@@ -232,6 +276,7 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
       ) : (
         previewCount > 0 && <CollectionPreviewPlaceholder count={previewCount} isVisible={isVisible} />
       )}
+      {hasMoreTiles && <div ref={moreTilesRef} />}
     </div>
   );
 };

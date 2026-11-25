@@ -12,10 +12,11 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { CollectiblesCollection } from '../../types';
 import { ListView } from '../list-view';
 
-import { CollectionsListItem, requestEvmCollectionTokens } from './item';
+import { CollectionsListItem, requestEvmCollectionTokens, verifyShownEvmCollectionTokens } from './item';
 import { isStorefrontPseudocollection, orderCollections } from './order-collections';
 
 const COLLECTIONS_PER_PAGE = 10;
+const COLLECTION_TILES_PER_PAGE = 40;
 
 interface CollectionsListViewProps {
   collections: Array<[CollectiblesCollection, string[]]>;
@@ -35,7 +36,7 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   tezDetailsReady
 }) => {
   const accountEvmAddress = useAccountAddressForEvm();
-  const [openedCollections, setOpenedCollections] = useState<string[]>([]);
+  const [shownTilesBySlug, setShownTilesBySlug] = useState<StringRecord<number>>({});
   const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
   const listRef = useRef<InfiniteScroll>(null);
   const collectionsBySlug = new Map(collections.map(entry => [entry[0].collectionSlug, entry]));
@@ -62,8 +63,23 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   );
   useRememberLoadedItemsCount('collections', shownCollections.length);
 
+  const verifyShownTiles = (collectionSlug: string, from: number, to: number) => {
+    const entry = collectionsBySlug.get(collectionSlug);
+    if (!entry || !accountEvmAddress) return;
+
+    const [collection, chainSlugs] = entry;
+    if (typeof collection.chainId !== 'number' || !collection.contractAddresses?.length) return;
+
+    verifyShownEvmCollectionTokens(
+      accountEvmAddress,
+      collection.chainId,
+      collection.contractAddresses,
+      chainSlugs.slice(from, to)
+    );
+  };
+
   const toggleCollectionOpened = (collectionSlug: string) => {
-    const opening = !openedCollections.includes(collectionSlug);
+    const opening = shownTilesBySlug[collectionSlug] === undefined;
     const collection = collectionsBySlug.get(collectionSlug)?.[0];
 
     if (
@@ -77,10 +93,28 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
         collectionSlug: collection.collectionSlug,
         title: collection.title
       });
+    if (opening) verifyShownTiles(collectionSlug, 0, COLLECTION_TILES_PER_PAGE);
 
-    setOpenedCollections(prev =>
-      prev.includes(collectionSlug) ? prev.filter(slug => slug !== collectionSlug) : prev.concat(collectionSlug)
-    );
+    setShownTilesBySlug(prev => {
+      if (prev[collectionSlug] === undefined) return { ...prev, [collectionSlug]: COLLECTION_TILES_PER_PAGE };
+
+      const next = { ...prev };
+      delete next[collectionSlug];
+
+      return next;
+    });
+  };
+
+  const showMoreTiles = (collectionSlug: string) => {
+    const shown = shownTilesBySlug[collectionSlug];
+    if (shown === undefined) return;
+
+    verifyShownTiles(collectionSlug, shown, shown + COLLECTION_TILES_PER_PAGE);
+    setShownTilesBySlug(prev => {
+      const current = prev[collectionSlug];
+
+      return current === undefined ? prev : { ...prev, [collectionSlug]: current + COLLECTION_TILES_PER_PAGE };
+    });
   };
 
   const getElementsIndexes = useMemo(
@@ -89,10 +123,10 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
         listRef,
         firstCollectionFirstItemRef,
         shownCollections.map(([{ collectionSlug }, collectibles]) =>
-          Math.min(collectibles.length, openedCollections.includes(collectionSlug) ? Infinity : 4)
+          Math.min(collectibles.length, shownTilesBySlug[collectionSlug] ?? 4)
         )
       ),
-    [shownCollections, openedCollections]
+    [shownCollections, shownTilesBySlug]
   );
 
   return (
@@ -111,9 +145,10 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
             collection={collection}
             chainSlugs={chainSlugs}
             index={index}
-            opened={openedCollections.includes(collection.collectionSlug)}
+            shownTilesCount={shownTilesBySlug[collection.collectionSlug]}
             firstItemRef={index === 0 ? firstCollectionFirstItemRef : undefined}
             onToggleOpened={toggleCollectionOpened}
+            onShowMoreTiles={showMoreTiles}
           />
         ))}
       </VisibilityTrackingInfiniteScroll>

@@ -12,6 +12,7 @@ import {
   setEvmCollectiblesInventoryLoadingAction,
   setEvmCollectiblesSearchLoadingAction
 } from './actions';
+import { InventoryLoadedNft } from './place-collections';
 import { evmCollectiblesInventoryInitialState, EvmCollectiblesInventoryState } from './state';
 
 const accountChains = (state: EvmCollectiblesInventoryState, account: string) => {
@@ -66,15 +67,25 @@ export const evmCollectiblesInventoryReducer = createReducer<EvmCollectiblesInve
       const chain = accountChains(state, payload.account)[payload.chainId];
       if (!chain) return;
 
-      const previousBySlug = new Map(chain.loaded.map(nft => [nft.slug, nft]));
       const removeSlugs = new Set(payload.removeSlugs);
       const upsertBySlug = new Map(payload.upsert.map(nft => [nft.slug, nft]));
-      chain.loaded = chain.loaded.filter(nft => !removeSlugs.has(nft.slug) && !upsertBySlug.has(nft.slug));
+      const withBalance = (nft: InventoryLoadedNft, previousBalance?: string) => {
+        const balance = nft.balance ?? previousBalance;
 
-      for (const nft of payload.upsert) {
-        const balance = nft.balance ?? previousBySlug.get(nft.slug)?.balance;
-        chain.loaded.push(balance ? { ...nft, balance } : nft);
+        return balance ? { ...nft, balance } : nft;
+      };
+      const next: InventoryLoadedNft[] = [];
+
+      for (const nft of chain.loaded) {
+        const upsert = upsertBySlug.get(nft.slug);
+        if (upsert) {
+          next.push(withBalance(upsert, nft.balance));
+          upsertBySlug.delete(nft.slug);
+        } else if (!removeSlugs.has(nft.slug)) next.push(nft);
       }
+
+      for (const nft of upsertBySlug.values()) next.push(withBalance(nft));
+      chain.loaded = next;
 
       for (const update of payload.collectionCounts) {
         const collection = chain.collections.find(item => item.slug === update.slug);

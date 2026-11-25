@@ -21,7 +21,8 @@ import { putEvmCollectiblesMetadataAction } from '../collectibles-metadata/actio
 import {
   appendEvmChainCollectiblesInventoryAction,
   loadEvmCollectionTokensAction,
-  reconcileEvmCollectiblesOwnershipAction
+  reconcileEvmCollectiblesOwnershipAction,
+  verifyEvmCollectionTokensAction
 } from './actions';
 import { isAlchemyChainId, isOpenseaChainId } from './chains';
 import {
@@ -51,6 +52,7 @@ const COLLECTION_LOAD_CONCURRENCY = 2;
 const COLLECTION_RATE_LIMIT_RETRY_LIMIT = 3;
 
 const requestedCollectionLoads = new Set<string>();
+const checkedShownSlugs = new Set<string>();
 
 const readAlchemyOwnerPage = (
   account: HexString,
@@ -173,6 +175,19 @@ const reportedCollectibles = (
     ];
   });
 
+const storedNftsOnContracts = (
+  state: RootState,
+  account: HexString,
+  chainId: number,
+  contractAddresses: readonly string[]
+) => {
+  const contractSet = new Set(contractAddresses.map(address => address.toLowerCase()));
+
+  return (state.evmCollectiblesInventory.byAccount[account]?.[chainId]?.loaded ?? []).filter(nft =>
+    contractSet.has(nft.contractAddress.toLowerCase())
+  );
+};
+
 const verifiedCollectionActions = async (
   state: RootState,
   account: HexString,
@@ -181,12 +196,13 @@ const verifiedCollectionActions = async (
   reported: ReportedCollectible[],
   openseaQueried: boolean,
   metadataBySlug: StringRecord<EvmCollectibleMetadata>,
-  signal: AbortSignal
+  signal: AbortSignal,
+  /** Lowercase slugs of the stored NFTs to check along with `reported`. */
+  shownSlugs: ReadonlySet<string>
 ): Promise<Action[] | null> => {
   const inventory = state.evmCollectiblesInventory.byAccount[account]?.[chainId];
-  const contractSet = new Set(contractAddresses.map(address => address.toLowerCase()));
-  const onTheseContracts = (address: string) => contractSet.has(address.toLowerCase());
-  const stored = (inventory?.loaded ?? []).filter(nft => onTheseContracts(nft.contractAddress));
+  const storedOnContracts = storedNftsOnContracts(state, account, chainId, contractAddresses);
+  const stored = storedOnContracts.filter(nft => shownSlugs.has(nft.slug.toLowerCase()));
   const knownSlugs = new Set((inventory?.collections ?? []).map(collection => collection.slug));
   const seen = new Set(reported.map(nft => nft.slug));
 
@@ -220,7 +236,8 @@ const verifiedCollectionActions = async (
       partialSources,
       stored,
       inventory?.collections ?? [],
-      signal
+      signal,
+      stored.length === storedOnContracts.length
     );
     if (!verified) return null;
 
@@ -404,7 +421,8 @@ export const loadCollectionTokensEpic: Epic<Action, Action, RootState> = (action
             reported,
             openseaQueried,
             metadataBySlug,
-            controller.signal
+            controller.signal,
+            new Set()
           );
 
           return verified ?? actions;
@@ -421,6 +439,55 @@ export const loadCollectionTokensEpic: Epic<Action, Action, RootState> = (action
           if (!finished) requestedCollectionLoads.delete(key);
           controller.abort();
         })
+      );
+    }, COLLECTION_LOAD_CONCURRENCY)
+  );
+
+export const verifyShownCollectionTokensEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+  action$.pipe(
+    filter(verifyEvmCollectionTokensAction.match),
+    mergeMap(({ payload }) => {
+      const { account, chainId, contractAddresses } = payload;
+      if (!isAlchemyChainId(chainId) || !contractAddresses.length) return EMPTY;
+
+      const keyOf = (slug: string) => `${account}:${chainId}:${slug}`;
+      const shown = new Set(payload.shownSlugs.map(slug => slug.toLowerCase()));
+      const toCheck = new Set(
+        storedNftsOnContracts(state$.value, account, chainId, contractAddresses)
+          .map(nft => nft.slug.toLowerCase())
+          .filter(slug => shown.has(slug) && !checkedShownSlugs.has(keyOf(slug)))
+      );
+      if (!toCheck.size) return EMPTY;
+
+      toCheck.forEach(slug => checkedShownSlugs.add(keyOf(slug)));
+      const forget = () => toCheck.forEach(slug => checkedShownSlugs.delete(keyOf(slug)));
+      const controller = new AbortController();
+
+      return from(
+        verifiedCollectionActions(
+          state$.value,
+          account,
+          chainId,
+          contractAddresses,
+          [],
+          false,
+          {},
+          controller.signal,
+          toCheck
+        )
+      ).pipe(
+        mergeMap(actions => {
+          if (actions) return from(actions);
+          forget();
+
+          return EMPTY;
+        }),
+        catchError(error => {
+          forget();
+
+          return emptyAfterAbort(error);
+        }),
+        finalize(() => controller.abort())
       );
     }, COLLECTION_LOAD_CONCURRENCY)
   );
