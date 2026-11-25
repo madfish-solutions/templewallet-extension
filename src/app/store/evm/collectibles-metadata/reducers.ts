@@ -136,7 +136,7 @@ export const evmCollectiblesMetadataPersistedReducer = persistReducer(
     version: 1,
     ...stringStorageConfig,
     blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST,
-    throttle: 5_000,
+    throttle: 10_000,
     migrate: createMigrate({
       1: persistedState => addStoredCollectibleImageVariants(persistedState)
     })
