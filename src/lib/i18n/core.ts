@@ -2,10 +2,16 @@ import { isDefined } from '@rnw-community/shared';
 import formatDateFns from 'date-fns/format';
 import formatDurationFns from 'date-fns/formatDuration';
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
-import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
-import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
+import {
+  getNativeLocale,
+  getDefaultLocale,
+  areLocalesEqual,
+  fetchLocaleMessages,
+  applySubstitutions,
+  getNativeMessage
+} from './helpers';
 import { getSavedLocale } from './saving';
 import { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
 
@@ -56,21 +62,6 @@ function getFallbackLocaleMessages(): Promise<LocaleMessages | null> {
   if (areDefaultNativeEqual || areDefaultSavedEqual) return promiseNull;
 
   return fetchLocaleMessages(defaultLocale);
-}
-
-// Native messages are fixed for the browser's lifetime, and each lookup is a native extension API call
-const nativeMessages = new Map<string, string>();
-
-function getNativeMessage(messageName: string, substitutions?: Substitutions) {
-  if (substitutions !== undefined) return browser.i18n.getMessage(messageName, substitutions);
-
-  let message = nativeMessages.get(messageName);
-  if (message === undefined) {
-    message = browser.i18n.getMessage(messageName);
-    nativeMessages.set(messageName, message);
-  }
-
-  return message;
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {

@@ -203,7 +203,7 @@ const verifiedCollectionActions = async (
   }: {
     /** Lowercase slugs of the stored NFTs to check along with `reported`. */
     shownSlugs: ReadonlySet<string>;
-    /** `reported` is the API listing of these contracts. Without it, stored entries and counts are left as they are. */
+    /** `reported` is the API listing of these contracts. Without it, owned stored NFTs are not rewritten, only `balanceOf` sets a count. */
     apiListing: boolean;
   }
 ): Promise<Action[] | null> => {
@@ -248,8 +248,7 @@ const verifiedCollectionActions = async (
     );
     if (!verified) return null;
 
-    const storedSlugs = new Set(storedOnContracts.map(nft => nft.slug));
-    const upsert = apiListing ? verified.upsert : verified.upsert.filter(nft => !storedSlugs.has(nft.slug));
+    const { upsert } = verified;
     const records: StringRecord<EvmCollectibleMetadata> = {};
     for (const nft of upsert) {
       const merged = mergeCollectibleMetadata(metadataBySlug[nft.slug], verified.metadata[nft.slug]);

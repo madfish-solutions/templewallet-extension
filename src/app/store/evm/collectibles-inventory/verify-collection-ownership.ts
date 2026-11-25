@@ -85,8 +85,8 @@ export const verifyCollectionOwnership = async (
   stored: readonly InventoryLoadedNft[],
   collections: readonly InventoryCollectionRef[],
   signal: AbortSignal,
-  /** False when `reported` is not the API listing of these contracts: then only `balanceOf` sets a collection count. */
-  countAttributed = true
+  /** False when `reported` is not the API listing of these contracts: owned stored NFTs are not rewritten, only `balanceOf` sets a count. */
+  apiListing: boolean
 ): Promise<VerifiedCollectionOwnership | null> => {
   const network = await networkForChain(chainId);
   if (!network) return null;
@@ -167,6 +167,11 @@ export const verifyCollectionOwnership = async (
     hintedSlugsByIdentity.set(id, hints);
   }
 
+  const checkedIdentities = new Set(reported.map(report => identityOf(report.contractAddress, report.tokenId)));
+  const storedIdentities = stored.map(nft => [identityOfSlug(nft.slug), nft] as const);
+  const storedByIdentity = new Map(storedIdentities);
+  const keepsStoredEntry = (id: string) => storedByIdentity.has(id) && (!apiListing || !checkedIdentities.has(id));
+
   const metadataByIdentity = new Map<string, EvmCollectibleMetadata>();
   if (isOpenseaChainId(chainId)) {
     const missing = contracts.flatMap(contract => {
@@ -175,7 +180,7 @@ export const verifyCollectionOwnership = async (
 
       return owned.tokenIds.flatMap(tokenId => {
         const id = identityOf(contract, tokenId);
-        if (openseaSlugByIdentity.has(id)) return [];
+        if (openseaSlugByIdentity.has(id) || keepsStoredEntry(id)) return [];
 
         return [{ contract, tokenId }];
       });
@@ -210,9 +215,6 @@ export const verifyCollectionOwnership = async (
     }
   }
 
-  const checkedIdentities = new Set(reported.map(report => identityOf(report.contractAddress, report.tokenId)));
-  const storedIdentities = stored.map(nft => [identityOfSlug(nft.slug), nft] as const);
-  const storedByIdentity = new Map(storedIdentities);
   const upsert: InventoryLoadedNft[] = [];
   const metadata: StringRecord<EvmCollectibleMetadata> = {};
   const ownedIdentities = new Set<string>();
@@ -229,10 +231,9 @@ export const verifyCollectionOwnership = async (
     for (const tokenId of owned.tokenIds) {
       const id = identityOf(checksum, tokenId);
       ownedIdentities.add(id);
-      const storedNft = storedByIdentity.get(id);
-      if (storedNft && !checkedIdentities.has(id)) continue;
+      if (keepsStoredEntry(id)) continue;
 
-      const slug = storedNft?.slug ?? toTokenSlug(checksum, tokenId);
+      const slug = storedByIdentity.get(id)?.slug ?? toTokenSlug(checksum, tokenId);
       const record = metadataByIdentity.get(id);
       if (record) metadata[slug] = record;
       const reportedSlug = (hintedSlugsByIdentity.get(id) ?? []).find(hint => accountSlugs.includes(hint));
@@ -247,16 +248,14 @@ export const verifyCollectionOwnership = async (
   }
 
   const removeSlugs: string[] = [];
-  const uncheckedStored: InventoryLoadedNft[] = [];
   for (const [id, nft] of storedIdentities) {
-    if (!checkedIdentities.has(id)) {
-      uncheckedStored.push(nft);
-      continue;
-    }
-    if (!ownedByContract.get(contractKey(nft.contractAddress))?.settled || ownedIdentities.has(id)) continue;
+    if (!checkedIdentities.has(id) || ownedIdentities.has(id)) continue;
+    if (!ownedByContract.get(contractKey(nft.contractAddress))?.settled) continue;
 
     removeSlugs.push(nft.slug);
   }
+  const changedSlugs = new Set(upsert.map(nft => nft.slug).concat(removeSlugs));
+  const keptStored = stored.filter(nft => !changedSlugs.has(nft.slug));
 
   const chainBalances: VerifiedCollectionOwnership['chainBalances'] = [];
 
@@ -273,7 +272,7 @@ export const verifyCollectionOwnership = async (
     const soleOnContract = (address: string) => collectionsForContract(collections, address).length === 1;
     const countedByChain = (address: string) =>
       soleOnContract(address) && ownedByContract.get(address)?.balanceOf != null;
-    if (!countAttributed && !addresses.every(countedByChain)) return [];
+    if (!apiListing && !addresses.every(countedByChain)) return [];
 
     const attributedTo = (nft: InventoryLoadedNft, address: string) =>
       nft.collectionSlug === collection.slug && contractKey(nft.contractAddress) === address;
@@ -282,7 +281,7 @@ export const verifyCollectionOwnership = async (
       const sole = soleOnContract(address);
       const attributed =
         upsert.filter(nft => attributedTo(nft, address)).length +
-        uncheckedStored.filter(nft => attributedTo(nft, address)).length;
+        keptStored.filter(nft => attributedTo(nft, address)).length;
 
       return sum + collectionOwnedCount(attributed, owned?.balanceOf ?? null, sole);
     }, 0);

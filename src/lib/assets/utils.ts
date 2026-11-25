@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { getAddress } from 'viem';
-import browser from 'webextension-polyfill';
 
 import { CollectibleDetails } from 'app/store/tezos/collectibles/state';
+import { getNativeMessage } from 'lib/i18n/helpers';
 import type { AssetMetadataBase } from 'lib/metadata';
 import type { ChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -94,12 +94,9 @@ const NAME_FROM_GALLERY_FIRST_ADDRESSES = new Set([
   'KT1M2JnD1wsg7w2B4UXJXtKQPuDUpU2L7cJH' // hic et Nunc OBJKTs Legacy
 ]);
 
-// A native extension API call per NFT otherwise; native messages can't change while the browser runs
-let unknownCollectionName: string | undefined;
-
 export const getTezCollectionName = (assetSlug: string, details: CollectibleDetails | nullish) => {
   const [contractAddress] = fromAssetSlug(assetSlug);
-  const fallbackName = (unknownCollectionName ??= browser.i18n.getMessage('unknownCollection'));
+  const fallbackName = getNativeMessage('unknownCollection');
 
   if (!details) {
     return fallbackName;
