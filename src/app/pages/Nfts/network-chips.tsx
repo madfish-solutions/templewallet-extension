@@ -15,8 +15,8 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ counts }) => {
 
   const chipsProps = useMemoWithCompare(
     () =>
-      [...counts]
-        .sort((a, b) => b[1] - a[1])
+      counts
+        .toSorted((a, b) => b[1] - a[1])
         .map(([chainId, amount]): { chain: NetworkChipChain; label: ReactChildren } => ({
           chain:
             typeof chainId === 'number'
