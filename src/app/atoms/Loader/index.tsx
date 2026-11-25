@@ -23,14 +23,15 @@ const SIZE_CLASSNAME: Record<Size, string> = {
 };
 
 export const Loader: FC<Props> = ({ size, trackVariant, className }) => (
-  <LoaderIcon
-    className={clsx(
-      SIZE_CLASSNAME[size],
-      'fill-current animate-spin',
-      trackVariant === 'light' ? LoaderStyles.trackLight : LoaderStyles.trackDark,
-      className
-    )}
-  />
+  <span className={clsx('flex w-fit animate-spin', className)}>
+    <LoaderIcon
+      className={clsx(
+        SIZE_CLASSNAME[size],
+        'fill-current',
+        trackVariant === 'light' ? LoaderStyles.trackLight : LoaderStyles.trackDark
+      )}
+    />
+  </span>
 );
 
 interface PageLoaderProps {

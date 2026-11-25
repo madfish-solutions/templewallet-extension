@@ -81,13 +81,30 @@ jobs:
         run: yarn remove-ad-related-files
 
       - name: Create Firefox build
-        run: yarn build:firefox
+        id: firefox
+        continue-on-error: true
+        run: |
+          yarn build:firefox
+          test -f dist/firefox.xpi
+
+      - name: Choose release assets
+        id: release-assets
+        run: |
+          {
+            echo "files<<EOF"
+            echo "dist/chrome.zip"
+            if [ "${{ steps.firefox.outcome }}" = "success" ] && [ -f dist/firefox.xpi ]; then
+              echo "dist/firefox.xpi"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.firefox.outcome }}" != "success" ] || [ ! -f dist/firefox.xpi ]; then
+            echo "::warning::Firefox build failed, be careful. Releasing Chrome only."
+          fi
 
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
-          files: |
-            dist/chrome.zip
-            dist/firefox.xpi
+          files: ${{ steps.release-assets.outputs.files }}

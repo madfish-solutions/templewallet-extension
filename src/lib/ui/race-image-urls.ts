@@ -1,3 +1,7 @@
+import { Semaphore } from 'async-mutex';
+
+import { acquireUnlessAborted } from 'lib/utils/acquire-unless-aborted';
+
 export interface ImageSourceStage {
   urls: string[];
   delayMs?: number;
@@ -18,6 +22,60 @@ interface InternalRaceOptions extends RaceImageUrlsOptions {
 
 const IMAGE_LOAD_TIMEOUT_MS = 10_000;
 const MAX_CONCURRENT_RACES = 5;
+const RATE_LIMIT_BACKOFF_MS = 30_000;
+const RATE_LIMITED_STATUS = 429;
+const HOST_RESUME_JITTER_MS = 5_000;
+
+const rateLimitedAt = new Map<string, number>();
+const hostRateLimitedAt = new Map<string, number>();
+
+const getHost = (url: string) => {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+};
+
+const isRateLimitedEntry = (entry: PerformanceEntry | undefined): entry is PerformanceResourceTiming =>
+  typeof PerformanceResourceTiming !== 'undefined' &&
+  entry instanceof PerformanceResourceTiming &&
+  entry.responseStatus === RATE_LIMITED_STATUS;
+
+const watchRateLimitedResponses = () => {
+  if (typeof PerformanceObserver === 'undefined' || !PerformanceObserver.supportedEntryTypes?.includes('resource')) {
+    return;
+  }
+
+  new PerformanceObserver(list => {
+    for (const entry of list.getEntries()) {
+      if (!isRateLimitedEntry(entry)) continue;
+
+      const now = Date.now();
+      rateLimitedAt.set(entry.name, now);
+      hostRateLimitedAt.set(getHost(entry.name), now);
+    }
+  }).observe({ type: 'resource' });
+};
+
+const getBufferedRateLimitTime = (url: string) => {
+  if (typeof performance === 'undefined' || typeof performance.getEntriesByName !== 'function') return 0;
+
+  const entry = performance.getEntriesByName(url).at(-1);
+
+  return isRateLimitedEntry(entry) ? performance.timeOrigin + entry.responseEnd : 0;
+};
+
+const getUrlRateLimitedAt = (url: string) => Math.max(rateLimitedAt.get(url) ?? 0, getBufferedRateLimitTime(url));
+
+const wasRateLimited = (url: string) => Date.now() - getUrlRateLimitedAt(url) < RATE_LIMIT_BACKOFF_MS;
+
+const getHostsQuietAt = (urls: string[]) =>
+  Math.max(
+    ...urls.map(
+      url => Math.max(hostRateLimitedAt.get(getHost(url)) ?? 0, getUrlRateLimitedAt(url)) + RATE_LIMIT_BACKOFF_MS
+    )
+  );
 
 const abortError = () => new DOMException('Aborted', 'AbortError');
 
@@ -64,12 +122,12 @@ interface InFlightRace {
   abortTimeoutId?: ReturnType<typeof setTimeout>;
 }
 
-export const normalizeImageSources = (sources: Array<string | ImageSourceStage>): ImageSourceStage[] =>
+export const normalizeImageSources = (sources: Array<string | ImageSourceStage | nullish>): ImageSourceStage[] =>
   sources.reduce<ImageSourceStage[]>((stages, source) => {
+    if (!source) return stages;
+
     if (typeof source === 'string') {
-      if (source) {
-        stages.push({ urls: [source] });
-      }
+      stages.push({ urls: [source] });
 
       return stages;
     }
@@ -139,13 +197,14 @@ const loadOneImage = (url: string, timeoutMs: number, signal: AbortSignal) =>
 export class ImageUrlRacer {
   private readonly winners = new Map<string, string>();
   private readonly inFlight = new Map<string, InFlightRace>();
-  private active = 0;
-  private readonly waiters: Array<() => void> = [];
+  private readonly slots: Semaphore;
 
   constructor(
-    private readonly maxConcurrent = MAX_CONCURRENT_RACES,
+    maxConcurrent = MAX_CONCURRENT_RACES,
     private readonly defaultTimeoutMs = IMAGE_LOAD_TIMEOUT_MS
-  ) {}
+  ) {
+    this.slots = new Semaphore(maxConcurrent);
+  }
 
   async raceImageUrls(urls: string[], options: RaceImageUrlsOptions = {}): Promise<string | null> {
     return this.raceImageUrlsInternal(urls, options);
@@ -159,8 +218,25 @@ export class ImageUrlRacer {
     }
 
     const signal = options.signal ?? new AbortController().signal;
+    const firstStageUrls = normalized[0].urls;
 
-    await this.acquire(signal, options.immediate ?? false);
+    if (!options.immediate && getHostsQuietAt(firstStageUrls) > Date.now()) {
+      await this.waitForQuietHosts(firstStageUrls, signal);
+    }
+
+    const winner = await this.loadStagesInSlot(normalized, options, signal);
+    if (winner) return winner;
+
+    const rateLimitedUrls = normalized.flatMap(({ urls }) => urls).filter(wasRateLimited);
+    if (rateLimitedUrls.length === 0) return null;
+
+    await this.waitForQuietHosts(rateLimitedUrls, signal);
+
+    return this.loadStagesInSlot(normalized, options, signal);
+  }
+
+  private async loadStagesInSlot(normalized: ImageSourceStage[], options: RaceImageUrlsOptions, signal: AbortSignal) {
+    const [, release] = await acquireUnlessAborted(this.slots, signal, options.immediate ?? false);
 
     try {
       throwIfAborted(signal);
@@ -194,7 +270,19 @@ export class ImageUrlRacer {
 
       return null;
     } finally {
-      this.release();
+      release();
+    }
+  }
+
+  private async waitForQuietHosts(urls: string[], signal: AbortSignal) {
+    const deadline = Date.now() + RATE_LIMIT_BACKOFF_MS;
+
+    for (
+      let quietAt = getHostsQuietAt(urls);
+      quietAt > Date.now() && Date.now() < deadline;
+      quietAt = getHostsQuietAt(urls)
+    ) {
+      await delay(Math.min(quietAt, deadline) - Date.now() + Math.random() * HOST_RESUME_JITTER_MS, signal);
     }
   }
 
@@ -235,9 +323,7 @@ export class ImageUrlRacer {
 
     entry.promise
       .then(winner => {
-        if (winner) {
-          this.winners.set(key, winner);
-        }
+        if (winner) this.winners.set(key, winner);
       })
       .catch(() => undefined)
       .finally(() => {
@@ -387,10 +473,11 @@ export class ImageUrlRacer {
     options: Required<Pick<InternalRaceOptions, 'timeoutMs' | 'immediate' | 'signal'>> &
       Pick<InternalRaceOptions, 'skipAcquire'>
   ) {
-    const skipAcquire = options.skipAcquire ?? false;
-    if (!skipAcquire) {
-      await this.acquire(options.signal, options.immediate);
-    }
+    const [, release] = await acquireUnlessAborted(
+      this.slots,
+      options.signal,
+      options.skipAcquire || options.immediate
+    );
 
     try {
       throwIfAborted(options.signal);
@@ -438,65 +525,14 @@ export class ImageUrlRacer {
         options.signal.removeEventListener('abort', onParentAbort);
       }
     } finally {
-      if (!skipAcquire) {
-        this.release();
-      }
-    }
-  }
-
-  private acquire(signal: AbortSignal, immediate: boolean) {
-    if (immediate) {
-      this.active += 1;
-      return Promise.resolve();
-    }
-
-    if (this.active < this.maxConcurrent) {
-      this.active += 1;
-      return Promise.resolve();
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      let settled = false;
-      const waiter = () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        signal.removeEventListener('abort', onAbort);
-        this.active += 1;
-        resolve();
-      };
-      const onAbort = () => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        const waiterIndex = this.waiters.indexOf(waiter);
-        if (waiterIndex >= 0) {
-          this.waiters.splice(waiterIndex, 1);
-        }
-        reject(signal.reason instanceof Error ? signal.reason : abortError());
-      };
-
-      if (signal.aborted) {
-        onAbort();
-        return;
-      }
-
-      this.waiters.push(waiter);
-      signal.addEventListener('abort', onAbort, { once: true });
-    });
-  }
-
-  private release() {
-    this.active = Math.max(0, this.active - 1);
-    if (this.active < this.maxConcurrent) {
-      this.waiters.shift()?.();
+      release();
     }
   }
 }
 
 const defaultRacer = new ImageUrlRacer();
+
+if (typeof window !== 'undefined') watchRateLimitedResponses();
 
 export const raceImageUrls = (urls: string[], options?: RaceImageUrlsOptions) =>
   defaultRacer.raceImageUrls(urls, options);

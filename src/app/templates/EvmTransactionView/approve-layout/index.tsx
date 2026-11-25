@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useMemo, ReactNode } from 'react';
 import BigNumber from 'bignumber.js';
 import { decodeFunctionData, encodeFunctionData } from 'viem';
 
-import { IconBase } from 'app/atoms';
+import { IconBase, Loader } from 'app/atoms';
 import Divider from 'app/atoms/Divider';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useOperationConfirmationCardRowsPropsPart } from 'app/hooks/use-operation-confirmation-card-rows-props-part';
@@ -155,7 +155,10 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
         [toEvmAssetSlug(tokenAddress, tokenId.toString())]: { atomicAmount: new BigNumber(1), isNft: true }
       };
     }, [isErc20IncreaseAllowance, isErc20, txData, tokenAddress, onChainAllowance]);
-    const [{ assetSlug, variant, volume, symbol }] = useOperationConfirmationCardRowsPropsPart(
+    const {
+      rows: [{ assetSlug, variant, volume, symbol }],
+      metadataLoading
+    } = useOperationConfirmationCardRowsPropsPart(
       chain,
       newSuggestedAllowances,
       useGetEvmChainTokenOrGasMetadata,
@@ -196,39 +199,46 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
 
     return (
       <>
-        <OperationConfirmationCard title={t('approve')}>
-          <OperationConfirmationCardRow
-            chain={chain}
-            assetSlug={assetSlug}
-            variant={variant}
-            withSign={false}
-            volume={volume.isFinite() ? volume : t('unlimited')}
-            symbol={symbol}
-            rightContent={
-              isErc20 && allowanceEditable ? (
-                <StyledButton size="S" color="secondary-low" className="flex items-center" onClick={openEditModal}>
-                  <T id="edit" />
-                  <IconBase size={12} Icon={EditIcon} />
-                </StyledButton>
-              ) : undefined
-            }
-          />
+        <div className={metadataLoading ? 'hidden' : undefined}>
+          <OperationConfirmationCard title={t('approve')}>
+            <OperationConfirmationCardRow
+              chain={chain}
+              assetSlug={assetSlug}
+              variant={variant}
+              withSign={false}
+              volume={volume.isFinite() ? volume : t('unlimited')}
+              symbol={symbol}
+              rightContent={
+                isErc20 && allowanceEditable ? (
+                  <StyledButton size="S" color="secondary-low" className="flex items-center" onClick={openEditModal}>
+                    <T id="edit" />
+                    <IconBase size={12} Icon={EditIcon} />
+                  </StyledButton>
+                ) : undefined
+              }
+            />
 
-          <Divider />
-          {footer}
-        </OperationConfirmationCard>
+            <Divider />
+            {footer}
+          </OperationConfirmationCard>
 
-        {allowanceEditable && editModalIsVisible && (
-          <EditModal
-            assetSlug={assetSlug}
-            chain={chain}
-            from={from}
-            initialAllowance={initialAllowance}
-            minAllowance={minAllowance || onChainAllowance}
-            minInclusive={!isErc20IncreaseAllowance}
-            onClose={closeEditModal}
-            setAllowance={setAllowance}
-          />
+          {allowanceEditable && editModalIsVisible && (
+            <EditModal
+              assetSlug={assetSlug}
+              chain={chain}
+              from={from}
+              initialAllowance={initialAllowance}
+              minAllowance={minAllowance || onChainAllowance}
+              minInclusive={!isErc20IncreaseAllowance}
+              onClose={closeEditModal}
+              setAllowance={setAllowance}
+            />
+          )}
+        </div>
+        {metadataLoading && (
+          <div className="flex justify-center items-center">
+            <Loader size="L" trackVariant="dark" className="text-secondary" />
+          </div>
         )}
       </>
     );

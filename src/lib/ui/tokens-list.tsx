@@ -1,7 +1,11 @@
-import { Ref, RefObject } from 'react';
-
-import { clamp } from 'lodash';
-
+import {
+  useEvmChainCollectiblesMetadataRecordSelector,
+  useEvmCollectiblesMetadataRecordSelector
+} from 'app/store/evm/collectibles-metadata/selectors';
+import {
+  useEvmChainNoCategoryAssetsMetadataSelector,
+  useEvmNoCategoryAssetsMetadataRecordSelector
+} from 'app/store/evm/no-category-assets-metadata/selectors';
 import {
   use3RouteEvmChainTokensMetadataSelector,
   use3RouteEvmTokensMetadataRecordSelector
@@ -21,146 +25,74 @@ import { useAdsConstantsModule } from 'lib/ads-constants';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { AccountToken } from 'lib/assets/hooks/tokens';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
-import { ChainGroupedSlugs, EvmChain, TezosChain } from 'temple/front/chains';
+import type { EvmAssetMetadata } from 'lib/metadata/types';
+import { isEvmCollectible } from 'lib/metadata/utils';
+import { EvmChain, TezosChain } from 'temple/front/chains';
 import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 export type TokenListItemElement = HTMLDivElement | HTMLAnchorElement;
 
-export const getTokenElementIndex = (
-  promoElement: HTMLDivElement | null,
-  firstListItemElement: TokenListItemElement | null,
-  chainSlugs: string[],
-  tokenWillBeRendered: (chainSlug: string) => boolean,
-  y: number,
-  takeTopOffset = true
+type EvmMetadataSlugRecord = StringRecord<unknown> | undefined;
+
+// The virtual lists reserve a slot only for rows this allows: keep it equal to EvmTokenListItem's null branch
+const evmTokenWillRender = (
+  assetSlug: string,
+  tokens: EvmMetadataSlugRecord,
+  lifiConnected: EvmMetadataSlugRecord,
+  lifiEnabled: EvmMetadataSlugRecord,
+  route3: EvmMetadataSlugRecord,
+  collectibles: EvmMetadataSlugRecord,
+  noCategory: StringRecord<EvmAssetMetadata> | undefined
 ) => {
-  const topOffset = takeTopOffset ? (firstListItemElement?.offsetTop ?? 0) : 0;
-  const yAfterOffset = y - topOffset;
-  const promoHeight = promoElement?.clientHeight ?? 64;
-  const tokenElementHeight = firstListItemElement?.clientHeight ?? 56;
-  const allTokensRenderedIndexWithoutPromo = clamp(
-    Math.floor(yAfterOffset / tokenElementHeight),
-    0,
-    chainSlugs.length - 1
-  );
-  let allTokensRenderedIndex: number;
+  if (assetSlug === EVM_TOKEN_SLUG) return true;
 
-  if (!promoElement || allTokensRenderedIndexWithoutPromo < 1) {
-    allTokensRenderedIndex = allTokensRenderedIndexWithoutPromo;
-  } else {
-    const contentPromoAndAboveHeight = promoHeight + tokenElementHeight;
-    allTokensRenderedIndex =
-      yAfterOffset < contentPromoAndAboveHeight
-        ? 0
-        : 1 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight);
-  }
+  if (tokens?.[assetSlug] || lifiConnected?.[assetSlug] || lifiEnabled?.[assetSlug] || route3?.[assetSlug]) return true;
 
-  let tokensToRenderLeft = allTokensRenderedIndex + 1;
-  for (let i = 0; i < chainSlugs.length; i++) {
-    if (tokenWillBeRendered(chainSlugs[i])) {
-      tokensToRenderLeft--;
-    }
+  if (collectibles?.[assetSlug]) return false;
 
-    if (tokensToRenderLeft === 0) {
-      return [i];
-    }
-  }
+  const noCategoryMetadata = noCategory?.[assetSlug];
 
-  return [chainSlugs.length - 1];
-};
-
-const getGroupedTokenElementIndex = <T extends TempleChainKind>(
-  promoElement: HTMLDivElement | null,
-  firstListItemElement: TokenListItemElement | null,
-  firstHeaderElement: HTMLDivElement | null,
-  groupedSlugs: ChainGroupedSlugs<T>,
-  tokenWillBeRendered: (chainSlug: string) => boolean,
-  y: number
-) => {
-  const topOffset = firstHeaderElement?.offsetTop ?? 0;
-  let slugsInPreviousGroupsCount = 0;
-  let yLeft = y - topOffset;
-  const promoHeight = promoElement?.clientHeight ?? 64;
-  const tokenElementHeight = firstListItemElement?.clientHeight ?? 56;
-  const firstHeaderHeight = firstHeaderElement?.clientHeight ?? 26;
-  for (let i = 0; i < groupedSlugs.length; i++) {
-    const groupSlugsCount = groupedSlugs[i][1].length;
-    const renderedSlugsCount = groupedSlugs[i][1].filter(tokenWillBeRendered).length;
-    const headerWithMarginsHeight = i === 0 ? firstHeaderHeight : Math.round((firstHeaderHeight * 20) / 13);
-    const groupHeightWithoutPromo = headerWithMarginsHeight + tokenElementHeight * renderedSlugsCount;
-    const groupPromoHeight = i === 0 && promoElement ? promoHeight : 0;
-    const groupHeight = groupHeightWithoutPromo + groupPromoHeight;
-
-    if (groupHeight < yLeft) {
-      slugsInPreviousGroupsCount += groupSlugsCount;
-      yLeft -= groupHeight;
-      continue;
-    }
-
-    if (yLeft < headerWithMarginsHeight) {
-      return [slugsInPreviousGroupsCount];
-    }
-
-    yLeft -= headerWithMarginsHeight;
-    const indexWithoutPromo = clamp(Math.floor(yLeft / tokenElementHeight), 0, groupSlugsCount - 1);
-
-    if (!promoElement || indexWithoutPromo < 1) {
-      return [indexWithoutPromo + slugsInPreviousGroupsCount];
-    }
-
-    const contentPromoAndAboveHeight = groupPromoHeight + tokenElementHeight;
-
-    if (yLeft < contentPromoAndAboveHeight) {
-      return [slugsInPreviousGroupsCount];
-    }
-
-    return [slugsInPreviousGroupsCount + 1 + Math.floor((yLeft - contentPromoAndAboveHeight) / tokenElementHeight)];
-  }
-
-  return [slugsInPreviousGroupsCount - 1];
+  return Boolean(noCategoryMetadata) && !isEvmCollectible(noCategoryMetadata);
 };
 
 export const useTokenWillBeRendered = () => {
-  const lifiConnectedEvmTokensMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
-  const lifiEnabledNetworksEvmTokensMetadataRecord = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
-  const route3EvmTokensMetadataRecord = use3RouteEvmTokensMetadataRecordSelector();
-  const evmTokensMetadataRecord = useEvmTokensMetadataRecordSelector();
+  const lifiConnected = useLifiConnectedEvmTokensMetadataRecordSelector();
+  const lifiEnabled = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
+  const route3 = use3RouteEvmTokensMetadataRecordSelector();
+  const tokens = useEvmTokensMetadataRecordSelector();
+  const collectibles = useEvmCollectiblesMetadataRecordSelector();
+  const noCategory = useEvmNoCategoryAssetsMetadataRecordSelector();
 
   return (chainSlug: string) => {
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-    if (chainKind === TempleChainKind.Tezos || assetSlug === EVM_TOKEN_SLUG) {
-      return true;
-    }
+    if (chainKind === TempleChainKind.Tezos) return true;
 
     const evmChainId = Number(chainId);
 
-    return Boolean(
-      lifiConnectedEvmTokensMetadataRecord[evmChainId]?.[assetSlug] ??
-      lifiEnabledNetworksEvmTokensMetadataRecord[evmChainId]?.[assetSlug] ??
-      route3EvmTokensMetadataRecord[evmChainId]?.[assetSlug] ??
-      evmTokensMetadataRecord[evmChainId]?.[assetSlug]
+    return evmTokenWillRender(
+      assetSlug,
+      tokens[evmChainId],
+      lifiConnected[evmChainId],
+      lifiEnabled[evmChainId],
+      route3[evmChainId],
+      collectibles[evmChainId],
+      noCategory[evmChainId]
     );
   };
 };
 
-export const useEvmChainTokenWillBeRendered = (chain: EvmChain) => {
-  const lifiConnectedEvmChainTokensMetadataRecord = useLifiConnectedEvmChainTokensMetadataSelector(chain.chainId);
-  const lifiEnabledNetworksEvmChainTokensMetadataRecord = useLifiEnabledNetworksEvmChainTokensMetadataSelector(
-    chain.chainId
-  );
-  const route3EvmChainTokensMetadataRecord = use3RouteEvmChainTokensMetadataSelector(chain.chainId);
-  const evmChainTokensMetadataRecord = useEvmChainTokensMetadataRecordSelector(chain.chainId);
+export const useEvmChainTokenWillBeRendered = (chainId: number) => {
+  const lifiConnected = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
+  const lifiEnabled = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
+  const route3 = use3RouteEvmChainTokensMetadataSelector(chainId);
+  const tokens = useEvmChainTokensMetadataRecordSelector(chainId);
+  const collectibles = useEvmChainCollectiblesMetadataRecordSelector(chainId);
+  const noCategory = useEvmChainNoCategoryAssetsMetadataSelector(chainId);
 
-  return (tokenSlug: string) => {
-    return Boolean(
-      lifiConnectedEvmChainTokensMetadataRecord?.[tokenSlug] ??
-      lifiEnabledNetworksEvmChainTokensMetadataRecord?.[tokenSlug] ??
-      route3EvmChainTokensMetadataRecord?.[tokenSlug] ??
-      evmChainTokensMetadataRecord?.[tokenSlug]
-    );
-  };
+  return (tokenSlug: string) =>
+    evmTokenWillRender(tokenSlug, tokens, lifiConnected, lifiEnabled, route3, collectibles, noCategory);
 };
 
 export function makeFallbackChain(network: StoredTezosNetwork): TezosChain;
@@ -185,7 +117,7 @@ export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork
   return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
 }
 
-export const useRenderPromo = (manageActive: boolean, page: 'home' | 'tokens', promoRef?: Ref<HTMLDivElement>) => {
+export const useRenderPromo = (manageActive: boolean, page: 'home' | 'tokens') => {
   const PartnersPromotionModule = usePartnersPromotionModule();
   const AdsConstantsModule = useAdsConstantsModule();
   const id = page === 'home' ? 'promo-token-item' : 'promo-token-item-tokens';
@@ -197,7 +129,6 @@ export const useRenderPromo = (manageActive: boolean, page: 'home' | 'tokens', p
         key={id}
         variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
         pageName={page === 'home' ? AdsConstantsModule.HOME_PAGE_NAME : AdsConstantsModule.TOKENS_PAGE_NAME}
-        ref={promoRef}
       />
     );
 };
@@ -206,25 +137,3 @@ export const toNotRemovedChainTokensSlugs = (tokens: AccountToken[], chainKind: 
   tokens
     .filter(({ status }) => status !== 'removed')
     .map(({ chainId, slug }) => toChainAssetSlug(chainKind, chainId, slug));
-
-export const useGroupableGetTokenElementIndex = (
-  groupedSlugs: ChainGroupedSlugs | null,
-  slugs: string[],
-  promoRef: RefObject<HTMLDivElement | null>,
-  firstListItemRef: RefObject<TokenListItemElement | null>,
-  firstHeaderRef: RefObject<HTMLDivElement | null>
-) => {
-  const tokenWillBeRendered = useTokenWillBeRendered();
-
-  return (y: number) =>
-    groupedSlugs
-      ? getGroupedTokenElementIndex(
-          promoRef.current,
-          firstListItemRef.current,
-          firstHeaderRef.current,
-          groupedSlugs,
-          tokenWillBeRendered,
-          y
-        )
-      : getTokenElementIndex(promoRef.current, firstListItemRef.current, slugs, tokenWillBeRendered, y);
-};

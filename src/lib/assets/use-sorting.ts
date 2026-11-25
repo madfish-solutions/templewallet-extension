@@ -1,6 +1,8 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
+import { identity } from 'lodash';
 
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import {
@@ -13,109 +15,198 @@ import {
 } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
-import {
-  useGetEvmChainTokenBalanceWithDecimals,
-  useGetEvmTokenBalanceWithDecimals,
-  useGetTezosAccountTokenOrGasBalanceWithDecimals,
-  useGetTezosChainAccountTokenOrGasBalanceWithDecimals
-} from 'lib/balances/hooks';
+import { useGetChainTokenOrGasMetadata, useGetEvmGasOrTokenMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
-import { EMPTY_FROZEN_OBJ } from '../utils';
+import { type ParseChainReturnType, parseChainAssetSlug, toChainAssetSlug } from './utils';
 
-import { parseChainAssetSlug, toChainAssetSlug } from './utils';
+interface TokenSortKey {
+  rawBalance: string | undefined;
+  decimals: number | undefined;
+  rate: BigNumber.Value | undefined;
+  balance: BigNumber;
+  equity: BigNumber;
+}
+
+const useTokenSortKeyGetter = () => {
+  const [cache] = useState(() => new Map<string, TokenSortKey>());
+
+  return useCallback(
+    (
+      slug: string,
+      rawBalance: string | undefined,
+      decimals: number | undefined,
+      rate: BigNumber.Value | undefined
+    ): TokenSortKey => {
+      const cached = cache.get(slug);
+
+      if (cached && cached.rawBalance === rawBalance && cached.decimals === decimals && cached.rate === rate) {
+        return cached;
+      }
+
+      const balance = rawBalance && isDefined(decimals) ? atomsToTokens(rawBalance, decimals) : ZERO;
+      const key: TokenSortKey = { rawBalance, decimals, rate, balance, equity: balance.multipliedBy(rate ?? ZERO) };
+
+      cache.set(slug, key);
+
+      return key;
+    },
+    [cache]
+  );
+};
+
+const useCollectibleBalanceGetter = () => {
+  const [cache] = useState(() => new Map<string, { rawBalance: string; balance: BigNumber }>());
+
+  return useCallback(
+    (slug: string, rawBalance: string | undefined = '0') => {
+      const cached = cache.get(slug);
+
+      if (cached && cached.rawBalance === rawBalance) return cached.balance;
+
+      const balance = new BigNumber(rawBalance);
+
+      cache.set(slug, { rawBalance, balance });
+
+      return balance;
+    },
+    [cache]
+  );
+};
+
+const useParsedChainAssetSlugGetter = <T extends TempleChainKind>() => {
+  const [cache] = useState(() => new Map<string, ParseChainReturnType<T>>());
+
+  return useCallback(
+    (chainAssetSlug: string) => {
+      const cached = cache.get(chainAssetSlug);
+
+      if (cached) return cached;
+
+      const parsed = parseChainAssetSlug<T>(chainAssetSlug);
+
+      cache.set(chainAssetSlug, parsed);
+
+      return parsed;
+    },
+    [cache]
+  );
+};
+
+const compareTokenSortKeys = (a: TokenSortKey, b: TokenSortKey) =>
+  a.equity.isEqualTo(b.equity) ? compare(b.balance, a.balance) : compare(b.equity, a.equity);
+
+const useFavoritesFirstPredicate = (
+  sortKeyOf: SyncFn<string, TokenSortKey>,
+  applyFavorites: boolean,
+  toChainSlug: SyncFn<string, string> = identity
+) => {
+  const { isFavorite } = useFavoriteTokens();
+
+  return useCallback(
+    (aSlug: string, bSlug: string) => {
+      if (applyFavorites) {
+        const aFavorite = isFavorite(toChainSlug(aSlug));
+        const bFavorite = isFavorite(toChainSlug(bSlug));
+        if (aFavorite !== bFavorite) {
+          return aFavorite ? -1 : 1;
+        }
+      }
+
+      return compareTokenSortKeys(sortKeyOf(aSlug), sortKeyOf(bSlug));
+    },
+    [applyFavorites, isFavorite, toChainSlug, sortKeyOf]
+  );
+};
+
+const useBalanceDescPredicate = (balanceOf: SyncFn<string, BigNumber>) =>
+  useCallback((aSlug: string, bSlug: string) => compare(balanceOf(bSlug), balanceOf(aSlug)), [balanceOf]);
 
 export const useAccountTokensSortPredicate = (
   accountTezAddress: string,
   accountEvmAddress: HexString,
   applyFavorites: boolean = false
 ) => {
-  const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
+  const tezosBalancesRecordRef = useUpdatableRef(useBalancesAtomicRecordSelector());
+  const getTezosMetadata = useGetTokenOrGasMetadata();
   const tezMainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
-  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
+  const evmBalancesRecordRef = useUpdatableRef(useRawEvmAccountBalancesSelector(accountEvmAddress));
+  const getEvmMetadata = useGetEvmGasOrTokenMetadata();
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
 
-  const { isFavorite } = useFavoriteTokens();
+  const getSortKey = useTokenSortKeyGetter();
+  const parseSlug = useParsedChainAssetSlugGetter();
 
-  return useCallback(
-    (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      if (applyFavorites) {
-        const aFavorite = isFavorite(aChainAssetSlug);
-        const bFavorite = isFavorite(bChainAssetSlug);
-        if (aFavorite !== bFavorite) {
-          return aFavorite ? -1 : 1;
-        }
+  const sortKeyOf = useCallback(
+    (chainAssetSlug: string) => {
+      const [chainKind, chainId, slug] = parseSlug(chainAssetSlug);
+
+      if (chainKind === TempleChainKind.Tezos) {
+        const tezosChainId = String(chainId);
+
+        return getSortKey(
+          chainAssetSlug,
+          tezosBalancesRecordRef.current[getKeyForBalancesRecord(accountTezAddress, tezosChainId)]?.data[slug],
+          getTezosMetadata(tezosChainId, slug)?.decimals,
+          tezosChainId === TEZOS_MAINNET_CHAIN_ID ? tezMainnetUsdToTokenRates[slug] : undefined
+        );
       }
 
-      const [aChainKind, aChainId, aSlug] = parseChainAssetSlug(aChainAssetSlug);
-      const [bChainKind, bChainId, bSlug] = parseChainAssetSlug(bChainAssetSlug);
+      const evmChainId = Number(chainId);
 
-      const aBalance =
-        (aChainKind === TempleChainKind.Tezos
-          ? getTezBalance(aChainId as string, aSlug)
-          : getEvmBalance(Number(aChainId), aSlug)) ?? ZERO;
-
-      const bBalance =
-        (bChainKind === TempleChainKind.Tezos
-          ? getTezBalance(bChainId as string, bSlug)
-          : getEvmBalance(Number(bChainId), bSlug)) ?? ZERO;
-
-      const aRate =
-        (aChainKind === TempleChainKind.Tezos
-          ? aChainId === TEZOS_MAINNET_CHAIN_ID
-            ? tezMainnetUsdToTokenRates[aSlug]
-            : ZERO
-          : evmUsdToTokenRates[Number(aChainId)]?.[aSlug]) ?? ZERO;
-
-      const bRate =
-        (bChainKind === TempleChainKind.Tezos
-          ? bChainId === TEZOS_MAINNET_CHAIN_ID
-            ? tezMainnetUsdToTokenRates[bSlug]
-            : ZERO
-          : evmUsdToTokenRates[Number(bChainId)]?.[bSlug]) ?? ZERO;
-
-      const aEquity = aBalance.multipliedBy(aRate);
-      const bEquity = bBalance.multipliedBy(bRate);
-
-      if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
-      }
-
-      return compare(bEquity, aEquity);
+      return getSortKey(
+        chainAssetSlug,
+        evmBalancesRecordRef.current[evmChainId]?.[slug],
+        getEvmMetadata(evmChainId, slug)?.decimals,
+        evmUsdToTokenRates[evmChainId]?.[slug]
+      );
     },
-    [applyFavorites, getTezBalance, getEvmBalance, tezMainnetUsdToTokenRates, evmUsdToTokenRates, isFavorite]
+    [
+      parseSlug,
+      getSortKey,
+      tezosBalancesRecordRef,
+      accountTezAddress,
+      getTezosMetadata,
+      tezMainnetUsdToTokenRates,
+      evmBalancesRecordRef,
+      getEvmMetadata,
+      evmUsdToTokenRates
+    ]
   );
+
+  return useFavoritesFirstPredicate(sortKeyOf, applyFavorites);
 };
 
 export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
-  const getBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+  const balancesRecordRef = useUpdatableRef(useBalancesAtomicRecordSelector());
+  const getMetadata = useGetTokenOrGasMetadata();
   const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const getSortKey = useTokenSortKeyGetter();
+  const parseSlug = useParsedChainAssetSlugGetter<TempleChainKind.Tezos>();
+
+  const sortKeyOf = useCallback(
+    (chainSlug: string) => {
+      const [_, chainId, slug] = parseSlug(chainSlug);
+
+      return getSortKey(
+        chainSlug,
+        balancesRecordRef.current[getKeyForBalancesRecord(publicKeyHash, chainId)]?.data[slug],
+        getMetadata(chainId, slug)?.decimals,
+        chainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[slug] : undefined
+      );
+    },
+    [parseSlug, getSortKey, balancesRecordRef, publicKeyHash, getMetadata, mainnetUsdToTokenRates]
+  );
 
   return useCallback(
-    (aChainSlug: string, bChainSlug: string) => {
-      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(aChainSlug);
-      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(bChainSlug);
-
-      const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
-      const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
-
-      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[aSlug] ?? ZERO) : ZERO;
-      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[bSlug] ?? ZERO) : ZERO;
-
-      const aEquity = aBalance.multipliedBy(aRate);
-      const bEquity = bBalance.multipliedBy(bRate);
-
-      if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
-      }
-
-      return compare(bEquity, aEquity);
-    },
-    [getBalance, mainnetUsdToTokenRates]
+    (aChainSlug: string, bChainSlug: string) => compareTokenSortKeys(sortKeyOf(aChainSlug), sortKeyOf(bChainSlug)),
+    [sortKeyOf]
   );
 };
 
@@ -124,70 +215,51 @@ export const useTezosChainAccountTokensSortPredicate = (
   tezosChainId: string,
   applyFavorites: boolean = false
 ) => {
-  const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
+  const rawBalancesRef = useUpdatableRef(useAllAccountBalancesSelector(publicKeyHash, tezosChainId));
+  const getMetadata = useGetChainTokenOrGasMetadata(tezosChainId);
   const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const getSortKey = useTokenSortKeyGetter();
 
-  const { isFavorite } = useFavoriteTokens();
-
-  return useCallback(
-    (aSlug: string, bSlug: string) => {
-      if (applyFavorites) {
-        const aFavorite = isFavorite(toChainAssetSlug(TempleChainKind.Tezos, tezosChainId, aSlug));
-        const bFavorite = isFavorite(toChainAssetSlug(TempleChainKind.Tezos, tezosChainId, bSlug));
-        if (aFavorite !== bFavorite) {
-          return aFavorite ? -1 : 1;
-        }
-      }
-
-      const aBalance = getBalance(aSlug) ?? ZERO;
-      const bBalance = getBalance(bSlug) ?? ZERO;
-
-      const rates = tezosChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates : EMPTY_FROZEN_OBJ;
-
-      const aEquity = aBalance.multipliedBy(rates[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(rates[bSlug] ?? ZERO);
-
-      if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
-      }
-
-      return compare(bEquity, aEquity);
-    },
-    [applyFavorites, getBalance, isFavorite, mainnetUsdToTokenRates, tezosChainId]
+  const sortKeyOf = useCallback(
+    (slug: string) =>
+      getSortKey(
+        slug,
+        rawBalancesRef.current[slug],
+        getMetadata(slug)?.decimals,
+        tezosChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[slug] : undefined
+      ),
+    [getSortKey, rawBalancesRef, getMetadata, tezosChainId, mainnetUsdToTokenRates]
   );
+  const toChainSlug = useCallback(
+    (slug: string) => toChainAssetSlug(TempleChainKind.Tezos, tezosChainId, slug),
+    [tezosChainId]
+  );
+
+  return useFavoritesFirstPredicate(sortKeyOf, applyFavorites, toChainSlug);
 };
 
 export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString, applyFavorites: boolean = false) => {
-  const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+  const balancesRecordRef = useUpdatableRef(useRawEvmAccountBalancesSelector(publicKeyHash));
+  const getMetadata = useGetEvmGasOrTokenMetadata();
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
-  const { isFavorite } = useFavoriteTokens();
+  const getSortKey = useTokenSortKeyGetter();
+  const parseSlug = useParsedChainAssetSlugGetter<TempleChainKind.EVM>();
 
-  return useCallback(
-    (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      if (applyFavorites) {
-        const aFavorite = isFavorite(aChainAssetSlug);
-        const bFavorite = isFavorite(bChainAssetSlug);
-        if (aFavorite !== bFavorite) {
-          return aFavorite ? -1 : 1;
-        }
-      }
+  const sortKeyOf = useCallback(
+    (chainAssetSlug: string) => {
+      const [_, chainId, slug] = parseSlug(chainAssetSlug);
 
-      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.EVM>(aChainAssetSlug);
-      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.EVM>(bChainAssetSlug);
-
-      const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
-      const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
-      const aEquity = aBalance.multipliedBy(usdToTokenRates[aChainId]?.[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(usdToTokenRates[bChainId]?.[bSlug] ?? ZERO);
-
-      if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
-      }
-
-      return compare(bEquity, aEquity);
+      return getSortKey(
+        chainAssetSlug,
+        balancesRecordRef.current[chainId]?.[slug],
+        getMetadata(chainId, slug)?.decimals,
+        usdToTokenRates[chainId]?.[slug]
+      );
     },
-    [applyFavorites, getBalance, isFavorite, usdToTokenRates]
+    [parseSlug, getSortKey, balancesRecordRef, getMetadata, usdToTokenRates]
   );
+
+  return useFavoritesFirstPredicate(sortKeyOf, applyFavorites);
 };
 
 export const useEvmChainTokensSortPredicate = (
@@ -195,127 +267,100 @@ export const useEvmChainTokensSortPredicate = (
   chainId: number,
   applyFavorites: boolean = false
 ) => {
-  const getBalance = useGetEvmChainTokenBalanceWithDecimals(publicKeyHash, chainId);
+  const rawBalancesRef = useUpdatableRef(useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId));
+  const getMetadata = useGetEvmGasOrTokenMetadata();
   const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
-  const { isFavorite } = useFavoriteTokens();
+  const getSortKey = useTokenSortKeyGetter();
 
-  return useCallback(
-    (aSlug: string, bSlug: string) => {
-      if (applyFavorites) {
-        const aFavorite = isFavorite(toChainAssetSlug(TempleChainKind.EVM, chainId, aSlug));
-        const bFavorite = isFavorite(toChainAssetSlug(TempleChainKind.EVM, chainId, bSlug));
-        if (aFavorite !== bFavorite) {
-          return aFavorite ? -1 : 1;
-        }
-      }
-
-      const aBalance = getBalance(aSlug) ?? ZERO;
-      const bBalance = getBalance(bSlug) ?? ZERO;
-      const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
-      const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
-
-      if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
-      }
-
-      return compare(bEquity, aEquity);
-    },
-    [applyFavorites, chainId, getBalance, isFavorite, usdToTokenRates]
+  const sortKeyOf = useCallback(
+    (slug: string) =>
+      getSortKey(slug, rawBalancesRef.current[slug], getMetadata(chainId, slug)?.decimals, usdToTokenRates[slug]),
+    [getSortKey, rawBalancesRef, getMetadata, chainId, usdToTokenRates]
   );
+  const toChainSlug = useCallback((slug: string) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug), [chainId]);
+
+  return useFavoritesFirstPredicate(sortKeyOf, applyFavorites, toChainSlug);
 };
 
 export const useAccountCollectiblesSortPredicate = (accountTezAddress: string, accountEvmAddress: HexString) => {
-  const tezosBalancesRaw = useBalancesAtomicRecordSelector();
-  const evmBalancesRecord = useRawEvmAccountBalancesSelector(accountEvmAddress);
+  const tezosBalancesRecordRef = useUpdatableRef(useBalancesAtomicRecordSelector());
+  const evmBalancesRecordRef = useUpdatableRef(useRawEvmAccountBalancesSelector(accountEvmAddress));
+  const getBalance = useCollectibleBalanceGetter();
+  const parseSlug = useParsedChainAssetSlugGetter();
 
-  return useCallback(
-    (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      const [aChainKind, aChainId, aSlug] = parseChainAssetSlug(aChainAssetSlug);
-      const [bChainKind, bChainId, bSlug] = parseChainAssetSlug(bChainAssetSlug);
+  const balanceOf = useCallback(
+    (chainAssetSlug: string) => {
+      const [chainKind, chainId, slug] = parseSlug(chainAssetSlug);
 
-      const aBalance =
-        aChainKind === TempleChainKind.Tezos
-          ? new BigNumber(
-              tezosBalancesRaw[getKeyForBalancesRecord(accountTezAddress, aChainId as string)]?.data[aSlug] ?? ZERO
-            )
-          : new BigNumber(evmBalancesRecord[aChainId as number]?.[aSlug] ?? ZERO);
-
-      const bBalance =
-        bChainKind === TempleChainKind.Tezos
-          ? new BigNumber(
-              tezosBalancesRaw[getKeyForBalancesRecord(accountTezAddress, bChainId as string)]?.data[bSlug] ?? ZERO
-            )
-          : new BigNumber(evmBalancesRecord[bChainId as number]?.[bSlug] ?? ZERO);
-
-      return compare(bBalance, aBalance);
+      return chainKind === TempleChainKind.Tezos
+        ? getBalance(
+            chainAssetSlug,
+            tezosBalancesRecordRef.current[getKeyForBalancesRecord(accountTezAddress, String(chainId))]?.data[slug]
+          )
+        : getBalance(chainAssetSlug, evmBalancesRecordRef.current[Number(chainId)]?.[slug]);
     },
-    [accountTezAddress, evmBalancesRecord, tezosBalancesRaw]
+    [parseSlug, getBalance, tezosBalancesRecordRef, accountTezAddress, evmBalancesRecordRef]
   );
+
+  return useBalanceDescPredicate(balanceOf);
 };
 
 export const useTezosAccountCollectiblesSortPredicate = (account: string) => {
-  const balancesRaw = useBalancesAtomicRecordSelector();
+  const balancesRecordRef = useUpdatableRef(useBalancesAtomicRecordSelector());
+  const getBalance = useCollectibleBalanceGetter();
+  const parseSlug = useParsedChainAssetSlugGetter<TempleChainKind.Tezos>();
 
-  return useCallback(
-    (aChainSlug: string, bChainSlug: string) => {
-      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(aChainSlug);
-      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(bChainSlug);
+  const balanceOf = useCallback(
+    (chainSlug: string) => {
+      const [_, chainId, slug] = parseSlug(chainSlug);
 
-      const aBalancesKey = getKeyForBalancesRecord(account, aChainId);
-      const bBalancesKey = getKeyForBalancesRecord(account, bChainId);
-
-      const aBalance = new BigNumber(balancesRaw[aBalancesKey]?.data[aSlug] ?? ZERO);
-      const bBalance = new BigNumber(balancesRaw[bBalancesKey]?.data[bSlug] ?? ZERO);
-
-      return compare(bBalance, aBalance);
+      return getBalance(chainSlug, balancesRecordRef.current[getKeyForBalancesRecord(account, chainId)]?.data[slug]);
     },
-    [account, balancesRaw]
+    [parseSlug, getBalance, balancesRecordRef, account]
   );
+
+  return useBalanceDescPredicate(balanceOf);
 };
 
 export const useTezosChainCollectiblesSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
-  const balancesRaw = useAllAccountBalancesSelector(publicKeyHash, tezosChainId);
+  const rawBalancesRef = useUpdatableRef(useAllAccountBalancesSelector(publicKeyHash, tezosChainId));
+  const getBalance = useCollectibleBalanceGetter();
 
-  return useCallback(
-    (aSlug: string, bSlug: string) => {
-      const aBalance = new BigNumber(balancesRaw[aSlug] ?? ZERO);
-      const bBalance = new BigNumber(balancesRaw[bSlug] ?? ZERO);
-
-      return compare(bBalance, aBalance);
-    },
-    [balancesRaw]
+  const balanceOf = useCallback(
+    (slug: string) => getBalance(slug, rawBalancesRef.current[slug]),
+    [getBalance, rawBalancesRef]
   );
+
+  return useBalanceDescPredicate(balanceOf);
 };
 
 export const useEvmAccountCollectiblesSortPredicate = (publicKeyHash: HexString) => {
-  const balancesRecord = useRawEvmAccountBalancesSelector(publicKeyHash);
+  const balancesRecordRef = useUpdatableRef(useRawEvmAccountBalancesSelector(publicKeyHash));
+  const getBalance = useCollectibleBalanceGetter();
+  const parseSlug = useParsedChainAssetSlugGetter<TempleChainKind.EVM>();
 
-  return useCallback(
-    (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.EVM>(aChainAssetSlug);
-      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.EVM>(bChainAssetSlug);
+  const balanceOf = useCallback(
+    (chainAssetSlug: string) => {
+      const [_, chainId, slug] = parseSlug(chainAssetSlug);
 
-      const aBalance = new BigNumber(balancesRecord[aChainId]?.[aSlug] ?? ZERO);
-      const bBalance = new BigNumber(balancesRecord[bChainId]?.[bSlug] ?? ZERO);
-
-      return compare(bBalance, aBalance);
+      return getBalance(chainAssetSlug, balancesRecordRef.current[chainId]?.[slug]);
     },
-    [balancesRecord]
+    [parseSlug, getBalance, balancesRecordRef]
   );
+
+  return useBalanceDescPredicate(balanceOf);
 };
 
 export const useEvmChainCollectiblesSortPredicate = (publicKeyHash: HexString, evmChainId: number) => {
-  const balancesRaw = useRawEvmChainAccountBalancesSelector(publicKeyHash, evmChainId);
+  const rawBalancesRef = useUpdatableRef(useRawEvmChainAccountBalancesSelector(publicKeyHash, evmChainId));
+  const getBalance = useCollectibleBalanceGetter();
 
-  return useCallback(
-    (aSlug: string, bSlug: string) => {
-      const aBalance = new BigNumber(balancesRaw[aSlug] ?? ZERO);
-      const bBalance = new BigNumber(balancesRaw[bSlug] ?? ZERO);
-
-      return compare(bBalance, aBalance);
-    },
-    [balancesRaw]
+  const balanceOf = useCallback(
+    (slug: string) => getBalance(slug, rawBalancesRef.current[slug]),
+    [getBalance, rawBalancesRef]
   );
+
+  return useBalanceDescPredicate(balanceOf);
 };
 
 export const compare = (a: BigNumber, b: BigNumber) => {

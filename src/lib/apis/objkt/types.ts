@@ -35,7 +35,7 @@ export interface UserObjktCollectible {
   timestamp: string;
   metadata: string | null;
   mime: string | null;
-  artifact_uri: string;
+  artifact_uri: string | null;
   creators: {
     holder: {
       address: string;

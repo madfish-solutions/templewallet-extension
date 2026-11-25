@@ -14,3 +14,17 @@ export const useEvmCollectibleMetadataSelector = (
   collectibleSlug: string
 ): EvmCollectibleMetadata | undefined =>
   useSelector(({ evmCollectiblesMetadata }) => evmCollectiblesMetadata.metadataRecord[chainId]?.[collectibleSlug]);
+
+export const useEvmCheckedCollectibleSlugsSelector = (publicKeyHash: HexString | undefined) =>
+  useSelector(({ evmCollectiblesMetadata }) =>
+    publicKeyHash ? evmCollectiblesMetadata.checkedSlugsByAccount[publicKeyHash] : undefined
+  );
+
+export const useIsEvmCollectibleCheckedSelector = (
+  publicKeyHash: HexString | undefined,
+  chainId: number,
+  slug: string
+): boolean =>
+  useSelector(({ evmCollectiblesMetadata }) =>
+    publicKeyHash ? Boolean(evmCollectiblesMetadata.checkedSlugsByAccount[publicKeyHash]?.[chainId]?.[slug]) : false
+  );

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
+import { el } from 'lib/el';
 import { UseTippyOptions } from 'lib/ui/useTippy';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
@@ -16,12 +17,7 @@ interface ChainKindLabelProps {
 export const ChainKindLabel = memo<ChainKindLabelProps>(({ chainKind, tooltipText, wrapperClassName }) => {
   const isTezos = chainKind === TempleChainKind.Tezos;
 
-  const tooltipWrapperFactory = useCallback(() => {
-    const element = document.createElement('div');
-    element.className = clsx('text-center', wrapperClassName);
-
-    return element;
-  }, [wrapperClassName]);
+  const tooltipWrapperFactory = useCallback(() => el('div', clsx('text-center', wrapperClassName)), [wrapperClassName]);
   const basicTooltipProps = useMemo<Omit<UseTippyOptions, 'content'>>(
     () => ({
       trigger: 'mouseenter',

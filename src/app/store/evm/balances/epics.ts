@@ -3,7 +3,11 @@ import { Epic, combineEpics } from 'redux-observable';
 import { catchError, from, merge, mergeMap, of, switchMap } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
-import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
+import {
+  evmBalanceOnChainRequestedAt,
+  evmOnChainBalancesRequestsExecutor,
+  getEvmBalanceOnChainRequestKey
+} from 'lib/evm/on-chain/balance';
 import { isTruthy } from 'lib/utils';
 
 import { setEvmBalancesLoadingState } from '../actions';
@@ -45,14 +49,16 @@ const loadEvmBalanceOnChainEpic: Epic = action$ =>
           )
         ),
         catchError(
-          withLoadingStateUpdate(chainId, error =>
-            setEvmBalancesLoadingState({
+          withLoadingStateUpdate(chainId, error => {
+            evmBalanceOnChainRequestedAt.delete(getEvmBalanceOnChainRequestKey(payload));
+
+            return setEvmBalancesLoadingState({
               error: error.message,
               chainId: network.chainId,
               isLoading: false,
               source: 'onchain'
-            })
-          )
+            });
+          })
         )
       );
     })

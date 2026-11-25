@@ -1,4 +1,4 @@
-import { ChainID, ChainIDs } from './api.interfaces';
+import { GoldrushChainID, GoldrushChainIDs } from './api.interfaces';
 
 export const DEFAULT_NATIVE_TOKEN_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -14,8 +14,6 @@ const chainIdNativeTokenAddressRecord: Record<number, string> = {
 export const isNativeTokenAddress = (chainId: number, address: string) =>
   address === (chainIdNativeTokenAddressRecord[chainId] ?? DEFAULT_NATIVE_TOKEN_ADDRESS);
 
-export const isSupportedChainId = (chainId: number): chainId is ChainID =>
-  ChainIDs.includes(
-    // @ts-expect-error
-    chainId
-  );
+const GOLDRUSH_CHAIN_IDS = new Set<number>(GoldrushChainIDs);
+
+export const isGoldrushChainId = (chainId: number): chainId is GoldrushChainID => GOLDRUSH_CHAIN_IDS.has(chainId);

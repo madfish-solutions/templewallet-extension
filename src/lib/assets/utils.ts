@@ -39,7 +39,7 @@ export const fromChainAssetSlug = <T = string | number>(
   return [chainKind, convertedChainId, assetSlug];
 };
 
-type ParseChainReturnType<T extends TempleChainKind> = [chainKind: T, chainId: ChainId<T>, assetSlug: string];
+export type ParseChainReturnType<T extends TempleChainKind> = [chainKind: T, chainId: ChainId<T>, assetSlug: string];
 
 export function parseChainAssetSlug<T extends TempleChainKind>(
   chainAssetSlug: string,

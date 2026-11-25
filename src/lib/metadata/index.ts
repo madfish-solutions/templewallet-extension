@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { merge } from 'lodash';
 
@@ -64,12 +64,14 @@ import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { EvmChain, TezosChain, useEvmChainByChainId } from 'temple/front/chains';
 import { isTezosDcpChainId, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
+import { useMetadataLoadAttempts } from './load-attempts';
 import {
   AssetMetadataBase,
   EvmAssetMetadata,
@@ -165,47 +167,135 @@ const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncF
   return useGetter(input, getterFn);
 };
 
+type EvmTokenMetadataSlugRecord = StringRecord<EvmTokenMetadata> | undefined;
+
+const pickEvmTokenMetadata = (
+  slug: string,
+  tokens: EvmTokenMetadataSlugRecord,
+  lifiConnected: EvmTokenMetadataSlugRecord,
+  lifiEnabled: EvmTokenMetadataSlugRecord,
+  route3: EvmTokenMetadataSlugRecord
+) => {
+  let result: EvmTokenMetadata | undefined;
+
+  for (const entry of [tokens?.[slug], lifiConnected?.[slug], lifiEnabled?.[slug], route3?.[slug]]) {
+    if (entry) result = result ? merge({}, result, entry) : entry;
+  }
+
+  return result;
+};
+
+interface EvmTokenMetadataPickEntry {
+  tokens: EvmTokenMetadataSlugRecord;
+  lifiConnected: EvmTokenMetadataSlugRecord;
+  lifiEnabled: EvmTokenMetadataSlugRecord;
+  route3: EvmTokenMetadataSlugRecord;
+  bySlug: Map<string, EvmTokenMetadata | undefined>;
+}
+
+const useCachedEvmTokenMetadataPick = () => {
+  const [cache] = useState(() => new Map<number, EvmTokenMetadataPickEntry>());
+
+  return useCallback(
+    (
+      chainId: number,
+      slug: string,
+      tokens: EvmTokenMetadataSlugRecord,
+      lifiConnected: EvmTokenMetadataSlugRecord,
+      lifiEnabled: EvmTokenMetadataSlugRecord,
+      route3: EvmTokenMetadataSlugRecord
+    ) => {
+      let entry = cache.get(chainId);
+
+      if (
+        !entry ||
+        entry.tokens !== tokens ||
+        entry.lifiConnected !== lifiConnected ||
+        entry.lifiEnabled !== lifiEnabled ||
+        entry.route3 !== route3
+      ) {
+        entry = { tokens, lifiConnected, lifiEnabled, route3, bySlug: new Map() };
+        cache.set(chainId, entry);
+      }
+
+      if (entry.bySlug.has(slug)) return entry.bySlug.get(slug);
+
+      const metadata = pickEvmTokenMetadata(slug, tokens, lifiConnected, lifiEnabled, route3);
+
+      entry.bySlug.set(slug, metadata);
+
+      return metadata;
+    },
+    [cache]
+  );
+};
+
+interface EvmTokenMetadataSources {
+  tokens: EvmTokenMetadataRecord;
+  lifiConnected: EvmTokenMetadataRecord;
+  lifiEnabled: EvmTokenMetadataRecord;
+  route3: EvmTokenMetadataRecord;
+}
+
 export const useGetEvmGasOrTokenMetadata = () => {
   const evmChains = useAllEvmChains();
   const tokensMetadata = useEvmTokensMetadataRecordSelector();
   const lifiConnectedTokensMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
   const route3EvmTokensMetadata = use3RouteEvmTokensMetadataRecordSelector();
   const lifiEnabledNetworksTokensMetadata = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
+  const sources: EvmTokenMetadataSources = {
+    tokens: tokensMetadata,
+    lifiConnected: lifiConnectedTokensMetadata,
+    lifiEnabled: lifiEnabledNetworksTokensMetadata,
+    route3: route3EvmTokensMetadata
+  };
+  const pick = useCachedEvmTokenMetadataPick();
   const getterFn = useCallback(
-    (input: EvmTokenMetadataRecord, chainId: number, slug: string) =>
-      isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
-    [evmChains]
-  );
-  const mergedMetadata = merge(
-    {},
-    tokensMetadata,
-    lifiConnectedTokensMetadata,
-    lifiEnabledNetworksTokensMetadata,
-    route3EvmTokensMetadata
+    (input: EvmTokenMetadataSources, chainId: number, slug: string) =>
+      isEvmNativeTokenSlug(slug)
+        ? evmChains[chainId]?.currency
+        : pick(
+            chainId,
+            slug,
+            input.tokens[chainId],
+            input.lifiConnected[chainId],
+            input.lifiEnabled[chainId],
+            input.route3[chainId]
+          ),
+    [evmChains, pick]
   );
 
-  return useGetter(mergedMetadata, getterFn);
+  return useGetter(sources, getterFn);
+};
+
+interface EvmChainTokenMetadataSources {
+  tokens: EvmTokenMetadataSlugRecord;
+  lifiConnected: EvmTokenMetadataSlugRecord;
+  lifiEnabled: EvmTokenMetadataSlugRecord;
+  route3: EvmTokenMetadataSlugRecord;
+}
+
+const useEvmChainTokenMetadataSources = (chainId: number): EvmChainTokenMetadataSources => {
+  const tokens = useEvmChainTokensMetadataRecordSelector(chainId);
+  const lifiConnected = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
+  const route3 = use3RouteEvmChainTokensMetadataSelector(chainId);
+  const lifiEnabled = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
+
+  return { tokens, lifiConnected, lifiEnabled, route3 };
 };
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
-  const tokensMetadata = useEvmChainTokensMetadataRecordSelector(chainId);
-  const connectedLifiTokensMetadata = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
-  const route3EvmTokensMetadata = use3RouteEvmChainTokensMetadataSelector(chainId);
-  const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
-  const fallbackValueFn = useCallback(
-    (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
-    [network]
-  );
-  const mergedMetadata = merge(
-    {},
-    tokensMetadata,
-    connectedLifiTokensMetadata,
-    enabledNetworksLifiTokensMetadata,
-    route3EvmTokensMetadata
+  const sources = useEvmChainTokenMetadataSources(chainId);
+  const pick = useCachedEvmTokenMetadataPick();
+  const getterFn = useCallback(
+    (input: EvmChainTokenMetadataSources, slug: string): EvmNativeTokenMetadata | EvmTokenMetadata | undefined =>
+      pick(chainId, slug, input.tokens, input.lifiConnected, input.lifiEnabled, input.route3) ??
+      (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
+    [chainId, network, pick]
   );
 
-  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(mergedMetadata, fallbackValueFn);
+  return useGetter(sources, getterFn);
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
@@ -267,13 +357,18 @@ export const useGetEvmChainCollectibleMetadata = (chainId: number) => {
   return useGetterBySlug(collectiblesMetadatas);
 };
 
+// Changes identity with the metadata, unlike the ref-based getters above, a mounted bundle row follows it
 export const useGetEvmChainAssetMetadata = (chainId: number) => {
-  const getTokenOrGasMetadata = useGetEvmChainTokenOrGasMetadata(chainId);
-  const getCollectibleMetadata = useGetEvmChainCollectibleMetadata(chainId);
+  const network = useEvmChainByChainId(chainId);
+  const { tokens, lifiConnected, lifiEnabled, route3 } = useEvmChainTokenMetadataSources(chainId);
+  const collectibles = useEvmChainCollectiblesMetadataRecordSelector(chainId);
 
   return useCallback<EvmAssetMetadataGetter>(
-    (slug: string) => getTokenOrGasMetadata(slug) || getCollectibleMetadata(slug),
-    [getTokenOrGasMetadata, getCollectibleMetadata]
+    (slug: string) =>
+      pickEvmTokenMetadata(slug, tokens, lifiConnected, lifiEnabled, route3) ??
+      (isEvmNativeTokenSlug(slug) ? network?.currency : undefined) ??
+      collectibles?.[slug],
+    [network, tokens, lifiConnected, lifiEnabled, route3, collectibles]
   );
 };
 
@@ -350,7 +445,7 @@ export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: st
   useTezosAssetsMetadataPresenceCheck(true, metadataLoading, getMetadata, chainSlugsToCheck);
 };
 
-export const useTezosGenericAssetsMetadataLoading = () => {
+const useTezosGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
@@ -358,7 +453,11 @@ export const useTezosGenericAssetsMetadataLoading = () => {
   return tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading;
 };
 
-export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[], associatedAccountPkh?: string) => {
+export const useTezosGenericAssetsMetadataCheck = (
+  chainSlugsToCheck?: string[],
+  associatedAccountPkh?: string,
+  withRetries = false
+): boolean => {
   const loading = useTezosGenericAssetsMetadataLoading();
   const getCollectibleMetadata = useGetCollectibleMetadata();
   const getTokenMetadata = useGetTokenMetadata();
@@ -369,7 +468,24 @@ export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[],
     [getCollectibleMetadata, getNoCategoryAssetMetadata, getTokenMetadata]
   );
 
-  useTezosAssetsMetadataPresenceCheck(undefined, loading, getAssetMetadata, chainSlugsToCheck, associatedAccountPkh);
+  useTezosAssetsMetadataPresenceCheck(
+    undefined,
+    loading,
+    getAssetMetadata,
+    chainSlugsToCheck,
+    associatedAccountPkh,
+    withRetries
+  );
+
+  return (
+    loading &&
+    Boolean(
+      chainSlugsToCheck?.some(chainSlug => {
+        const [, , slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+        return !isTezAsset(slug) && !getAssetMetadata(slug);
+      })
+    )
+  );
 };
 
 const useTezosChainAssetsMetadataPresenceCheck = (
@@ -379,23 +495,17 @@ const useTezosChainAssetsMetadataPresenceCheck = (
   getMetadata: TokenMetadataGetter,
   slugsToCheck?: string[]
 ) => {
-  const checkedRef = useRef<string[]>([]);
+  const { attempts } = useMetadataLoadAttempts(false);
 
   useEffect(() => {
     if (metadataLoading || !slugsToCheck?.length) return;
 
     const missingChunk = slugsToCheck
-      .filter(
-        slug =>
-          !isTezAsset(slug) &&
-          !isTruthy(getMetadata(slug)) &&
-          // In case fetched metadata is `null` & won't save
-          !checkedRef.current.includes(slug)
-      )
+      .filter(slug => !isTezAsset(slug) && !isTruthy(getMetadata(slug)) && attempts.isDue(slug))
       .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
 
     if (missingChunk.length > 0) {
-      checkedRef.current = [...checkedRef.current, ...missingChunk];
+      void attempts.track(missingChunk);
 
       dispatch(
         (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
@@ -404,7 +514,7 @@ const useTezosChainAssetsMetadataPresenceCheck = (
         })
       );
     }
-  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, network]);
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, network, attempts]);
 };
 
 const handleMissingSlugs = <T extends TezosChain | EvmChain>(
@@ -435,30 +545,31 @@ const useTezosAssetsMetadataPresenceCheck = (
   metadataLoading: boolean,
   getMetadata: TokenMetadataGetter,
   chainSlugsToCheck?: string[],
-  associatedAccountPkh = ''
+  associatedAccountPkh = '',
+  withRetries = false
 ) => {
   const tezosChains = useAllTezosChains();
 
-  const checkedRef = useRef(new Set<string>());
+  const { attempts, retryTick } = useMetadataLoadAttempts(withRetries);
 
   useEffect(() => {
     if (metadataLoading || !chainSlugsToCheck?.length) return;
 
-    const missingChunk = chainSlugsToCheck
-      .filter(chainSlug => {
-        const [_, _2, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+    attempts.settle();
 
-        return (
-          !isTezAsset(slug) &&
-          !isTruthy(getMetadata(slug)) &&
-          // In case fetched metadata is `null` & won't save
-          !checkedRef.current.has(chainSlug)
-        );
-      })
-      .slice(0, METADATA_API_LOAD_CHUNK_SIZE);
+    const missingSlugs = chainSlugsToCheck.filter(chainSlug => {
+      const [_, _2, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+
+      return !isTezAsset(slug) && !isTruthy(getMetadata(slug)) && attempts.isDue(chainSlug);
+    });
+    // With retries a pass loads one chain, so that the loading flag reports the end of exactly that load
+    const missingChunk = (withRetries ? slugsOfFirstChain(missingSlugs) : missingSlugs).slice(
+      0,
+      METADATA_API_LOAD_CHUNK_SIZE
+    );
 
     if (missingChunk.length > 0) {
-      missingChunk.forEach(slug => checkedRef.current.add(slug));
+      void attempts.track(missingChunk);
 
       handleMissingSlugs(missingChunk, tezosChains, (rpcUrl, chainId, slugs) => {
         if (ofCollectibles === undefined) {
@@ -480,10 +591,23 @@ const useTezosAssetsMetadataPresenceCheck = (
         }
       });
     }
-  }, [ofCollectibles, getMetadata, metadataLoading, chainSlugsToCheck, tezosChains, associatedAccountPkh]);
+  }, [
+    ofCollectibles,
+    getMetadata,
+    metadataLoading,
+    chainSlugsToCheck,
+    tezosChains,
+    associatedAccountPkh,
+    withRetries,
+    attempts,
+    retryTick
+  ]);
 };
 
-export const useEvmGenericAssetsMetadataLoading = () => {
+const slugsOfFirstChain = (chainSlugs: string[]) =>
+  groupByToEntries(chainSlugs, chainSlug => parseChainAssetSlug(chainSlug, TempleChainKind.Tezos)[1]).at(0)?.[1] ?? [];
+
+const useEvmGenericAssetsMetadataLoading = () => {
   const tokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
   const noCategoryAssetsMetadataLoading = useEvmNoCategoryAssetsMetadataLoadingSelector();
@@ -494,12 +618,12 @@ export const useEvmGenericAssetsMetadataLoading = () => {
 export const useEvmGenericAssetsMetadataCheck = (
   chainSlugsToCheck?: string[],
   associatedAccountPkh: HexString = '0x'
-) => {
+): boolean => {
   const evmChains = useAllEvmChains();
   const metadataLoading = useEvmGenericAssetsMetadataLoading();
   const getMetadata = useGetEvmGenericAssetMetadata();
 
-  const checkedRef = useRef(new Set<string>());
+  const { attempts } = useMetadataLoadAttempts(false);
 
   useEffect(() => {
     if (metadataLoading || !chainSlugsToCheck?.length) return;
@@ -507,19 +631,29 @@ export const useEvmGenericAssetsMetadataCheck = (
     const missingSlugs = chainSlugsToCheck.filter(chainSlug => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-      return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId) && !checkedRef.current.has(chainSlug);
+      return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId) && attempts.isDue(chainSlug);
     });
 
     if (missingSlugs.length === 0) {
       return;
     }
 
-    missingSlugs.forEach(slug => checkedRef.current.add(slug));
+    void attempts.track(missingSlugs);
 
     handleMissingSlugs(missingSlugs, evmChains, (rpcUrl, chainId, slugs) => {
       dispatch(
         loadNoCategoryEvmAssetsMetadataActions.submit({ rpcUrl, associatedAccountPkh, chainId: Number(chainId), slugs })
       );
     });
-  }, [associatedAccountPkh, chainSlugsToCheck, evmChains, getMetadata, metadataLoading]);
+  }, [associatedAccountPkh, chainSlugsToCheck, evmChains, getMetadata, metadataLoading, attempts]);
+
+  return (
+    metadataLoading &&
+    Boolean(
+      chainSlugsToCheck?.some(chainSlug => {
+        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+        return !isEvmNativeTokenSlug(slug) && !getMetadata(slug, chainId);
+      })
+    )
+  );
 };

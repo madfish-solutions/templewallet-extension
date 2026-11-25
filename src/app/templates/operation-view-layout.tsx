@@ -14,7 +14,6 @@ interface OperationViewLayoutProps<T extends TxParamsFormData> extends Transacti
   sendingAccount: StoredAccount;
   balancesChanges: AssetsAmounts;
   otherDataLoading: boolean;
-  metadataLoading: boolean;
   renderApproveLayout?: (footer: ReactNode) => ReactNode;
 }
 
@@ -22,7 +21,6 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
   sendingAccount,
   balancesChanges,
   otherDataLoading,
-  metadataLoading,
   network,
   renderApproveLayout,
   setSelectedTab,
@@ -50,32 +48,16 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
   const approveLayoutEl = !someBalancesChanges && renderApproveLayout ? renderApproveLayout(footer) : null;
 
   const showStandaloneFeeSummary = useMemo(
-    () => !someBalancesChanges && !approveLayoutEl && !otherDataLoading && !metadataLoading,
-    [metadataLoading, otherDataLoading, approveLayoutEl, someBalancesChanges]
+    () => !someBalancesChanges && !approveLayoutEl && !otherDataLoading,
+    [otherDataLoading, approveLayoutEl, someBalancesChanges]
   );
 
   return (
     <>
       {someBalancesChanges ? (
-        <div className={someBalancesChanges && !metadataLoading ? undefined : 'hidden'}>
-          <BalancesChangesView
-            balancesChanges={[filteredBalancesChanges]}
-            chain={network}
-            footer={
-              <FeeSummary
-                network={network}
-                assetSlug={restProps.nativeAssetSlug}
-                gasFee={restProps.displayedFee}
-                storageFee={restProps.displayedStorageFee}
-                protocolFee={restProps.bridgeData?.protocolFee}
-                onOpenFeeTab={goToFeeTab}
-                embedded
-              />
-            }
-          />
-        </div>
+        <BalancesChangesView balancesChanges={[filteredBalancesChanges]} chain={network} footer={footer} />
       ) : approveLayoutEl ? (
-        <div className={!metadataLoading ? undefined : 'hidden'}>{approveLayoutEl}</div>
+        approveLayoutEl
       ) : (
         showStandaloneFeeSummary && (
           <FeeSummary
@@ -88,7 +70,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           />
         )
       )}
-      {(otherDataLoading || metadataLoading) && (
+      {otherDataLoading && (
         <div className="flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>

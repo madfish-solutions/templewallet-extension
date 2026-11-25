@@ -55,7 +55,7 @@ function onStorageChanged(callback: (newValues: Partial<Record<ShouldShowModalSt
       const newValues: Partial<Record<ShouldShowModalStorageKey, boolean>> = {};
       for (const key of storageKeys) {
         if (key in changes) {
-          newValues[key as ShouldShowModalStorageKey] = (changes[key] as Storage.StorageChange).newValue;
+          newValues[key as ShouldShowModalStorageKey] = (changes[key] as Storage.StorageChange).newValue as boolean;
         }
       }
       callback(newValues);

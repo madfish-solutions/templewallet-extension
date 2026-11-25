@@ -7,7 +7,6 @@ import { useCancelConfirmDialogOnLock } from 'app/hooks/use-cancel-confirm-dialo
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useDealsSync } from 'app/hooks/use-deals-sync';
-import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
@@ -17,6 +16,7 @@ import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { useWebWidgetsSync } from 'app/hooks/use-web-widgets-sync';
+import { AccountNotificationPopup } from 'app/pages/Notifications/components/notification-popup';
 import { useCrossChainToast } from 'app/pages/Send/cross-chain/hooks/use-cross-chain-toast';
 import { useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
 import { useFetchSupportedLifiChainIds } from 'app/pages/Swap/form/use-fetch-supported-lifi-chain-ids';
@@ -67,7 +67,7 @@ const ConstantAppRootHooks = memo(() => {
   useWebWidgetsSync();
   useDealsSync();
 
-  return null;
+  return <AccountNotificationPopup />;
 });
 
 const AppReadyRootHooks = memo(() => {
@@ -83,7 +83,6 @@ const AppReadyRootHooks = memo(() => {
   useMetadataRefresh();
 
   useLongRefreshLoading();
-  useTokensApyLoading();
 
   useEffect(() => {
     dispatch(loadSwapDexesAction.submit());
@@ -92,7 +91,6 @@ const AppReadyRootHooks = memo(() => {
 
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
-  useConversionVerification();
   useReactivateAdsOnce();
   useAdsImpressionsLinking();
 

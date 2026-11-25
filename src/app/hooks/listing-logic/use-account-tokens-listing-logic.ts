@@ -8,14 +8,10 @@ import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmGasOrTokenMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
-
-import { useGroupedAssetsPaginationLogic } from '../use-group-assets-pagination-logic';
-import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
 import { useIsMultichainBigBalance } from './use-is-big-balance';
@@ -90,11 +86,6 @@ export const useAccountTokensListingLogic = (
     allSlugsSortedGrouped
   );
   const applicableNetworks = useNetworksForChainSlugs(allSlugsSorted);
-  const { slugs: paginatedSlugs, loadNext: loadNextPlain } = useSimpleAssetsPaginationLogic(selectedChainsSlugsSorted);
-  const { slugsGroups: paginatedSlugsGroupsWithFallback, loadNext: loadNextGrouped } = useGroupedAssetsPaginationLogic(
-    selectedChainsSlugsSortedGrouped ?? EMPTY_FROZEN_ARRAY
-  );
-  const paginatedSlugsGroups = selectedChainsSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
 
   const tezAssetsAreLoading = useAreAssetsLoading('tokens');
   const tezMetadatasLoading = useTokensMetadataLoadingSelector();
@@ -120,10 +111,10 @@ export const useAccountTokensListingLogic = (
           slug => slug,
           getSlugFromChainSlug
         )
-      : paginatedSlugs;
+      : selectedChainsSlugsSorted;
   let displayedGroupedSlugs: ChainGroupedSlugs | null;
   if (!isInSearchMode || ignoreSearch) {
-    displayedGroupedSlugs = paginatedSlugsGroups;
+    displayedGroupedSlugs = selectedChainsSlugsSortedGrouped;
   } else if (!selectedChainsSlugsSortedGrouped) {
     displayedGroupedSlugs = null;
   } else {
@@ -150,8 +141,6 @@ export const useAccountTokensListingLogic = (
     isInSearchMode,
     displayedSlugs,
     displayedGroupedSlugs,
-    isSyncing,
-    loadNextGrouped,
-    loadNextPlain
+    isSyncing
   };
 };

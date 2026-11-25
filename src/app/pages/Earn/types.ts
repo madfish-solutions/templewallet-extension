@@ -12,8 +12,6 @@ export interface EarnOffer {
   chainId: ChainId<TempleChainKind>;
   assetSlug: string;
   displayYield?: string;
-  providerIcon?: ImportedSVGComponent;
-  isExternal?: boolean;
 }
 
 export interface ActiveDeposit {

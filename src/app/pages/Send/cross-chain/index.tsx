@@ -6,12 +6,8 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
-import { dispatch } from 'app/store';
-import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { useAnalytics } from 'lib/analytics';
-import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import {
   CROSS_CHAIN_ASSETS,
   CrossChainAsset,
@@ -24,6 +20,7 @@ import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -139,7 +136,11 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
     return fromAmount;
   })();
 
-  const { normalized: rate, isValidating: rateLoading } = useCrossChainRate({
+  const {
+    normalized: rate,
+    isValidating: rateLoading,
+    isRouteUnavailable
+  } = useCrossChainRate({
     from: fromAsset,
     to: toAsset,
     amount: fromAmountInTokens
@@ -148,24 +149,26 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const rateMinAmount = rate?.kind === 'ok' || rate?.kind === 'min-bound' ? rate.minAmount : undefined;
   const rateMaxAmount = rate?.kind === 'ok' || rate?.kind === 'max-bound' ? rate.maxAmount : undefined;
 
-  const lastUnsupportedPairRef = useRef<string | null>(null);
+  const unsupportedPairToastRef = useRef({ pairKey: '', shown: false });
   useEffect(() => {
     const isUnsupportedPair = rate?.kind === 'unsupported';
     const pairKey = `${fromAsset.exolixCoin}:${fromAsset.exolixNetwork}->${toAsset.exolixCoin}:${toAsset.exolixNetwork}`;
 
-    if (!isUnsupportedPair) {
-      if (lastUnsupportedPairRef.current === pairKey) lastUnsupportedPairRef.current = null;
-      return;
+    if (unsupportedPairToastRef.current.pairKey !== pairKey || !isUnsupportedPair) {
+      unsupportedPairToastRef.current = { pairKey, shown: false };
     }
+
+    if (!isUnsupportedPair || isRouteUnavailable) return;
 
     const hasMeaningfulAmount = fromAmountInTokens && new BigNumber(fromAmountInTokens).isGreaterThan(0);
     if (!hasMeaningfulAmount) return;
 
-    if (lastUnsupportedPairRef.current === pairKey) return;
-    lastUnsupportedPairRef.current = pairKey;
+    if (unsupportedPairToastRef.current.shown) return;
+    unsupportedPairToastRef.current.shown = true;
     toastError(t('pairNotAvailable'));
   }, [
     rate,
+    isRouteUnavailable,
     fromAsset.exolixCoin,
     fromAsset.exolixNetwork,
     toAsset.exolixCoin,
@@ -175,8 +178,13 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   const insufficientBalance = (() => {
     if (!fromAmountInTokens) return false;
+    const validationMaxAmount =
+      fromAsset.chainKind === TempleChainKind.EVM && isEvmNativeTokenSlug(fromAsset.assetSlug ?? '')
+        ? balance
+        : maxAmount;
+
     const n = new BigNumber(fromAmountInTokens);
-    return n.isGreaterThan(0) && n.isGreaterThan(maxAmount);
+    return n.isGreaterThan(0) && n.isGreaterThan(validationMaxAmount);
   })();
 
   const amountError = (() => {
@@ -275,12 +283,6 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const onSubmit = (data: CrossChainFormData) => {
     if (amountError) {
       setError('fromAmount', { message: amountError });
-      if (insufficientBalance && fromAsset.chainKind && fromAsset.chainId != null && fromAsset.assetSlug) {
-        const chainAssetSlug = toChainAssetSlug(fromAsset.chainKind, String(fromAsset.chainId), fromAsset.assetSlug);
-        if (isWertSupportedChainAssetSlug(chainAssetSlug)) {
-          dispatch(setOnRampAssetAction({ chainAssetSlug }));
-        }
-      }
       return;
     }
     if (!toAmountEstimated) {

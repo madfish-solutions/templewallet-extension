@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 
+import { openEvmGasOnRamp } from 'app/hooks/use-evm-gas-on-ramp';
 import { Route3EvmRoute, getCommonStepProps, isLifiStep } from 'app/pages/Swap/form/interfaces';
 import { toastError } from 'app/toaster';
 import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
@@ -120,10 +121,11 @@ export function usePrefetchEvmStepTransactions(args: {
 
     const isAborted = () => isCancelled || cancelledRef.current || !opened;
 
-    const blockProgression = (chainName: string) => {
+    const blockProgression = (chainId: number, chainName: string) => {
       shownInsufficientGasRef.current = true;
       setProgressionBlocked(true);
       toastError(t('insufficientGasBalanceOnChain', chainName));
+      openEvmGasOnRamp(chainId);
     };
 
     const previousStepsProvideFromAmount = (index: number, step: LiFiStep | Route3EvmRoute) =>
@@ -184,17 +186,17 @@ export function usePrefetchEvmStepTransactions(args: {
 
             if (previousStepsProvideFromAmount(i, step)) {
               if (balanceTokens.lt(feeTokens)) {
-                blockProgression(chainName);
+                blockProgression(chain.chainId, chainName);
                 break;
               }
             } else if (balanceTokens.lt(fromAmountTokens.plus(feeTokens))) {
-              blockProgression(chainName);
+              blockProgression(chain.chainId, chainName);
               break;
             }
           }
 
           if (balanceTokens.lte(feeTokens)) {
-            blockProgression(chainName);
+            blockProgression(chain.chainId, chainName);
             break;
           }
         }

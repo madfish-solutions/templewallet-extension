@@ -2,7 +2,7 @@ import React, { FC, memo } from 'react';
 
 import type { Omit as StrictOmit } from 'viem';
 
-import { CaptionAlert, IconBase } from 'app/atoms';
+import { Alert, CaptionAlert, IconBase } from 'app/atoms';
 import { ReactComponent as UnlockFillIcon } from 'app/icons/base/unlock_fill.svg';
 import { AccountCard } from 'app/templates/account-card';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
@@ -45,7 +45,11 @@ interface OperationViewPropsBase<T extends TempleChainKind> {
   onSubmit: EmptyFn;
 }
 
-interface PayloadContentPropsBase<T extends TempleChainKind> extends Omit<OperationViewPropsBase<T>, 'payload'> {
+interface PayloadContentPropsBase<T extends TempleChainKind> extends Omit<
+  OperationViewPropsBase<T>,
+  'payload' | 'network'
+> {
+  network?: NetworkEssentials<T>;
   account: StoredAccount;
   payload: DAppPayload<T>;
   openAccountsModal: EmptyFn;
@@ -208,6 +212,10 @@ const PayloadContentHOC = <
   }) => (
     <div className="w-full flex flex-col">
       {(() => {
+        if (payload.type === 'handshake') {
+          return <Alert type="warning" description={<T id="dappHandshakeWarning" />} />;
+        }
+
         if (payload.type === 'connect') {
           const providers: EIP6963ProviderInfo[] | undefined = 'providers' in payload ? payload.providers : undefined;
           if (providers?.length && showConflict) {
@@ -228,7 +236,7 @@ const PayloadContentHOC = <
           return <SignPayloadView payload={payload} error={error} />;
         }
 
-        if (isConfirmOperationsPayload(payload)) {
+        if (isConfirmOperationsPayload(payload) && network) {
           return (
             <OperationView
               network={network}

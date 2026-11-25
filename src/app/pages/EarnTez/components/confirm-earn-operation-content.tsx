@@ -176,8 +176,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     basicParams,
     senderAccount: account,
     network,
-    estimationDataLoading,
-    isEstimationError: Boolean(estimationError)
+    estimationDataLoading
   });
   useEffect(() => {
     setSubmitDisabled(!basicParams);

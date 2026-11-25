@@ -3,21 +3,26 @@ import { FC, Ref } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
+import { reportDeadEvmCollectiblePreview } from 'app/hooks/evm-collectible-dead-preview';
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
 import {
-  buildCollectibleImagesStack,
+  appendExtraSource,
+  buildCollectibleImageSourceStages,
   buildEvmCollectibleIconSources,
-  buildIpfsGatewaySourceStages
+  buildEvmCollectiblePreviewSources
 } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
+import { parseMediaUri } from 'lib/utils/ipfs';
 
 import { CollectibleBlur } from './collectible-blur';
 import { CollectibleImageFallback } from './collectible-image-fallback';
 import { CollectibleImageLoader } from './collectible-image-loader';
+
+const EVM_TILE_IMAGE_FAILURE_BACKOFF_MS = 60_000;
 
 interface TezosCollectibleItemImageProps {
   assetSlug: string;
@@ -30,6 +35,8 @@ interface TezosCollectibleItemImageProps {
   className?: string;
   shouldUseBlurredBg?: boolean;
   manageActive?: boolean;
+  /** Keep the first frame. Used for the image under a cover. */
+  still?: boolean;
 }
 
 export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
@@ -41,7 +48,8 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   extraSrc,
   className,
   shouldUseBlurredBg = false,
-  manageActive = false
+  manageActive = false,
+  still = false
 }) => {
   const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
   const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
@@ -50,12 +58,7 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   const sources = useMemoWithCompare(() => {
     if (!metadata) return EMPTY_FROZEN_ARRAY;
 
-    const sources = buildCollectibleImagesStack(metadata);
-    if (extraSrc !== undefined) {
-      sources.push(extraSrc);
-    }
-
-    return sources;
+    return appendExtraSource(buildCollectibleImageSourceStages(metadata), extraSrc);
   }, [metadata, extraSrc]);
 
   const isAudioCollectible = Boolean(mime?.startsWith('audio'));
@@ -69,10 +72,18 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   ) : (
     <>
       {shouldUseBlurredBg && (
-        <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
+        <ImageStacked
+          sources={sources}
+          progressive
+          still={still}
+          loading="lazy"
+          className="absolute w-full h-full object-cover blur-xs"
+        />
       )}
       <ImageStacked
         sources={sources}
+        progressive
+        still={still}
         loading="lazy"
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
@@ -84,36 +95,58 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
 
 interface EvmCollectibleItemImageProps {
   metadata?: EvmCollectibleMetadata;
+  assetSlug?: string;
+  chainId?: number;
   className?: string;
   shouldUseBlurredBg?: boolean;
+  /** Keep the first frame. Used for the image under a cover. */
+  still?: boolean;
+  inView: boolean;
 }
 
 export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   metadata,
+  assetSlug,
+  chainId,
   className,
-  shouldUseBlurredBg = false
+  shouldUseBlurredBg = false,
+  still = false,
+  inView
 }) => {
-  const sources = useMemoWithCompare(() => buildIpfsGatewaySourceStages(metadata?.image), [metadata]);
+  const sources = useMemoWithCompare(
+    () => buildEvmCollectiblePreviewSources(metadata, { primaryGatewaysOnly: true }),
+    [metadata]
+  );
+  const isIpfsImage = Boolean(parseMediaUri(sources[0]?.urls[0]).ipfsAware.ipfs);
   const sourcesWithCompressedFallback = useMemoWithCompare(
     () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
     [metadata]
   );
+  const handlePreviewFailed = () => reportDeadEvmCollectiblePreview(chainId, assetSlug, metadata);
 
   return (
     <>
       {shouldUseBlurredBg && (
         <ImageStacked
           sources={sourcesWithCompressedFallback}
+          still={still}
+          paused={!inView}
+          failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
           loading="lazy"
           className="absolute w-full h-full object-cover blur-xs"
         />
       )}
       <ImageStacked
         sources={sources}
+        still={still}
+        raced={isIpfsImage}
+        paused={!inView}
+        failureBackoffMs={EVM_TILE_IMAGE_FAILURE_BACKOFF_MS}
         loading="lazy"
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback />}
         className={clsx('w-full h-full z-1', className)}
+        onStackFailed={handlePreviewFailed}
       />
     </>
   );

@@ -22,4 +22,5 @@ interface CustomDAppsInfo {
   dApps: CustomDAppInfo[];
 }
 
-export const getDAppsList = () => templeWalletApi.get<CustomDAppsInfo>('/dapps').then(res => res.data);
+export const getDAppsList = () =>
+  templeWalletApi.get<CustomDAppsInfo>('/dapps', { params: { platform: 'extension' } }).then(res => res.data);

@@ -2,9 +2,8 @@ import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
-import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { isTruthy, openLink } from 'lib/utils';
+import { ETHEREUM_APR } from 'lib/constants';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -16,7 +15,7 @@ interface Props {
   symbol?: string;
 }
 
-type IncentiveInfo = { label: string; link: string; external?: boolean };
+type IncentiveInfo = { label: string; link: string };
 
 const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: {
@@ -29,13 +28,6 @@ const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
     [EVM_TOKEN_SLUG]: {
       label: `APR: ${ETHEREUM_APR}%`,
       link: '/earn-eth'
-    }
-  },
-  [ETHERLINK_MAINNET_CHAIN_ID]: {
-    [ETHERLINK_USDC_SLUG]: {
-      label: `APR: ${APPLEFARM_APR}%`,
-      link: APPLEFARM_REFERRAL_LINK,
-      external: true
     }
   }
 };
@@ -52,11 +44,7 @@ export const EvmIncentiveTag: FC<Props> = ({ chainId, assetSlug, symbol }) => {
       e.preventDefault();
       e.stopPropagation();
 
-      isTruthy(incentive.external)
-        ? openLink(incentive.link)
-        : navigate({
-            pathname: incentive.link
-          });
+      navigate({ pathname: incentive.link });
     };
   }, [incentive]);
 

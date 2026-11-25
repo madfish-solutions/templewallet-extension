@@ -7,7 +7,7 @@ const REFRESH_MSGTYPE = 'TEMPLE_I18N_REFRESH';
 
 const initPromise = init();
 
-browser.runtime.onMessage.addListener(msg => {
+browser.runtime.onMessage.addListener((msg: any) => {
   if (msg?.type === REFRESH_MSGTYPE) {
     refresh();
   }

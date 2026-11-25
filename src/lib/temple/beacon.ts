@@ -141,6 +141,7 @@ interface SignRequest extends BaseMessage {
 interface SignResponse extends BaseMessage {
   type: MessageType.SignPayloadResponse;
   signature: string;
+  signingType?: SigningType;
 }
 
 interface BroadcastRequest extends BaseMessage {
@@ -367,6 +368,16 @@ export function fromHex(term: string) {
   return Buffer.from(term, 'hex');
 }
 
-export function toPubKeyStorageKey(origin: string) {
+type PubKeyStorageKey = `beacon_${string}_pubkey`;
+
+export function toPubKeyStorageKey(origin: string): PubKeyStorageKey {
   return `beacon_${origin}_pubkey`;
+}
+
+export function isPubKeyStorageKey(key: string): key is PubKeyStorageKey {
+  return key.startsWith('beacon_') && key.endsWith('_pubkey');
+}
+
+export function extractPubKeyStorageKey(key: PubKeyStorageKey): string {
+  return key.replace(/^beacon_/, '').replace(/_pubkey$/, '');
 }

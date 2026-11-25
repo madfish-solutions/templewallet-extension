@@ -2,7 +2,11 @@ import React, { memo, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
+import { collectionImageForToken } from 'app/store/evm/collectibles-inventory/place-collections';
+import { useEvmCollectiblesInventorySelector } from 'app/store/evm/collectibles-inventory/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { evmStoredCollectionName, isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
+import { fromAssetSlug } from 'lib/assets/utils';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { navigate } from 'lib/woozie';
 import { useAccountAddressForEvm } from 'temple/front';
@@ -14,6 +18,7 @@ import { EvmCollectiblePageImage } from '../components/CollectiblePageImage';
 import { CollectionDetails } from '../components/CollectionDetails';
 import { EvmDetails } from '../components/Details';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
+import { useLoadMissingEvmCollectibleImage } from '../hooks/use-load-collectible-metadata';
 
 import { BaseContent } from './Base';
 import { EvmNoMetadataContent } from './NoMetadata';
@@ -27,6 +32,9 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   const network = useEvmChainByChainId(chainId);
   const accountPkh = useAccountAddressForEvm();
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
+  const inventory = useEvmCollectiblesInventorySelector(accountPkh)[chainId];
+  const collectionImage = collectionImageForToken(inventory, assetSlug);
+  useLoadMissingEvmCollectibleImage(network, assetSlug, Boolean(metadata) && !metadata?.image);
 
   const onSendButtonClick = useCallback(
     () => navigate(buildSendPagePath(TempleChainKind.EVM, String(chainId), assetSlug)),
@@ -37,16 +45,24 @@ export const EvmContent = memo<Props>(({ chainId, assetSlug }) => {
   if (!metadata) return <EvmNoMetadataContent assetSlug={assetSlug} network={network} accountPkh={accountPkh} />;
 
   const collectibleName = getCollectibleName(metadata);
-  const collectionName = getCollectionName(metadata);
+  const storedCollectionName = evmStoredCollectionName(metadata, assetSlug);
+  const collectionName = isSharedStorefrontTokenId(metadata.tokenId ?? fromAssetSlug(assetSlug)[1])
+    ? storedCollectionName || getCollectionName(undefined)
+    : getCollectionName(metadata);
 
   const showSegmentControl = metadata.attributes && metadata.attributes.length > 0;
 
   return (
     <BaseContent
       headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
-      imageElement={<EvmCollectiblePageImage metadata={metadata} />}
+      imageElement={<EvmCollectiblePageImage chainId={chainId} assetSlug={assetSlug} metadata={metadata} />}
       collectibleName={collectibleName}
-      collectionDetailsElement={<CollectionDetails title={collectionName} />}
+      collectionDetailsElement={
+        <CollectionDetails
+          title={collectionName}
+          logoSources={collectionImage ? [{ urls: [collectionImage] }] : undefined}
+        />
+      }
       onSend={onSendButtonClick}
       description={metadata.description}
       showSegmentControl={showSegmentControl}

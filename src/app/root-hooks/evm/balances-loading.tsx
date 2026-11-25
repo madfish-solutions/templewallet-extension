@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
@@ -12,16 +12,20 @@ import {
   useEvmAccountBalancesTimestampsSelector,
   useEvmBalancesInitiallyLoadedChainsSelector
 } from 'app/store/evm/balances/selectors';
+import { loadEvmCollectiblesInventoryAction } from 'app/store/evm/collectibles-inventory/actions';
+import { isAlchemyChainId } from 'app/store/evm/collectibles-inventory/chains';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
-import { getEvmBalances } from 'lib/apis/temple/endpoints/evm';
-import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { BalancesResponse, GoldrushChainID, getEvmBalances } from 'lib/apis/temple/endpoints/evm';
+import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { isAbortError, withRateLimitRetry } from 'lib/apis/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { COLLECTIBLES_DETAILS_SYNC_INTERVAL, EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
+import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
+import { useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { useLocation } from 'lib/woozie';
 import { getViemPublicClient } from 'temple/evm';
 import { useEnabledEvmChains } from 'temple/front';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -36,9 +40,14 @@ import {
   useRefreshIfActive
 } from './use-refresh-if-active';
 
+const MAX_GOLDRUSH_TIP_LAG_MS = 5 * 60_000;
+
 type Loaders =
   | [OnchainDataLoader<StringRecord>]
-  | [ApiDataLoader<BalancesResponse, ChainID>, OnchainDataLoader<StringRecord>];
+  | [ApiDataLoader<BalancesResponse, GoldrushChainID>, OnchainDataLoader<StringRecord>];
+
+/** Screens that show token balances or the NFT inventory. */
+const INVENTORY_REFRESH_PATHS = ['/', '/nfts', '/send', '/swap', '/token'];
 
 export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const isTestnetMode = useTestnetModeEnabledSelector();
@@ -49,6 +58,39 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const storedTokens = useRawEvmAccountTokensSelector(publicKeyHash);
   const storedCollectibles = useRawEvmAccountCollectiblesSelector(publicKeyHash);
   const enabledEvmChains = useEnabledEvmChains();
+  const inventoryChainKey = enabledEvmChains
+    .map(chain => chain.chainId)
+    .filter(isAlchemyChainId)
+    .join();
+
+  const windowIsActive = useWindowIsActive();
+  const { pathname } = useLocation();
+  const shouldRefreshInventory =
+    windowIsActive && INVENTORY_REFRESH_PATHS.some(path => pathname === path || pathname.startsWith(`${path}/`));
+
+  const loadInventoryRef = useUpdatableRef(() => {
+    if (!inventoryChainKey) return;
+
+    dispatch(
+      loadEvmCollectiblesInventoryAction({
+        account: publicKeyHash,
+        chainIds: inventoryChainKey.split(',').map(Number)
+      })
+    );
+  });
+
+  useEffect(() => {
+    loadInventoryRef.current();
+  }, [inventoryChainKey, publicKeyHash, loadInventoryRef]);
+
+  useInterval(
+    () => {
+      if (shouldRefreshInventory) loadInventoryRef.current();
+    },
+    [shouldRefreshInventory, loadInventoryRef],
+    COLLECTIBLES_DETAILS_SYNC_INTERVAL,
+    false
+  );
   const enabledEvmChainsByIds = useMemo(
     () => Object.fromEntries(enabledEvmChains.map(chain => [chain.chainId, chain])),
     [enabledEvmChains]
@@ -110,7 +152,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
         const delta = Math.abs(latestTimestampMs - latestApiIndexedBlockTimestamp);
 
-        return delta <= EVM_BALANCES_SYNC_INTERVAL * 3;
+        return delta <= MAX_GOLDRUSH_TIP_LAG_MS;
       } catch (err) {
         console.warn('Failed to verify GoldRush balances response', err);
         return false;
@@ -184,9 +226,12 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleApiError = useMemo(() => handleErrorFactory('api'), [handleErrorFactory]);
   const handleOnchainError = useMemo(() => handleErrorFactory('onchain'), [handleErrorFactory]);
 
+  // NFTs refresh is done above through inventory loading
   const getEvmBalancesFromApi = useCallback(
-    (walletAddress: string, chainId: ChainID) =>
-      getEvmBalances(walletAddress, chainId)
+    (walletAddress: string, chainId: GoldrushChainID, signal?: AbortSignal) => {
+      const retrySignal = signal ?? new AbortController().signal;
+
+      return withRateLimitRetry(() => getEvmBalances(walletAddress, chainId, false, retrySignal), retrySignal)
         .then(async data => {
           if (!(await shouldUseGoldrushData(data, chainId))) {
             console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);
@@ -196,10 +241,15 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
           return { data };
         })
-        .catch(error => ({ error })),
+        .catch(error => {
+          if (retrySignal.aborted || isAbortError(error)) throw error;
+
+          return { error };
+        });
+    },
     [shouldUseGoldrushData]
   );
-  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isSupportedChainId);
+  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isGoldrushChainId);
 
   const onChainLoader = useMemo<OnchainDataLoader<StringRecord>>(
     () => ({
@@ -226,7 +276,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
               getData: getEvmBalancesFromApi,
               handleSuccess: handleApiSuccess,
               handleError: handleApiError,
-              isApplicable: isSupportedChainId
+              isApplicable: isGoldrushChainId
             },
             onChainLoader
           ],

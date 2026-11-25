@@ -33,6 +33,26 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
   return metadata?.name || t('unknownCollection');
 }
 
+const RETIRED_SEADN_HOST = '://i.seadn.io/';
+const RETIRED_SEADN_GAE_ID = /https?:\/\/i\.seadn\.io\/gae\/([a-z0-9_-]+)/i;
+const REQUESTED_IMAGE_WIDTH = /(?:width=|[?&]w=)(\d{2,4})/;
+
+/** True for image URLs on the retired OpenSea host `i.seadn.io`. */
+const isRetiredSeadnImageUrl = (url: string): boolean => url.includes(RETIRED_SEADN_HOST);
+
+/**
+ * `i.seadn.io` no longer resolves. `/gae/{id}` objects are still served by Google, including when a
+ * Covalent image proxy wraps that URL. Returns `undefined` when the URL is on that host and cannot be rewritten.
+ */
+export const patchRetiredSeadnImageUrl = (url: string): string | undefined => {
+  const id = RETIRED_SEADN_GAE_ID.exec(url)?.[1];
+  if (!id) return isRetiredSeadnImageUrl(url) ? undefined : url;
+
+  const width = REQUESTED_IMAGE_WIDTH.exec(url)?.[1];
+
+  return `https://lh3.googleusercontent.com/${id}${width ? `=s${width}` : ''}`;
+};
+
 /** Empty string for `artifactUri` counts */
 export const isCollectible = (metadata?: StringRecord<any>) =>
   isDefined(metadata) && 'artifactUri' in metadata && isString(metadata.artifactUri);
@@ -40,15 +60,15 @@ export const isCollectible = (metadata?: StringRecord<any>) =>
 export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
   isDefined(metadata) && 'tokenId' in metadata;
 
-/**
- * @deprecated // Assertion here is not safe!
- */
 export const isTezosCollectibleMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  'address' in metadata &&
+  isString(metadata.address) &&
+  'id' in metadata &&
+  isString(metadata.id) &&
   isCollectible(metadata);
 
-/** TODO: Better way */
 export const isEvmCollectibleMetadata = (metadata: EvmAssetMetadataBase): metadata is EvmCollectibleMetadata =>
-  'image' in metadata;
+  'tokenId' in metadata;
 
 export const buildTokenMetadataFromFetched = (
   token: TokenMetadataResponse,

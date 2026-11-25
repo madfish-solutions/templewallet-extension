@@ -1,19 +1,20 @@
-import React, { memo, useMemo, MouseEvent, useCallback, Ref } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { useEvmChainTokenWillBeRendered } from 'lib/ui/tokens-list';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { TokensListView } from './tokens-list-view';
+import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface Props {
   chainId: number;
@@ -26,6 +27,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   const chain = useEvmChainByChainId(chainId);
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
+  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(chainId);
 
   if (!chain) throw new DeadEndBoundaryError();
 
@@ -53,19 +55,24 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   );
 
   const renderListItem = useCallback(
-    (slug: string, index: number, ref?: Ref<TokenListItemElement>) => (
+    (slug: string) => (
       <EvmTokenListItem
-        key={slug}
-        index={index}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
         network={chain}
         onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
-        ref={ref}
       />
     ),
     [chain, chainId, onAssetSelect, publicKeyHash]
   );
 
-  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
+  return (
+    <TokensListView
+      slugs={searchedSlugs}
+      scrollElementId={SELECT_ASSET_SCROLLABLE_ID}
+      tokenWillBeRendered={tokenWillBeRendered}
+    >
+      {renderListItem}
+    </TokensListView>
+  );
 });

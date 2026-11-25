@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import Tippy from '@tippyjs/react';
 import BigNumber from 'bignumber.js';
 
@@ -21,7 +22,14 @@ interface FeesInfoProps {
   goToFeeTab?: EmptyFn;
 }
 
-const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab }: FeesInfoProps) => {
+const NetworkLogo: FC<{ network: OneOfChains }> = ({ network }) =>
+  network.kind === TempleChainKind.EVM ? (
+    <EvmNetworkLogo chainId={network.chainId} size={16} />
+  ) : (
+    <TezosNetworkLogo chainId={network.chainId} size={16} />
+  );
+
+const FeesInfo = ({ network, assetSlug, amount, goToFeeTab }: FeesInfoProps) => {
   const isEvm = network.kind === TempleChainKind.EVM;
   const getTezosGasMetadata = useGetTezosGasMetadata();
 
@@ -33,34 +41,42 @@ const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab }: FeesInfoP
   return (
     <>
       <div className="p-1 text-font-num-12">
-        <InFiat
-          chainId={network.chainId}
-          assetSlug={assetSlug}
-          volume={amount}
-          smallFractionFont={false}
-          showLessThanSign={true}
-          roundingMode={BigNumber.ROUND_FLOOR}
-          evm={isEvm}
-        >
-          {({ balance, symbol, tooLowSign }) => (
-            <span className="pr-1 border-r-1.5 border-lines">
-              {tooLowSign && '< '}
-              {symbol}
-              {balance}
+        {isDefined(amount) ? (
+          <>
+            <InFiat
+              chainId={network.chainId}
+              assetSlug={assetSlug}
+              volume={amount}
+              smallFractionFont={false}
+              showLessThanSign={true}
+              roundingMode={BigNumber.ROUND_FLOOR}
+              evm={isEvm}
+            >
+              {({ balance, symbol, tooLowSign }) => (
+                <span className="pr-1 border-r-1.5 border-lines">
+                  {tooLowSign && '< '}
+                  {symbol}
+                  {balance}
+                </span>
+              )}
+            </InFiat>
+            <span className="pl-1">
+              <Money smallFractionFont={false} tooltipPlacement="bottom">
+                {amount}
+              </Money>{' '}
+              {nativeAssetSymbol}
             </span>
-          )}
-        </InFiat>
-        <span className="pl-1">
-          <Money smallFractionFont={false} tooltipPlacement="bottom">
-            {amount}
-          </Money>{' '}
-          {nativeAssetSymbol}
-        </span>
+          </>
+        ) : (
+          '---'
+        )}
       </div>
       {goToFeeTab && <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />}
     </>
   );
 };
+
+const isFeeAmount = (value?: string): value is string => isDefined(value) && value !== '';
 
 const totalFeesInfoTippyProps = {
   trigger: 'mouseenter',
@@ -90,7 +106,12 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
   embedded = false
 }) => {
   const total = useMemo(() => {
-    const values = [gasFee, storageFee, protocolFee].filter((value): value is string => Boolean(value));
+    // No network fee yet: the total is unknown (still loading, or estimation failed).
+    // A real zero stays visible because "0" is a defined amount.
+    if (!isFeeAmount(gasFee)) return undefined;
+
+    const values = [gasFee, storageFee, protocolFee].filter(isFeeAmount);
+
     return values.reduce((acc, v) => acc.plus(v), new BigNumber(0));
   }, [gasFee, storageFee, protocolFee]);
 
@@ -175,16 +196,18 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
       <p className="p-1 text-grey-1 text-font-description-bold">{t('totalFee')}</p>
 
       <div className="flex flex-row items-center py-2">
-        <Tippy {...totalFeesInfoTippyProps} content={tooltipContent}>
-          <span className="flex items-center justify-center cursor-pointer">
-            {network.kind === TempleChainKind.EVM ? (
-              <EvmNetworkLogo chainId={network.chainId} size={16} />
-            ) : (
-              <TezosNetworkLogo chainId={network.chainId} size={16} />
-            )}
+        {isDefined(total) ? (
+          <Tippy {...totalFeesInfoTippyProps} content={tooltipContent}>
+            <span className="flex items-center justify-center cursor-pointer">
+              <NetworkLogo network={network} />
+            </span>
+          </Tippy>
+        ) : (
+          <span className="flex items-center justify-center">
+            <NetworkLogo network={network} />
           </span>
-        </Tippy>
-        <FeesInfo network={network} assetSlug={assetSlug} amount={total.toFixed()} goToFeeTab={onOpenFeeTab} />
+        )}
+        <FeesInfo network={network} assetSlug={assetSlug} amount={total?.toFixed()} goToFeeTab={onOpenFeeTab} />
       </div>
     </div>
   );

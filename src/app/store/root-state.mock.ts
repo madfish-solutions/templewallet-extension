@@ -7,10 +7,10 @@ import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
 import { mockCrossChainSendState } from './cross-chain-send/state.mock';
 import { mockCryptoExchangeState } from './crypto-exchange/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
-import { mockDAppsState } from './d-apps/state.mock';
 import { mockDealsState } from './deals/state.mock';
 import { mockEvmAssetsState } from './evm/assets/state.mock';
 import { mockEvmBalancesState } from './evm/balances/state.mock';
+import { mockEvmCollectiblesInventoryState } from './evm/collectibles-inventory/state.mock';
 import { mockEvmCollectiblesMetadataState } from './evm/collectibles-metadata/state.mock';
 import { mockNoCategoryEvmAssetsMetadataState } from './evm/no-category-assets-metadata/state.mock';
 import { mockPendingEvmTransactionsState } from './evm/pending-transactions/state.mock';
@@ -38,7 +38,6 @@ export const mockRootState: RootState = {
   settings: mockSettingsState,
   currency: mockCurrencyState,
   notifications: mockNotificationsState,
-  dApps: mockDAppsState,
   swap: mockSwapState,
   deals: mockDealsState,
   partnersPromotion: mockPartnersPromotionState,
@@ -62,6 +61,7 @@ export const mockRootState: RootState = {
   pendingTezosTransactions: mockPendingTezosTransactionsState,
   lifiEvmTokensMetadata: mockLifiEvmTokensMetadataState,
   evmCollectiblesMetadata: mockEvmCollectiblesMetadataState,
+  evmCollectiblesInventory: mockEvmCollectiblesInventoryState,
   evmTokensExchangeRates: mockEvmTokensExchangeRatesState,
   evmNoCategoryAssetMetadata: mockNoCategoryEvmAssetsMetadataState,
   assetsFilterOptions: mockAssetsFilterOptionsState,

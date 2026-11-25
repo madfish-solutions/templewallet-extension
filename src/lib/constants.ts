@@ -25,6 +25,8 @@ export enum ContentScriptType {
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',
   WebWidgetAdImpression = 'WebWidgetAdImpression',
+  AccountNotificationAdContext = 'AccountNotificationAdContext',
+  AccountNotificationAdImpression = 'AccountNotificationAdImpression',
   WebWidgetTrackEvent = 'WebWidgetTrackEvent',
   WebWidgetSnooze = 'WebWidgetSnooze',
   WebWidgetDisable = 'WebWidgetDisable',
@@ -74,6 +76,12 @@ export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 
+/** Tezos addresses used to keep account-notification WS subscribed while the wallet is locked. */
+export const ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY = 'ACCOUNT_NOTIFICATION_ADDRESSES';
+
+/** Latest notifications fetch saved while no extension page is listening. */
+export const ACCOUNT_NOTIFICATIONS_PENDING_STORAGE_KEY = 'ACCOUNT_NOTIFICATIONS_PENDING';
+
 export const ADS_DISABLING_TIMESTAMPS_STORAGE_KEY = 'ADS_DISABLING_TIMESTAMPS';
 
 export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
@@ -100,6 +108,8 @@ export const AD_CAMPAIGN_POLICY_STORAGE_KEY = 'AD_CAMPAIGN_POLICY';
 export const AD_RULES_REFRESH_INTERVAL = 5 * 60_000;
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
+
+export const MAX_NOTIFICATION_ACCOUNT_ADDRESSES = 100;
 
 export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 
@@ -225,7 +235,6 @@ export const LEDGER_USB_VENDOR_ID = '0x2c97';
 
 export const TEZOS_APY = '6.5';
 export const ETHEREUM_APR = '3.4-10';
-export const APPLEFARM_APR = '12';
 
 export const TEZ_BURN_ADDRESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 
@@ -238,9 +247,6 @@ export const ASSET_HUGE_AMOUNT = 1e18;
 export const REACTIVATION_APPLIED_AT_KEY = 'ADS_REACTIVATION_APPLIED_AT';
 
 export const MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT = 1e-6;
-
-export const ETHERLINK_USDC_SLUG = '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0';
-export const APPLEFARM_REFERRAL_LINK = 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788';
 
 export const DAPP_SUCCESS_SETTLE_DELAY_MS = 1200;
 

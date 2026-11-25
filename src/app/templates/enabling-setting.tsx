@@ -14,22 +14,30 @@ interface EnablingSettingProps {
 }
 
 export const EnablingSetting = memo(
-  ({ title, enabled, description, onChange, testID, children }: EnablingSettingProps) => (
-    <SettingsCellGroup>
-      <SettingsCellSingle Component="div" isLast={false} cellName={title}>
-        <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
-      </SettingsCellSingle>
+  ({ title, enabled, description, onChange, testID, children }: EnablingSettingProps) => {
+    const setting = (
+      <SettingsCellGroup className={children ? 'border-none shadow-bottom' : undefined}>
+        <SettingsCellSingle Component="div" isLast={false} cellName={title}>
+          <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
+        </SettingsCellSingle>
 
-      <SettingsCellSingle
-        Component="div"
-        isLast={!children}
-        cellName={description}
-        cellNameClassName="text-grey-1 text-font-description font-normal"
-      >
-        {null}
-      </SettingsCellSingle>
+        <SettingsCellSingle
+          Component="div"
+          cellName={description}
+          cellNameClassName="text-grey-1 text-font-description font-normal"
+        >
+          {null}
+        </SettingsCellSingle>
+      </SettingsCellGroup>
+    );
 
-      {children}
-    </SettingsCellGroup>
-  )
+    return children ? (
+      <div className="flex flex-col rounded-lg border-0.5 border-lines">
+        {setting}
+        {children}
+      </div>
+    ) : (
+      setting
+    );
+  }
 );

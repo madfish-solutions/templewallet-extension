@@ -8,7 +8,8 @@ import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 import { ASSET_HUGE_AMOUNT } from 'lib/constants';
-import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
+import { el } from 'lib/el';
+import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t, toSubscriptNotation } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 interface MoneyProps extends TestIDProps {
@@ -49,10 +50,13 @@ const Money: FC<MoneyProps> = ({
   }
   const { decimal } = getNumberSymbols();
 
-  const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
-
-  const decimals = fiat ? 2 : deciamlsLimit;
-  const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+  const decimals = fiat ? 2 : Math.min(decimalsLength, cryptoDecimals);
+  const isTinyAmount = !fiat && !shortened && !bn.isZero() && bn.decimalPlaces(decimals, roundingMode).isZero();
+  const result = isTinyAmount
+    ? toSubscriptNotation(bn, decimal, decimals, roundingMode)
+    : shortened
+      ? toShortened(bn)
+      : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
 
   const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
@@ -76,7 +80,7 @@ const Money: FC<MoneyProps> = ({
     );
   }
 
-  if (!fiat && !shortened && decimalsLength > cryptoDecimals) {
+  if (!fiat && !shortened && !isTinyAmount && decimalsLength > cryptoDecimals) {
     return (
       <MoneyWithoutFormat
         tooltip={tooltip}
@@ -101,6 +105,7 @@ const Money: FC<MoneyProps> = ({
       className={tippyClassName}
       bn={bn}
       isFiat={fiat}
+      showAmountTooltip={isTinyAmount}
       indexOfDecimal={indexOfDecimal}
       smallFractionFont={smallFractionFont}
       withSign={withSign}
@@ -195,21 +200,19 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   const indexOfDecimal = result.indexOf(decimal);
 
   return (
-    <FullAmountTippy
-      enabled={tooltip}
-      fullAmount={bn}
+    <MoneyWithFormat
+      tooltip={tooltip}
+      bn={bn}
+      result={result}
+      indexOfDecimal={indexOfDecimal}
       className={className}
       tooltipPlacement={tooltipPlacement}
       showAmountTooltip
+      smallFractionFont={smallFractionFont}
+      withSign={withSign}
       testID={testID}
       testIDProperties={testIDProperties}
-    >
-      {withSign && bn.isPositive() && '+'}
-      {result.slice(0, indexOfDecimal + 1)}
-      <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
-        {result.slice(indexOfDecimal + 1, result.length)}
-      </span>
-    </FullAmountTippy>
+    />
   );
 };
 
@@ -217,6 +220,7 @@ interface MoneyWithFormatProps extends MoneyAnyFormatPropsBase {
   result: string;
   indexOfDecimal: number;
   isFiat?: boolean;
+  showAmountTooltip?: boolean;
 }
 
 const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
@@ -226,6 +230,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   result,
   indexOfDecimal,
   isFiat,
+  showAmountTooltip,
   smallFractionFont,
   withSign,
   tooltipPlacement,
@@ -244,6 +249,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
     <FullAmountTippy
       enabled={tooltip}
       fullAmount={fullAmount}
+      showAmountTooltip={showAmountTooltip}
       className={className}
       tooltipPlacement={tooltipPlacement}
       testID={testID}
@@ -291,7 +297,7 @@ export const FullAmountTippy: FC<FullAmountTippyProps> = ({
   );
 
   const tooltipWrapperFactory = useCallback(() => {
-    const element = document.createElement('span');
+    const element = el('span');
     if (isHugeAmount) {
       element.style.overflowWrap = 'break-word';
     }

@@ -3,9 +3,9 @@ import { FC } from 'react';
 import clsx from 'clsx';
 
 import { ReactComponent as RevealEyeSvg } from 'app/icons/reveal-eye.svg';
-import { fromAssetSlug } from 'lib/assets';
-import { buildObjktMediaUriForItemPath } from 'lib/images-uri';
+import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useBooleanState } from 'lib/ui/hooks';
+import { buildObjktTokenThumbnailUrl } from 'lib/utils/objkt-cdn';
 
 import { CollectibleImageLoader } from './collectible-image-loader';
 
@@ -19,9 +19,9 @@ interface Props {
 export const CollectibleBlur: FC<Props> = ({ assetSlug, large = false, eyeIconSizeClassName, onClick }) => {
   const [isLoading, , setLoaded] = useBooleanState(true);
 
-  const [address, id] = fromAssetSlug(assetSlug);
+  const { contract, id } = fromFa2TokenSlug(assetSlug);
 
-  const source = buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288');
+  const source = buildObjktTokenThumbnailUrl(contract, id);
 
   return (
     <>

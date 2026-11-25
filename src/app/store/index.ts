@@ -23,6 +23,7 @@ export const SLICES_BLACKLIST = [
   'evmAssets' as const,
   'evmTokensMetadata' as const,
   'evmCollectiblesMetadata' as const,
+  'evmCollectiblesInventory' as const,
   'evmTokensExchangeRates' as const,
   'currency' as const,
   'evmNoCategoryAssetMetadata' as const,
@@ -38,7 +39,7 @@ const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 9,
+    version: 10,
     ...storageConfig,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,

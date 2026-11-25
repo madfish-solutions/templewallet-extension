@@ -19,6 +19,7 @@ import { EvmCollectibleItemImage, TezosCollectibleItemImage } from '../collectib
 import { CommonLayoutProps } from './types';
 
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
+const IMAGE_BOX_STYLE = { contentVisibility: 'auto' } as const;
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> extends CommonLayoutProps<T> {
   showDetails: boolean;
@@ -32,7 +33,8 @@ const DefaultCollectibleListItemLayoutHOC = <
   chainKind: T,
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
@@ -70,6 +72,7 @@ const DefaultCollectibleListItemLayoutHOC = <
       >
         <div
           ref={wrapperElemRef}
+          style={IMAGE_BOX_STYLE}
           className={clsx(
             'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
             isVisible && 'border-2 border-transparent',
@@ -93,7 +96,7 @@ const DefaultCollectibleListItemLayoutHOC = <
           {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
           {(!metadatasLoading || metadata) && isVisible && (
             <>
-              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
 
               {network && (
                 <NetworkLogo
@@ -153,9 +156,21 @@ export const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
   'items-center justify-center'
 );
 
-export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  DefaultCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   TempleChainKind.EVM,
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />,
+  ({ metadata, assetSlug, chainId, inView }) => (
+    <EvmCollectibleItemImage
+      shouldUseBlurredBg
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      inView={inView}
+      className="object-contain"
+    />
+  ),
   useEvmChainByChainId
 );

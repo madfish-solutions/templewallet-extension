@@ -8,14 +8,15 @@ import { PROMO_PRIVACY_POLICY_URL } from 'lib/constants';
 import { T } from 'lib/i18n';
 
 import { EnablingSetting } from '../enabling-setting';
-import { SurfaceInfoId, SurfaceInfoModal } from '../promo-surface-info/surface-info-modal';
+import { usePromoSurfaceInfoModule } from '../promo-surface-info';
 
 import { AdvancedFeaturesSelectors } from './selectors';
 
 export const PartnersPromotionSettings: FC = () => {
   const { isEnabled, setEnabled, inBrowserEnabled, setInBrowserEnabled, aiChatEnabled, setAiChatEnabled } =
     usePartnersPromotionSettings();
-  const [infoSurface, setInfoSurface] = useState<SurfaceInfoId>();
+  const PromoSurfaceInfoModule = usePromoSurfaceInfoModule();
+  const [infoSurface, setInfoSurface] = useState<any>();
 
   return (
     <>
@@ -41,7 +42,6 @@ export const PartnersPromotionSettings: FC = () => {
               title={<T id="promoWhileBrowsing" />}
               titleBold={false}
               description={<T id="promoWhileBrowsingDescription" />}
-              isLast={false}
             >
               <InfoButton
                 onClick={() => setInfoSurface('browsing')}
@@ -59,7 +59,6 @@ export const PartnersPromotionSettings: FC = () => {
               title={<T id="promoWhileUsingAi" />}
               titleBold={false}
               description={<T id="promoWhileUsingAiDescription" />}
-              isLast={false}
             >
               <InfoButton onClick={() => setInfoSurface('ai')} testID={AdvancedFeaturesSelectors.promoAiInfoButton} />
               <ToggleSwitch
@@ -80,8 +79,8 @@ export const PartnersPromotionSettings: FC = () => {
         )}
       </EnablingSetting>
 
-      {infoSurface && (
-        <SurfaceInfoModal
+      {infoSurface && PromoSurfaceInfoModule && (
+        <PromoSurfaceInfoModule.SurfaceInfoModal
           surface={infoSurface}
           onClose={() => setInfoSurface(undefined)}
           closeButtonTestID={AdvancedFeaturesSelectors.promoInfoModalCloseButton}

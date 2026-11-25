@@ -31,10 +31,10 @@ export const ContentBaseBody: FC<ContentBaseBodyProps> = ({
 }) => {
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug }) => {
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-    const commonProps = { index, ref, assetSlug, showTags: false };
+    const commonProps = { assetSlug, showTags: false };
 
     if (chainKind === TempleChainKind.Tezos) {
       return (

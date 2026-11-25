@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { NftAddressBalanceNftResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { OpenseaNftRef } from 'lib/apis/temple/endpoints/evm/opensea';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -26,12 +27,47 @@ export const putEvmCollectiblesMetadataAction = createAction<PutEvmCollectiblesM
 export const loadEvmCollectiblesMetadataAction = createAction<{
   publicKeyHash: HexString;
   chains: EvmNetworkEssentials[];
-  loadAllChains: boolean;
+  visibleSlugsByChain: Record<number, string[]>;
+  readAllInBackground: boolean;
+  priorityChainIds: number[];
 }>('evm/collectible-metadata/LOAD');
 
-export const updateEvmCollectiblesMetadataSessionAction = createAction<{
+export const cancelEvmCollectiblesMetadataLoadingAction = createAction('evm/collectible-metadata/CANCEL_LOADING');
+
+export const markEvmCollectiblesMetadataChainLoadedAction = createAction<{
   publicKeyHash: HexString;
-  lastFullLoadAccount?: HexString;
-  seenChains: number[];
-  checkedSlugsByChain: Record<number, string[]>;
-}>('evm/collectible-metadata/UPDATE_SESSION');
+  chainId: number;
+}>('evm/collectible-metadata/MARK_CHAIN_LOADED');
+
+export const markEvmCollectibleSlugsCheckedAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+  slugs: string[];
+  retryAt?: number;
+}>('evm/collectible-metadata/MARK_SLUGS_CHECKED');
+
+interface RetryOpenseaCollectiblesMetadataPayloadBase {
+  delayMs: number;
+  attempt: number;
+  publicKeyHash: HexString;
+}
+
+export type RetryOpenseaCollectiblesMetadataPayload = RetryOpenseaCollectiblesMetadataPayloadBase &
+  (
+    | { kind: 'batch'; refs: OpenseaNftRef[] }
+    | { kind: 'account'; chainId: number }
+    | { kind: 'collection'; chainId: number; collection: string; contractAddress: string }
+  );
+
+/** One collection-filtered account page for a shared-storefront collection the wallet still holds unnamed. */
+export const loadOpenseaStorefrontCollectionAction = createAction<{
+  publicKeyHash: HexString;
+  chainId: number;
+  collection: string;
+  contractAddress: string;
+}>('evm/collectible-metadata/LOAD_OPENSEA_STOREFRONT_COLLECTION');
+
+/** A rate-limited OpenSea request. The wait happens in its own epic. */
+export const retryOpenseaCollectiblesMetadataAction = createAction<RetryOpenseaCollectiblesMetadataPayload>(
+  'evm/collectible-metadata/RETRY_OPENSEA'
+);

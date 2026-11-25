@@ -15,7 +15,7 @@ const swapReducer = createReducer(swapInitialState, builder => {
     state.tokens = createEntity(payload, false);
   });
   builder.addCase(loadSwapTokensAction.fail, (state, { payload }) => {
-    state.tokens = createEntity([], false, payload);
+    state.tokens = createEntity([...state.tokens.data], false, payload);
   });
   builder.addCase(loadSwapDexesAction.submit, state => {
     state.dexes = createEntity([...state.dexes.data], true);

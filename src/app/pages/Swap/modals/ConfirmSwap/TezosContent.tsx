@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { useTezosGasOnRamp } from 'app/hooks/use-tezos-gas-on-ramp';
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
 import { dispatch } from 'app/store';
 import {
@@ -70,24 +71,19 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   );
 
   const estimate = useCallback(async () => {
-    try {
-      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
-      const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
+    const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
+    const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
 
-      const estimatedBaseFee = mutezToTz(
-        BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
-      );
+    const estimatedBaseFee = mutezToTz(
+      BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
+    );
 
-      return {
-        estimates: estimates.map(serializeEstimate),
-        baseFee: estimatedBaseFee,
-        gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
-        revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
-      };
-    } catch (err) {
-      console.error(err);
-      return;
-    }
+    return {
+      estimates: estimates.map(serializeEstimate),
+      baseFee: estimatedBaseFee,
+      gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
+      revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
+    };
   }, [sourcePkh, tezos, opParams]);
 
   const {
@@ -111,6 +107,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFee,
     displayedStorageFee,
     balancesChanges,
+    simulationError,
     assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
@@ -119,10 +116,10 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     simulateOperation: true,
     estimationDataLoading,
     network,
-    sourcePkIsRevealed,
-    isEstimationError: Boolean(estimationError)
+    sourcePkIsRevealed
   });
   const { formState } = form;
+  useTezosGasOnRamp(chainId, sourcePkh, latestSubmitError || estimationError || simulationError);
 
   const filteredBalancesChanges = useMemo(
     () => Object.fromEntries(Object.entries(balancesChanges).filter(([, { atomicAmount }]) => !atomicAmount.isZero())),
@@ -240,6 +237,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError || simulationError}
           selectedFeeOption={selectedFeeOption}
           onFeeOptionSelect={handleFeeOptionSelect}
           displayedFee={displayedFee}

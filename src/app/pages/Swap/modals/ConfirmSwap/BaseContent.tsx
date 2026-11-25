@@ -31,6 +31,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
   latestSubmitError: unknown;
+  estimationError?: unknown;
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
@@ -67,6 +68,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   selectedFeeOption,
   selectedTab,
   latestSubmitError,
+  estimationError,
   onFeeOptionSelect,
   setSelectedTab,
   onSubmit,
@@ -123,24 +125,15 @@ export const BaseContent = <T extends TxParamsFormData>({
                 chain={network}
                 bridgeData={bridgeData}
                 footer={
-                  readOnlyFees && displayedFee === undefined ? (
-                    <div className="flex justify-between py-2 text-grey-1 text-font-description-bold">
-                      <span className="p-1">
-                        <T id="totalFee" />
-                      </span>
-                      <span className="py-1">—</span>
-                    </div>
-                  ) : (
-                    <FeeSummary
-                      network={network}
-                      assetSlug={nativeAssetSlug}
-                      gasFee={displayedFee}
-                      storageFee={displayedStorageFee}
-                      protocolFee={bridgeData?.protocolFee}
-                      onOpenFeeTab={goToFeeTab}
-                      embedded
-                    />
-                  )
+                  <FeeSummary
+                    network={network}
+                    assetSlug={nativeAssetSlug}
+                    gasFee={displayedFee}
+                    storageFee={displayedStorageFee}
+                    protocolFee={bridgeData?.protocolFee}
+                    onOpenFeeTab={goToFeeTab}
+                    embedded
+                  />
                 }
               />
             </FadeTransition>
@@ -160,6 +153,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           setSelectedTab={setSelectedTab}
           selectedFeeOption={selectedFeeOption}
           latestSubmitError={latestSubmitError}
+          estimationError={estimationError}
           onFeeOptionSelect={onFeeOptionSelect}
           onSubmit={onSubmit}
           displayedFeeOptions={displayedFeeOptions}

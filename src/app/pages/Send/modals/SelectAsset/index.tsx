@@ -1,4 +1,4 @@
-import { useCallback, useState, MouseEvent, useMemo, Suspense, useEffect, FC } from 'react';
+import { useCallback, useState, MouseEvent, useMemo, Suspense, useEffect, useRef, FC } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -103,10 +103,12 @@ export const SelectAssetModal: FC<SelectTokenModalProps> = ({ onAssetSelect, ope
     return null;
   }, [accountEvmAddress, accountTezAddress, localFilterChain, handleAssetSelect, searchValueDebounced]);
 
-  const handleFilterOptionSelect = useCallback(
-    (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),
-    []
-  );
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  const handleFilterOptionSelect = useCallback((filterChain: FilterChain | string) => {
+    scrollerRef.current?.scrollTo({ top: 0 });
+    setLocalFilterChain(filterChain);
+  }, []);
 
   return (
     <PageModal title={t('selectToken')} opened={opened} onRequestClose={onRequestClose}>
@@ -126,7 +128,7 @@ export const SelectAssetModal: FC<SelectTokenModalProps> = ({ onAssetSelect, ope
         />
       </div>
 
-      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto" id={SELECT_ASSET_SCROLLABLE_ID}>
+      <div ref={scrollerRef} className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto" id={SELECT_ASSET_SCROLLABLE_ID}>
         <Suspense fallback={<PageLoader stretch />}>{AssetsList}</Suspense>
       </div>
     </PageModal>

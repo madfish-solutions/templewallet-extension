@@ -9,10 +9,10 @@ import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { crossChainSendPersistedReducer } from './cross-chain-send/reducers';
 import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
 import { currencyPersistedReducer } from './currency/reducers';
-import { dAppsReducer } from './d-apps/reducers';
 import { dealsPersistedReducer } from './deals/reducers';
 import { evmAssetsPersistedReducer } from './evm/assets/reducer';
 import { evmBalancesReducer } from './evm/balances/reducers';
+import { evmCollectiblesInventoryPersistedReducer } from './evm/collectibles-inventory/reducers';
 import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-metadata/reducers';
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
@@ -38,7 +38,6 @@ const rootStateReducersMap = {
   settings: settingsReducer,
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
-  dApps: dAppsReducer,
   swap: swapPersistedReducer,
   deals: dealsPersistedReducer,
   partnersPromotion: partnersPromotionPersistedReducer,
@@ -63,6 +62,7 @@ const rootStateReducersMap = {
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
+  evmCollectiblesInventory: evmCollectiblesInventoryPersistedReducer,
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
   assetsFilterOptions: assetsFilterOptionsReducer,
   accountsInitialization: accountsInitializationReducer,

@@ -1,17 +1,16 @@
-export const ChainIDs = [
-  20090103, 1, 137, 56, 43114, 10, 250, 1284, 1285, 42161, 2020, 25, 42262, 5, 43113, 97, 1287, 4002, 1399811149, 42170,
-  7700, 416, 23294, 11155111, 999, 8453, 5000, 59144, 324, 100, 10200, 11155420, 204, 534352, 17000, 88, 421614, 560048,
-  42220, 388, 143, 80094, 9745, 130, 9746, 59141, 80002, 36900, 690, 1329, 33139, 1301, 146, 480, 4801, 37111, 763373,
-  57073, 232, 7000, 167000, 81457, 5
+export const GoldrushChainIDs = [
+  1, 137, 43114, 56, 1284, 1285, 42161, 42170, 250, 2020, 10, 42262, 143, 80094, 9745, 130, 5042, 4326, 7700, 59144,
+  5000, 8453, 4663, 23294, 42220, 999, 36900, 1329, 33139, 146, 480, 57073, 324, 204, 7000, 100, 88, 167000, 81457,
+  534352
 ] as const;
 
-export type ChainID = (typeof ChainIDs)[number];
+export type GoldrushChainID = (typeof GoldrushChainIDs)[number];
 
 export interface BalancesResponse {
   /** * The requested address. */
   address: string;
   /** * The requested chain ID eg: `1`. */
-  chain_id: ChainID;
+  chain_id: GoldrushChainID;
   /** * The requested chain name eg: `eth-mainnet`. */
   chain_name: string;
   /** * The requested quote currency eg: `USD`. */

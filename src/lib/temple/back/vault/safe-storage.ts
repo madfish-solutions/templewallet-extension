@@ -90,9 +90,9 @@ async function wrapStorageKey(key: string) {
 /**
  * @deprecated
  */
-export async function getPlainLegacy<T>(key: string): Promise<T | undefined> {
+export async function getPlainLegacy<T>(key: string) {
   const items = await browser.storage.local.get([key]);
-  return items[key];
+  return items[key] as T | undefined;
 }
 
 /**

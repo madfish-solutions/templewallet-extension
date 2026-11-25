@@ -3,11 +3,8 @@ import React, { FC, memo, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
-import { IconBase, Loader } from 'app/atoms';
-import { Anchor } from 'app/atoms/Anchor';
+import { Loader } from 'app/atoms';
 import Money from 'app/atoms/Money';
-import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { useTokenApyRateSelector } from 'app/store/d-apps';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
 import { T } from 'lib/i18n';
@@ -26,18 +23,6 @@ interface EarnOfferItemProps {
 }
 
 export const EarnItem = memo<EarnOfferItemProps>(({ offer, deposit }) => {
-  const dynamicApyRate = useTokenApyRateSelector(offer.assetSlug);
-
-  const adjustedOffer = useMemo(() => {
-    let finalDisplayYield = offer.displayYield;
-
-    if (dynamicApyRate) {
-      finalDisplayYield = `${new BigNumber(dynamicApyRate).decimalPlaces(2).toFixed()}% APY`;
-    }
-
-    return { ...offer, displayYield: finalDisplayYield };
-  }, [dynamicApyRate, offer]);
-
   const analyticsProps = useMemo(
     () => ({
       testID: EarnSelectors.earnOfferClick,
@@ -46,17 +31,9 @@ export const EarnItem = memo<EarnOfferItemProps>(({ offer, deposit }) => {
     [offer]
   );
 
-  if (offer.isExternal) {
-    return (
-      <Anchor href={offer.link} className={COMMON_ITEM_CLASSNAME} {...analyticsProps}>
-        <EarnOfferItemContent offer={adjustedOffer} deposit={deposit} />
-      </Anchor>
-    );
-  }
-
   return (
     <Link to={offer.link} className={COMMON_ITEM_CLASSNAME} {...analyticsProps}>
-      <EarnOfferItemContent offer={adjustedOffer} deposit={deposit} />
+      <EarnOfferItemContent offer={offer} deposit={deposit} />
     </Link>
   );
 });
@@ -70,16 +47,10 @@ const EarnOfferItemContent = memo<EarnOfferItemProps>(({ offer, deposit }) => (
         <div className="flex flex-col">
           <div className="flex items-center gap-x-0.5">
             <span className="text-font-medium-bold group-hover:text-secondary">{offer.symbol}</span>
-
-            {offer.isExternal && (
-              <IconBase Icon={OutLinkIcon} size={12} className="text-secondary opacity-0 group-hover:opacity-100" />
-            )}
           </div>
 
           <div className="flex items-center gap-x-1">
             <span className="text-font-description text-grey-1">{offer.name}</span>
-
-            {offer.providerIcon && <offer.providerIcon className="w-5 h-5 shrink-0" />}
           </div>
         </div>
       </div>

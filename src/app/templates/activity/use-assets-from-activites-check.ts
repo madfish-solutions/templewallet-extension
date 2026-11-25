@@ -47,7 +47,7 @@ export const useAssetsFromActivitiesCheck = ({ activities, tezAccountPkh, evmAcc
 
     return { tezosSlugs: Array.from(tezosSlugs), evmSlugs: Array.from(evmSlugs) };
   }, [activities, mainAsset]);
-  useTezosGenericAssetsMetadataCheck(tezosSlugs, tezAccountPkh);
+  useTezosGenericAssetsMetadataCheck(tezosSlugs, tezAccountPkh, true);
   useEvmGenericAssetsMetadataCheck(evmSlugs, evmAccountPkh);
 };
 

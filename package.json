@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.33",
+  "version": "2.0.34",
   "private": true,
   "packageManager": "yarn@4.15.0",
   "scripts": {
@@ -61,6 +61,7 @@
     "@ledgerhq/hw-transport-webhid": "^6.28.6",
     "@lifi/sdk": "4.8.1",
     "@microsoft/signalr": "^8.0.0",
+    "@noble/hashes": "1.8.0",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
     "@redux-devtools/remote": "^0.9.5",
@@ -69,6 +70,7 @@
     "@specify-sh/publisher-sdk": "1.1.0",
     "@svgr/webpack": "^8",
     "@tailwindcss/postcss": "^4.3.3",
+    "@tanstack/react-virtual": "^3.14.13",
     "@taquito/ledger-signer": "^25.0.0",
     "@taquito/local-forging": "^25.0.0",
     "@taquito/michel-codec": "^25.0.0",
@@ -114,7 +116,7 @@
     "@types/scryptsy": "^2.0.0",
     "@types/typedarray-to-buffer": "^4.0.0",
     "@types/w3c-web-hid": "^1.0.3",
-    "@types/webextension-polyfill": "^0.9.1",
+    "@types/webextension-polyfill": "^0.12.6",
     "@types/webpack": "^5",
     "@types/ws": "^7.4.6",
     "assert": "1.5.0",
@@ -188,7 +190,6 @@
     "react-qr-svg": "2.2.2",
     "react-redux": "^9.2.0",
     "react-transition-group": "4.4.5",
-    "react-window": "^1.8.11",
     "recharts": "3.5.1",
     "redux-observable": "^2.0.0",
     "redux-persist": "^6.0.0",
@@ -213,7 +214,7 @@
     "use-force-update": "1.0.7",
     "util": "0.11.1",
     "uuid": "^11.0.3",
-    "viem": "^2.56.8",
+    "viem": "^2.57.7",
     "vm-browserify": "^1.1.2",
     "wasm-themis": "0.14.6",
     "webextension-polyfill": "^0.10.0",
@@ -231,7 +232,6 @@
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
     "@bigmi/core": "^0.5.2",
-    "@types/react-window": "^1.8.8",
     "babel-loader": "^10.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -265,10 +265,9 @@
     "request/form-data": "^2.5.6",
     "useragent/semver": "^5.7.2",
     "ws@^7": "^7.5.11",
-    "ws@^8": "^8.21.0",
-    "viem/ws": "^8.21.0"
+    "ws@^8": "^8.21.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "22.1.0-beta.0"
+    "@temple-wallet/extension-ads": "22.1.1"
   }
 }

@@ -1,114 +1,102 @@
-import { FC, Fragment, Ref } from 'react';
+import { FC, Fragment } from 'react';
 
-import clsx from 'clsx';
+import { stubTrue } from 'lodash';
 
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { VirtualList } from 'app/atoms/virtual-list';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { EvmChain, TezosChain } from 'temple/front';
-import { ChainGroupedSlugs, OneOfChains } from 'temple/front/chains';
+import { ChainGroupedSlugs } from 'temple/front/chains';
 
-export type TokenListItemFC = FC<{ slug: string; ref?: Ref<TokenListItemElement>; index: number }>;
+import { getTokenListItemHeight } from './token-list-item';
 
-interface GroupedTokensWithViewPromoProps {
-  groupedSlugs: ChainGroupedSlugs;
+export type TokenListItemFC = FC<{ slug: string }>;
+
+// pt-4 + p-1 around a 1rem line + pb-0.5 = 2.625rem: the spacing of every group header but the first
+const groupHeaderHeight = (rem: number) => 2.625 * rem;
+
+type VirtualTokensListItem = { type: 'token'; slug: string } | { type: 'header'; key: string; name: string };
+
+const toTokenItem = (slug: string): VirtualTokensListItem => ({ type: 'token', slug });
+const itemHeight = (item: VirtualTokensListItem, rem: number) =>
+  item.type === 'token' ? getTokenListItemHeight(rem) : groupHeaderHeight(rem);
+const itemKey = (item: VirtualTokensListItem) => (item.type === 'token' ? item.slug : item.key);
+
+interface VirtualTokensViewProps {
+  slugs: string[];
+  groupedSlugs?: ChainGroupedSlugs | null;
   evmChains?: StringRecord<EvmChain>;
   tezosChains?: StringRecord<TezosChain>;
+  tokenWillBeRendered?: (slug: string) => boolean;
   Promo: FC;
-  firstListItemRef: Ref<TokenListItemElement>;
-  firstHeaderRef: Ref<HTMLDivElement>;
   TokenListItem: TokenListItemFC;
 }
 
-export const GroupedTokensViewWithPromo: FC<GroupedTokensWithViewPromoProps> = ({
+export const VirtualTokensView: FC<VirtualTokensViewProps> = ({
+  slugs,
   groupedSlugs,
   evmChains = EMPTY_FROZEN_OBJ,
   tezosChains = EMPTY_FROZEN_OBJ,
+  tokenWillBeRendered = stubTrue,
   Promo,
-  firstListItemRef,
-  firstHeaderRef,
   TokenListItem
 }) => {
-  let indexShift = 0;
+  const getChainName = (chainId: string | number) =>
+    (typeof chainId === 'number' ? evmChains[chainId] : tezosChains[chainId])?.name ?? 'Unknown chain';
 
-  return groupedSlugs.map(([chainId, chainSlugs], gi) => {
-    const prevIndexShift = indexShift;
-    indexShift += chainSlugs.length;
-    const chain = typeof chainId === 'number' ? evmChains[chainId] : tezosChains[chainId];
+  const groups = groupedSlugs?.flatMap(([chainId, chainSlugs]) => {
+    const renderedSlugs = chainSlugs.filter(tokenWillBeRendered);
 
-    return (
-      <TokensGroup
-        key={chainId}
-        groupIndex={gi}
-        slugs={chainSlugs}
-        chain={chain}
-        Promo={Promo}
-        indexShift={prevIndexShift}
-        firstListItemRef={firstListItemRef}
-        firstHeaderRef={firstHeaderRef}
-        TokenListItem={TokenListItem}
-      />
-    );
+    return renderedSlugs.length > 0 ? [{ chainId, slugs: renderedSlugs }] : [];
   });
+  const firstGroup = groups?.at(0);
+  const plainSlugs = groups ? [] : slugs.filter(tokenWillBeRendered);
+  const firstSlug = firstGroup ? firstGroup.slugs.at(0) : plainSlugs.at(0);
+
+  if (firstSlug === undefined) return null;
+
+  const virtualItems: VirtualTokensListItem[] = groups
+    ? groups.flatMap(({ chainId, slugs: groupSlugs }, groupIndex) =>
+        groupIndex === 0
+          ? groupSlugs.slice(1).map(toTokenItem)
+          : [
+              { type: 'header' as const, key: `header-${chainId}`, name: getChainName(chainId) },
+              ...groupSlugs.map(toTokenItem)
+            ]
+      )
+    : plainSlugs.slice(1).map(toTokenItem);
+
+  const renderItem = (item: VirtualTokensListItem) =>
+    item.type === 'token' ? (
+      <TokenListItem slug={item.slug} />
+    ) : (
+      <div className="pt-4 pb-0.5">
+        <div className="p-1 text-font-description-bold truncate">{item.name}</div>
+      </div>
+    );
+
+  // The first row and the promo stay in flow: the promo has no fixed height, so it cannot own a slot
+  return (
+    <>
+      {firstGroup && (
+        <div className="mb-0.5 p-1 text-font-description-bold truncate">{getChainName(firstGroup.chainId)}</div>
+      )}
+      <TokenListItem key={firstSlug} slug={firstSlug} />
+      <Promo />
+      <VirtualList items={virtualItems} itemHeight={itemHeight} itemKey={itemKey} renderItem={renderItem} />
+    </>
+  );
 };
-
-interface TokensGroupProps {
-  groupIndex: number;
-  slugs: string[];
-  chain?: OneOfChains;
-  Promo: FC;
-  indexShift: number;
-  firstListItemRef: Ref<TokenListItemElement>;
-  firstHeaderRef: Ref<HTMLDivElement>;
-  TokenListItem: TokenListItemFC;
-}
-
-const TokensGroup: FC<TokensGroupProps> = ({
-  groupIndex,
-  slugs,
-  chain,
-  Promo,
-  indexShift,
-  firstListItemRef,
-  firstHeaderRef,
-  TokenListItem
-}) => (
-  <>
-    <div
-      className={clsx('mb-0.5 p-1 text-font-description-bold', groupIndex > 0 && 'mt-4')}
-      ref={groupIndex === 0 ? firstHeaderRef : null}
-    >
-      {chain?.name ?? 'Unknown chain'}
-    </div>
-
-    {slugs.map((slug, i) => (
-      <Fragment key={slug}>
-        <TokenListItem
-          slug={slug}
-          ref={groupIndex === 0 && i === 0 ? firstListItemRef : undefined}
-          index={indexShift + i}
-        />
-        {i === 0 && groupIndex === 0 ? <Promo /> : null}
-      </Fragment>
-    ))}
-  </>
-);
 
 interface TokensViewWithPromoProps {
   displayedSlugs: string[];
   Promo: FC;
-  firstListItemRef?: Ref<TokenListItemElement>;
   TokenListItem: TokenListItemFC;
 }
 
-export const TokensViewWithPromo: FC<TokensViewWithPromoProps> = ({
-  displayedSlugs,
-  Promo,
-  firstListItemRef,
-  TokenListItem
-}) =>
+export const TokensViewWithPromo: FC<TokensViewWithPromoProps> = ({ displayedSlugs, Promo, TokenListItem }) =>
   displayedSlugs.map((slug, i) => (
     <Fragment key={slug}>
-      <TokenListItem slug={slug} ref={i === 0 ? firstListItemRef : undefined} index={i} />
+      <TokenListItem slug={slug} />
       {i === 0 ? <Promo /> : null}
     </Fragment>
   ));

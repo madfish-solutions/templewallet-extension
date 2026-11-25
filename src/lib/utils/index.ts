@@ -3,6 +3,7 @@ import EventEmitter from 'events';
 import { capitalize } from 'lodash';
 
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
+export { stripUndefinedProps } from './strip-props';
 
 /** From lodash */
 type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never : T;
@@ -117,14 +118,6 @@ export class PromisesQueue extends EventEmitter {
     this.emitCountersChange();
   }
 }
-
-export const openLink = (href: string, newTab = true, noreferrer = false) => {
-  const anchor = document.createElement('a');
-  anchor.href = href;
-  if (newTab) anchor.target = '_blank';
-  if (noreferrer) anchor.rel = 'noreferrer';
-  anchor.click();
-};
 
 const getEntityNameTokens = (input: string) => input.split(/[^a-z0-9]/i).filter(Boolean);
 

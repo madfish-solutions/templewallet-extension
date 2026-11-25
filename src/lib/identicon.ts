@@ -28,16 +28,24 @@ function buildImageIdenticonUriLocal<T extends IdenticonImgType>(
   return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
 }
 
-export type InitialsIdenticonOptions = Omit<firstLetters.Options & Options, 'seed'>;
+type SvgIdEmittingOptions = 'clip' | 'radius' | 'backgroundType' | 'backgroundRotation';
 
-export const buildInitialsIdenticonUri = memoizee(
+export type InitialsIdenticonOptions = Omit<firstLetters.Options & Options, 'seed' | SvgIdEmittingOptions>;
+
+/** The initials style is CC0, so its license metadata can go. */
+const stripLicenseMetadata = (svg: string) => svg.replace(/<metadata[\s\S]*?<\/metadata>/g, '');
+
+export const buildInitialsIdenticonSvg = memoizee(
   (seed: string, options?: InitialsIdenticonOptions) =>
-    createAvatar(firstLetters, {
-      ...options,
-      seed,
-      fontFamily: ['Menlo', 'Monaco', 'monospace'],
-      fontSize: estimateOptimalFontSize(options?.chars ?? 2)
-    }).toDataUri(),
+    stripLicenseMetadata(
+      createAvatar(firstLetters, {
+        ...options,
+        seed,
+        clip: false,
+        fontFamily: ['Menlo', 'Monaco', 'monospace'],
+        fontSize: estimateOptimalFontSize(options?.chars ?? 2)
+      }).toString()
+    ),
   {
     max: 1024,
     normalizer: ([seed, options]) => JSON.stringify([seed, options])

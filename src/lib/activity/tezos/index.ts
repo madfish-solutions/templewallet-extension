@@ -1,6 +1,8 @@
+import BigNumber from 'bignumber.js';
 import { pick } from 'lodash';
 
 import { TempleTzktOperationsGroup, TezosPreActivityOperation } from 'lib/activity/tezos/types';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTezosAssetSlug } from 'lib/assets/utils';
 import { isTezosContractAddress } from 'lib/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -12,9 +14,9 @@ import {
   ActivityStatus,
   ActivityOperTransferType
 } from '../types';
-import { isTransferActivityOperKind } from '../utils';
+import { isBridgeOperation, isShieldedTezosOperation } from '../utils';
 
-import { preparseTezosOperationsGroup } from './pre-parse';
+import { preparseTezosOperationsGroup, SAPLING_CONTRACT_ADDRESS } from './pre-parse';
 
 export function parseTezosOperationsGroup(
   operationsGroup: TempleTzktOperationsGroup,
@@ -25,14 +27,19 @@ export function parseTezosOperationsGroup(
 
   const { hash, addedAt, operations: preOperations, oldestTzktOperation, status } = preActivity;
 
-  const operations = preOperations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address));
+  const parsedOperations = withoutBridgeInternalCalls(
+    withoutUnshieldingCall(preOperations.map(oper => parseTezosPreActivityOperation(oper, address)))
+  );
+  const operations: TezosOperation[] = parsedOperations.length
+    ? parsedOperations
+    : [{ kind: ActivityOperKindEnum.interaction }];
 
   return {
     hash,
     chain: TempleChainKind.Tezos,
     chainId,
     operations,
-    operationsCount: preOperations.length,
+    operationsCount: operations.length,
     addedAt,
     oldestTzktOperation: pick(oldestTzktOperation, ['timestamp', 'level', 'id', 'hash']),
     status:
@@ -44,68 +51,112 @@ export function parseTezosOperationsGroup(
   };
 }
 
+const isShieldedInteraction = (operation: TezosOperation) =>
+  operation.kind === ActivityOperKindEnum.interaction && isShieldedTezosOperation(operation);
+
+const isShieldedPayout = (operation: TezosOperation) =>
+  operation.kind === ActivityOperKindEnum.transfer &&
+  isShieldedTezosOperation(operation) &&
+  operation.toAddress !== SAPLING_CONTRACT_ADDRESS;
+
+const withoutUnshieldingCall = (operations: TezosOperation[]) =>
+  operations.filter(isShieldedInteraction).length === 1 && operations.some(isShieldedPayout)
+    ? operations.filter(operation => !isShieldedInteraction(operation))
+    : operations;
+
+const ETHERLINK_BRIDGE_HELPER_ADDRESS = 'KT1Wj8SUGmnEPFqyahHAcjcNQwe6YGhEXJb5';
+const ETHERLINK_BRIDGE_EXCHANGER_ADDRESS = 'KT1CeFqjJRJPNVvhvznQrWfHad2jCiDZ6Lyj';
+const ETHERLINK_ROLLUP_ADDRESS = 'sr1Ghq66tYK9y3r8CC1Tf8i8m5nxh8nTvZEf';
+const ETHERLINK_FAST_WITHDRAWAL_CONTRACT_ADDRESS = 'KT1BGwyCrnJ6HuEYP7X8Q2UooTdxmEYHiK6j';
+const ETHERLINK_BRIDGE_CONTRACTS = new Set([
+  ETHERLINK_BRIDGE_HELPER_ADDRESS,
+  ETHERLINK_BRIDGE_EXCHANGER_ADDRESS,
+  ETHERLINK_ROLLUP_ADDRESS,
+  ETHERLINK_FAST_WITHDRAWAL_CONTRACT_ADDRESS
+]);
+
+const isBridgeContractInteraction = (operation: TezosOperation) =>
+  operation.kind === ActivityOperKindEnum.interaction &&
+  operation.withAddress !== undefined &&
+  ETHERLINK_BRIDGE_CONTRACTS.has(operation.withAddress);
+
+const withoutBridgeInternalCalls = (operations: TezosOperation[]) =>
+  operations.some(isBridgeOperation)
+    ? operations.filter(operation => !isBridgeContractInteraction(operation))
+    : operations;
+
 function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation, address: string): TezosOperation {
-  let tokenId: string | undefined;
-
-  const operationBase: TezosOperation = (() => {
-    if (preOperation.type === 'transaction') {
-      tokenId = preOperation.tokenId;
-
-      if (preOperation.subtype === 'approve' && preOperation.from.address !== address)
-        return {
-          kind: ActivityOperKindEnum.approve,
-          spenderAddress: preOperation.to.at(0)!.address
-        };
-
-      // subtype === 'transfer' below
-
-      const fromAddress = preOperation.from.address;
-      const toAddress = preOperation.to.at(0)!.address;
-
-      if (preOperation.from.address === address)
-        return {
-          kind: ActivityOperKindEnum.transfer,
-          type:
-            preOperation.to.length === 1 && !isTezosContractAddress(preOperation.to[0].address)
-              ? ActivityOperTransferType.sendToAccount
-              : ActivityOperTransferType.send,
-          fromAddress,
-          toAddress
-        };
-
-      if (preOperation.to.some(member => member.address === address))
-        return {
-          kind: ActivityOperKindEnum.transfer,
-          type: isTezosContractAddress(preOperation.from.address)
-            ? ActivityOperTransferType.receive
-            : ActivityOperTransferType.receiveFromAccount,
-          fromAddress,
-          toAddress
-        };
-
-      return {
-        kind: ActivityOperKindEnum.interaction,
-        withAddress: preOperation.destination.address
-      };
-    }
-
-    if (preOperation.type === 'delegation' && preOperation.sender.address === address && preOperation.destination) {
-      return {
-        kind: ActivityOperKindEnum.interaction,
-        withAddress: preOperation.destination.address
-      };
-    }
-
-    return {
-      kind: ActivityOperKindEnum.interaction,
-      withAddress: preOperation.destination?.address
-    };
-  })();
-
-  if (isTransferActivityOperKind(operationBase.kind) || operationBase.kind === ActivityOperKindEnum.approve) {
-    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract ?? 'tez', tokenId);
-    operationBase.amountSigned = preOperation.amountSigned;
+  if (preOperation.type !== 'transaction') {
+    return { kind: ActivityOperKindEnum.interaction, withAddress: preOperation.destination?.address };
   }
 
-  return operationBase;
+  const withAddress = preOperation.destination.address;
+  const isShielded =
+    withAddress === SAPLING_CONTRACT_ADDRESS || preOperation.sender.address === SAPLING_CONTRACT_ADDRESS;
+
+  const hasNoAmount = new BigNumber(preOperation.amountSigned).isZero();
+
+  if (hasNoAmount && (withAddress === SAPLING_CONTRACT_ADDRESS || !preOperation.subtype)) {
+    return { kind: ActivityOperKindEnum.interaction, withAddress, isShielded: isShielded || undefined };
+  }
+
+  const firstTo = preOperation.to.at(0);
+
+  if (!firstTo) return { kind: ActivityOperKindEnum.interaction, withAddress };
+
+  const assetSlug = toTezosAssetSlug(preOperation.contract ?? TEZ_TOKEN_SLUG, preOperation.tokenId);
+  const { amountSigned } = preOperation;
+
+  const fromAddress = preOperation.from.address;
+
+  if (preOperation.subtype === 'approve') {
+    if (fromAddress !== address) return { kind: ActivityOperKindEnum.interaction, withAddress };
+
+    return {
+      kind: ActivityOperKindEnum.approve,
+      spenderAddress: firstTo.address,
+      assetSlug,
+      amountSigned: preOperation.entrypoint === 'update_operators' ? null : amountSigned
+    };
+  }
+
+  const toAddress = firstTo.address;
+
+  if (fromAddress === address) {
+    const isBridge = assetSlug === TEZ_TOKEN_SLUG && toAddress === ETHERLINK_BRIDGE_HELPER_ADDRESS;
+
+    return {
+      kind: ActivityOperKindEnum.transfer,
+      type:
+        isShielded || isBridge || (preOperation.to.length === 1 && !isTezosContractAddress(toAddress))
+          ? ActivityOperTransferType.sendToAccount
+          : ActivityOperTransferType.send,
+      fromAddress,
+      toAddress,
+      assetSlug,
+      amountSigned,
+      isShielded: isShielded || undefined,
+      isBridge: isBridge || undefined
+    };
+  }
+
+  if (preOperation.to.some(member => member.address === address)) {
+    const isBridge = assetSlug === TEZ_TOKEN_SLUG && ETHERLINK_BRIDGE_CONTRACTS.has(fromAddress);
+
+    return {
+      kind: ActivityOperKindEnum.transfer,
+      type:
+        isShielded || isBridge || !isTezosContractAddress(fromAddress)
+          ? ActivityOperTransferType.receiveFromAccount
+          : ActivityOperTransferType.receive,
+      fromAddress,
+      toAddress,
+      assetSlug,
+      amountSigned,
+      isShielded: isShielded || undefined,
+      isBridge: isBridge || undefined
+    };
+  }
+
+  return { kind: ActivityOperKindEnum.interaction, withAddress };
 }

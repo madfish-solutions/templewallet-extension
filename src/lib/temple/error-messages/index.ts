@@ -101,3 +101,34 @@ export function getHumanErrorMessage(error: unknown): string {
 
   return ERROR_MESSAGES.default;
 }
+
+export function isEvmGasBalanceError(error: unknown): boolean {
+  if (typeof error === 'string') return isEvmGasBalanceError(new Error(error));
+
+  if (error instanceof AlchemyRpcError) {
+    return getHumanAlchemyErrorMessage(error) === ERROR_MESSAGES.lowGasBalance;
+  }
+
+  if (error instanceof IntercomError && error.errors?.length) {
+    return error.errors.some(isEvmGasBalanceError);
+  }
+
+  if (!isObject(error)) return false;
+  if ('message' in error && error.message === ERROR_MESSAGES.lowGasBalance) return true;
+  if (getHumanErrorMessage(error) !== ERROR_MESSAGES.lowGasBalance) return false;
+
+  const message = [
+    'message' in error ? error.message : '',
+    'shortMessage' in error ? error.shortMessage : '',
+    'details' in error ? error.details : ''
+  ]
+    .filter(value => typeof value === 'string')
+    .join(' ');
+
+  return (
+    /insufficient (?:funds|balance)|(?:gas|sender|native) balance|(?:total|tx) cost.*balance|not enough funds|gas required exceeds allowance/i.test(
+      message
+    ) ||
+    ('cause' in error && isEvmGasBalanceError(error.cause))
+  );
+}

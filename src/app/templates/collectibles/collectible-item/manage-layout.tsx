@@ -21,7 +21,7 @@ import { EvmCollectibleItemImage, TezosCollectibleItemImage } from '../collectib
 import { CommonLayoutProps } from './types';
 
 // Fixed sizes to improve large grid performance
-const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
+const manageImgStyle = { width: '2.625rem', height: '2.625rem', contentVisibility: 'auto' } as const;
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> extends CommonLayoutProps<T> {
@@ -41,7 +41,8 @@ const ManageCollectibleListItemLayoutHOC = <
 >(
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
   >,
   toggleTokenStatus: (
     newStatus: 'enabled' | 'disabled',
@@ -99,7 +100,7 @@ const ManageCollectibleListItemLayoutHOC = <
               className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
             >
               {isVisible ? (
-                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
               ) : (
                 <div className="w-full h-full z-1 bg-grey-3" />
               )}
@@ -185,9 +186,20 @@ export const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
   useTezosChainByChainId
 );
 
-export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
+export const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<
+  TempleChainKind.EVM,
+  ManageCollectibleListItemLayoutProps<TempleChainKind.EVM> & { inView: boolean }
+>(
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage metadata={metadata} className="object-cover" />,
+  ({ metadata, assetSlug, chainId, inView }) => (
+    <EvmCollectibleItemImage
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      inView={inView}
+      className="object-cover"
+    />
+  ),
   (status, assetSlug, chainId, account) =>
     void dispatch(setEvmCollectibleStatusAction({ account, chainId, slug: assetSlug, status })),
   (assetSlug, chainId, account) =>

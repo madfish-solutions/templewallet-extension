@@ -51,7 +51,9 @@ const generateOptions = <T extends FeeValues, U extends string>(
 
 export const useEvmFeeOptions = (
   customGasLimit: string,
-  estimationData?: EvmEstimationDataWithFallback
+  estimationData?: EvmEstimationDataWithFallback,
+  /** Gas from the transaction itself, used when estimation did not return a limit. */
+  fallbackGas?: bigint
 ): EvmFeeOptions | null =>
   useMemoWithCompare(() => {
     if (!estimationData) return null;
@@ -60,7 +62,7 @@ export const useEvmFeeOptions = (
       ? BigInt(customGasLimit)
       : isEvmEstimationData(estimationData)
         ? estimationData.gas
-        : SEND_ETH_GAS_LIMIT;
+        : (fallbackGas ?? SEND_ETH_GAS_LIMIT);
 
     switch (estimationData.type) {
       case 'legacy':
@@ -79,4 +81,4 @@ export const useEvmFeeOptions = (
       default:
         throw new Error('Unsupported transaction type');
     }
-  }, [estimationData, customGasLimit]);
+  }, [estimationData, customGasLimit, fallbackGas]);

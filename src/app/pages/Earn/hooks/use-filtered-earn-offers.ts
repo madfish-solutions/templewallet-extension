@@ -9,7 +9,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAccount } from 'temple/front';
 
-import { getTezSavingOffer, EXTERNAL_OFFERS, getEthSavingOffer } from '../config';
+import { getTezSavingOffer, getEthSavingOffer } from '../config';
 import { EarnOffer } from '../types';
 
 export const useFilteredEarnOffers = () => {
@@ -52,12 +52,10 @@ export const useFilteredEarnOffers = () => {
     () => filterBySymbol(availableSavingsOffers),
     [availableSavingsOffers, filterBySymbol]
   );
-  const externalOffers = useMemo(() => filterBySymbol(EXTERNAL_OFFERS), [filterBySymbol]);
   const dAppsForDeposits = useMemo(() => filterBySymbol(DAPPS_FOR_DEPOSITS), [filterBySymbol]);
 
   return {
     savingsOffers: searchedSavingsOffers,
-    externalOffers,
     dAppsForDeposits,
     searchValue,
     setSearchValue

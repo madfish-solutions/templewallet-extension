@@ -156,13 +156,14 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
     >
       <CustomToastIcon toast={toast} type={type} />
 
-      {typeof toast.message === 'function' ? (
-        toast.message(toast)
-      ) : (
-        <span className={clsx('self-center', textBold ? 'text-font-description-bold' : 'text-font-description')}>
-          {toast.message}
-        </span>
-      )}
+      <span
+        className={clsx(
+          'self-center min-w-0 line-clamp-3 wrap-anywhere',
+          textBold ? 'text-font-description-bold' : 'text-font-description'
+        )}
+      >
+        {typeof toast.message === 'function' ? toast.message(toast) : toast.message}
+      </span>
 
       {txData ? (
         <a

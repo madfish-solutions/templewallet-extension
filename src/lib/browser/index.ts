@@ -4,7 +4,7 @@ import browserDefault from 'webextension-polyfill';
 import { IS_CHROMIUM_BROWSER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 
 export const browser = browserDefault as Browser & {
-  storage: { session?: Storage.LocalStorageArea };
+  storage: { session?: Storage.StorageArea };
 };
 
 type BrowserIdentifier = 'chrome' | 'firefox' | 'mises' | 'unknown';

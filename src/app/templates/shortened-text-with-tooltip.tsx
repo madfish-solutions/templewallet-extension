@@ -3,6 +3,7 @@ import React, { HTMLAttributes, memo, useEffect, useMemo, useRef, useState } fro
 import clsx from 'clsx';
 
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
+import { el } from 'lib/el';
 import { UseTippyOptions } from 'lib/ui/useTippy';
 import { combineRefs } from 'lib/ui/utils';
 
@@ -10,12 +11,7 @@ interface ShortenedTextWithTooltipProps extends Omit<HTMLAttributes<HTMLSpanElem
   children: string;
 }
 
-const tooltipWrapperFactory = () => {
-  const element = document.createElement('div');
-  element.className = 'max-w-88 break-words';
-
-  return element;
-};
+const tooltipWrapperFactory = () => el('div', 'max-w-88 break-words');
 
 export const ShortenedTextWithTooltip = memo<ShortenedTextWithTooltipProps>(({ className, children, ...restProps }) => {
   const [isTextOverflow, setIsTextOverflow] = useState(false);
