@@ -1,10 +1,11 @@
 import { DerivationType } from '@taquito/ledger-signer';
-import { valueEncoder } from '@taquito/local-forging/dist/lib/michelson/codec';
+import { valueEncoder } from '@taquito/local-forging';
 import { TezosOperationError } from '@taquito/taquito';
 import { stringToBytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
+  TempleDAppPermissionRequest,
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
@@ -736,38 +737,7 @@ export async function processEvmDApp(
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
-  let payload = null;
-
-  if (encrypted) {
-    try {
-      if (!recipientPubKey) throw new Error('<stub>');
-
-      msg = await Beacon.decryptMessage(msg, recipientPubKey);
-    } catch {
-      payload = {
-        payload: Beacon.encodeMessage<Beacon.Response>({
-          version: '2',
-          senderId: await Beacon.getSenderId(),
-          id: 'stub',
-          type: Beacon.MessageType.Disconnect
-        })
-      };
-    }
-  }
-
-  let req: Beacon.Request | null;
-  try {
-    req = Beacon.decodeMessage<Beacon.Request>(msg);
-  } catch {
-    req = null;
-  }
-
-  return {
-    recipientPubKey,
-    req,
-    payload
-  };
+  return Beacon.openBeaconMessage(origin, msg, encrypted);
 }
 
 type ProcessedBeaconMessage = {
@@ -981,12 +951,12 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
   switch (req.type) {
     case Beacon.MessageType.PermissionRequest:
       const network =
-        req.network.type === 'custom'
+        req.network.type === Beacon.NetworkType.CUSTOM
           ? {
               name: req.network.name!,
               rpc: req.network.rpcUrl!
             }
-          : req.network.type;
+          : (req.network.type as TempleDAppPermissionRequest['network']);
 
       return {
         type: TempleDAppMessageType.PermissionRequest,
@@ -1033,6 +1003,7 @@ const formatTempleReq = async (
           return {
             ...resBase,
             type: Beacon.MessageType.PermissionResponse,
+            walletType: 'implicit',
             publicKey: templeRes.publicKey,
             network: (req as Beacon.PermissionRequest).network,
             scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
@@ -1050,7 +1021,9 @@ const formatTempleReq = async (
             ...resBase,
             type: Beacon.MessageType.SignPayloadResponse,
             signature: templeRes.signature,
-            signingType: req.type === Beacon.MessageType.SignPayloadRequest ? req.signingType : undefined
+            signingType:
+              (req.type === Beacon.MessageType.SignPayloadRequest ? req.signingType : undefined) ??
+              Beacon.SigningType.RAW
           };
 
         case TempleDAppMessageType.BroadcastResponse:
