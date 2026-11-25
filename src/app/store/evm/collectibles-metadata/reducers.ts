@@ -1,5 +1,5 @@
-import { createReducer } from '@reduxjs/toolkit';
-import { isNil, omitBy } from 'lodash';
+import { createReducer, isDraft, original } from '@reduxjs/toolkit';
+import { isNil } from 'lodash';
 import { createMigrate, persistReducer, type PersistedState } from 'redux-persist';
 import { getAddress } from 'viem';
 
@@ -22,7 +22,33 @@ import { assignSingleContractCollectionNames, buildEvmCollectibleMetadataFromFet
 
 const isMissingValue = (value: unknown) => isNil(value) || value === '';
 
-const countFilledFields = (metadata: object) => Object.keys(omitBy(metadata, isMissingValue)).length;
+const filledFields = (metadata: object) =>
+  Object.fromEntries(Object.entries(metadata).filter(([, value]) => !isMissingValue(value)));
+
+const countFilledFields = (metadata: object) => Object.values(metadata).filter(value => !isMissingValue(value)).length;
+
+/** The record to store for a slug: the incoming one, a merge that fills more fields, or nothing. */
+const nextStoredMetadata = (incoming: EvmCollectibleMetadata, stored: EvmCollectibleMetadata | undefined) => {
+  if (!stored) return incoming;
+
+  const merged = { ...incoming, ...filledFields(stored) };
+
+  return countFilledFields(merged) > countFilledFields(stored) ? merged : undefined;
+};
+
+/** Stored records are read from the state before this update, so a read does not create an immer draft. */
+const chainMetadataWriter = (chain: StringRecord<EvmCollectibleMetadata>) => {
+  const before = isDraft(chain) ? original(chain) : chain;
+  const written = new Set<string>();
+
+  return (slug: string, incoming: EvmCollectibleMetadata) => {
+    const next = nextStoredMetadata(incoming, written.has(slug) ? chain[slug] : before?.[slug]);
+    if (!next) return;
+
+    chain[slug] = next;
+    written.add(slug);
+  };
+};
 
 const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
   evmCollectiblesMetadataInitialState,
@@ -34,25 +60,19 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
       const chainTokensMetadata = metadataRecord[chainId];
 
       const contracts = data.items;
+      const write = chainMetadataWriter(chainTokensMetadata);
 
       for (const contract of contracts) {
-        const collectibles = contract.nft_data;
+        let address: string | undefined;
 
-        for (const collectible of collectibles) {
+        for (const collectible of contract.nft_data) {
           if (!isProperCollectibleMetadata(collectible)) continue;
 
-          const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
-
-          const stored = chainTokensMetadata[slug];
-          const fetched = buildEvmCollectibleMetadataFromFetched(collectible, contract);
-
-          if (!stored) {
-            chainTokensMetadata[slug] = fetched;
-            continue;
-          }
-
-          const merged = { ...fetched, ...omitBy(stored, isMissingValue) };
-          if (countFilledFields(merged) > countFilledFields(stored)) chainTokensMetadata[slug] = merged;
+          address ??= getAddress(contract.contract_address);
+          write(
+            toTokenSlug(address, collectible.token_id),
+            buildEvmCollectibleMetadataFromFetched(collectible, contract)
+          );
         }
       }
 
@@ -67,20 +87,11 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
 
       if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
       const chainCollectiblesMetadata = metadataRecord[chainId];
+      const write = chainMetadataWriter(chainCollectiblesMetadata);
 
       for (const slug of Object.keys(records)) {
         const metadata = records[slug];
-        if (!metadata) continue;
-
-        const stored = chainCollectiblesMetadata[slug];
-
-        if (!stored) {
-          chainCollectiblesMetadata[slug] = metadata;
-          continue;
-        }
-
-        const merged = { ...metadata, ...omitBy(stored, isMissingValue) };
-        if (countFilledFields(merged) > countFilledFields(stored)) chainCollectiblesMetadata[slug] = merged;
+        if (metadata) write(slug, metadata);
       }
 
       assignSingleContractCollectionNames(

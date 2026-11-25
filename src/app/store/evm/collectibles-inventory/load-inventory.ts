@@ -169,6 +169,18 @@ const includeSingleSourceTokens = (
   const present = new Set(nextCollected.loaded.map(nft => nft.slug.toLowerCase()));
   const contractsByAddress = new Set(nextContracts.map(contract => contract.address.toLowerCase()));
   const keep = new Set(decision.keepSlugs.map(slug => slug.toLowerCase()));
+  const goldrushContracts = new Map<string, InventoryContractRef>();
+  for (const contract of goldrush.contracts) {
+    const key = contract.address.toLowerCase();
+    if (!goldrushContracts.has(key)) goldrushContracts.set(key, contract);
+  }
+  const keptByContract = new Map<string, number>();
+  for (const item of goldrush.collected.loaded) {
+    if (!keep.has(item.slug.toLowerCase())) continue;
+
+    const key = item.contractAddress.toLowerCase();
+    keptByContract.set(key, (keptByContract.get(key) ?? 0) + 1);
+  }
   let added = 0;
 
   for (const nft of goldrush.collected.loaded) {
@@ -185,14 +197,11 @@ const includeSingleSourceTokens = (
     const contractKey = nft.contractAddress.toLowerCase();
     if (contractsByAddress.has(contractKey)) continue;
 
-    const contract = goldrush.contracts.find(item => item.address.toLowerCase() === contractKey);
+    const contract = goldrushContracts.get(contractKey);
     if (!contract) continue;
 
-    const ownedHere = goldrush.collected.loaded.filter(
-      item => keep.has(item.slug.toLowerCase()) && item.contractAddress.toLowerCase() === contractKey
-    ).length;
     contractsByAddress.add(contractKey);
-    nextContracts.push({ ...contract, distinctTokensOwned: ownedHere });
+    nextContracts.push({ ...contract, distinctTokensOwned: keptByContract.get(contractKey) ?? 0 });
   }
 
   return { collected: nextCollected, contracts: nextContracts, added };
@@ -409,6 +418,19 @@ const cancelNftPageLoads = (account: string) => {
   }
 };
 
+const withPreservedLoadedPut = (state: RootState, action: Action) => {
+  if (!putEvmChainCollectiblesInventoryAction.match(action)) return action;
+
+  const { account, chainId, inventory } = action.payload;
+  const previous = state.evmCollectiblesInventory.byAccount[account]?.[chainId];
+
+  return putEvmChainCollectiblesInventoryAction({
+    account,
+    chainId,
+    inventory: withPreservedLoadedNfts(account, chainId, inventory, previous)
+  });
+};
+
 export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     filter(loadEvmCollectiblesInventoryAction.match),
@@ -419,26 +441,13 @@ export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, stat
 
       return concat(
         of(setEvmCollectiblesInventoryLoadingAction(true)),
-        from(
-          Promise.all(chainIds.map(chainId => readChainInventory(payload.account, chainId, controller.signal)))
-        ).pipe(
-          mergeMap(actionLists =>
-            from(
-              actionLists.flat().map(action => {
-                if (!putEvmChainCollectiblesInventoryAction.match(action)) return action;
-
-                const { account, chainId, inventory } = action.payload;
-                const previous = state$.value.evmCollectiblesInventory.byAccount[account]?.[chainId];
-
-                return putEvmChainCollectiblesInventoryAction({
-                  account,
-                  chainId,
-                  inventory: withPreservedLoadedNfts(account, chainId, inventory, previous)
-                });
-              })
+        from(chainIds).pipe(
+          mergeMap(chainId =>
+            from(readChainInventory(payload.account, chainId, controller.signal)).pipe(
+              mergeMap(actions => from(actions.map(action => withPreservedLoadedPut(state$.value, action)))),
+              catchError(emptyAfterAbort)
             )
-          ),
-          catchError(emptyAfterAbort)
+          )
         ),
         of(setEvmCollectiblesInventoryLoadingAction(false))
       ).pipe(finalize(() => controller.abort()));
