@@ -1,4 +1,4 @@
-import browser, { Storage } from 'webextension-polyfill';
+import browser from 'webextension-polyfill';
 
 import {
   checkIfShouldReplaceAiChatAds,
@@ -171,6 +171,13 @@ const updateAdsActionTriggers = () => {
     .catch(error => console.error('Ads configuration error:', error));
 };
 
+const getSelectorRevision = (value: unknown): unknown => {
+  if (!value || typeof value !== 'object' || !('snapshot' in value)) return undefined;
+
+  const { snapshot } = value;
+  return snapshot && typeof snapshot === 'object' && 'revision' in snapshot ? snapshot.revision : undefined;
+};
+
 const startAdsReplacement = () => {
   if (IS_DEV_ENV) {
     console.info('[Temple Ads] content-script-start', {
@@ -189,8 +196,8 @@ const startAdsReplacement = () => {
       updateAdsActionTriggers();
     } else if (AD_SELECTORS_STORAGE_KEY in changes) {
       if (hasDedicatedAds(window.location.hostname)) return;
-      const change = changes[AD_SELECTORS_STORAGE_KEY] as Storage.StorageChange;
-      if (change.oldValue?.snapshot?.revision === change.newValue?.snapshot?.revision) return;
+      const { oldValue, newValue } = changes[AD_SELECTORS_STORAGE_KEY];
+      if (getSelectorRevision(oldValue) === getSelectorRevision(newValue)) return;
       ++selectorGeneration;
       activeAdsModule?.setWebsiteSelectorRules({ revision: '', selectors: [], disabled: true, genericDisabled: false });
       clearRulesCache();
@@ -233,8 +240,10 @@ const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
   if (now >= nextRulesRefreshAt) {
     nextRulesRefreshAt = now + AD_RULES_REFRESH_INTERVAL;
     void browser.runtime
-      .sendMessage({ type: ContentScriptType.RefreshAdSelectors })
-      .then((result: SelectorRefreshResult) => {
+      .sendMessage<{ type: ContentScriptType.RefreshAdSelectors }, SelectorRefreshResult>({
+        type: ContentScriptType.RefreshAdSelectors
+      })
+      .then(result => {
         if (IS_DEV_ENV) {
           if (result.status === 'partial' || result.status === 'failure') {
             console.warn('[Temple Ads] selector-refresh', result);
