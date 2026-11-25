@@ -14,6 +14,7 @@ export {
   storageConfig,
   stringStorageConfig,
   isPersistedState,
+  isRecord,
   createTransformsBeforePersist,
   createTransformsBeforeHydrate
 } from './persist.utils';

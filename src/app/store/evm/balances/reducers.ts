@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { getStoredState, type PersistConfig, type PersistedState, persistReducer } from 'redux-persist';
 
-import { isPersistedState } from 'lib/store';
+import { isPersistedState, isRecord } from 'lib/store';
 import { ReduxPersistStorage } from 'lib/store/storage';
 
 import {
@@ -64,9 +64,6 @@ const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesI
     state.initiallyLoadedChains[chainId] = true;
   });
 });
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const isEvmBalancesState = (value: unknown): value is EvmBalancesStateInterface =>
   isRecord(value) && isRecord(value.balancesAtomic) && isRecord(value.dataTimestamps);

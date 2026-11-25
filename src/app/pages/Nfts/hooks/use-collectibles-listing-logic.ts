@@ -129,7 +129,6 @@ const NO_CONTRACT_COLLECTION_NAMES: ReadonlyMap<string, string> = new Map();
 
 const loadedSlugSets = new WeakMap<readonly InventoryLoadedNft[], ReadonlySet<string>>();
 
-/** Lowercase slugs of one chain's loaded NFTs, built once per `loaded` array. */
 const loadedSlugSet = (loaded: readonly InventoryLoadedNft[]) => {
   const cached = loadedSlugSets.get(loaded);
   if (cached) return cached;

@@ -27,7 +27,6 @@ export const verifyEvmCollectionTokensAction = createAction<{
   account: HexString;
   chainId: number;
   contractAddresses: string[];
-  /** Stored NFTs a card has just started to show. */
   shownSlugs: string[];
 }>('evm/collectibles-inventory/VERIFY_COLLECTION_TOKENS');
 

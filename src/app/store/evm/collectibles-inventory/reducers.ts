@@ -122,7 +122,7 @@ export const evmCollectiblesInventoryPersistedReducer = persistReducer(
     key: 'root.evmCollectiblesInventory',
     ...stringStorageConfig,
     blacklist: INVENTORY_PERSIST_BLACKLIST,
-    throttle: 5_000
+    throttle: 2_000
   },
   evmCollectiblesInventoryReducer
 );

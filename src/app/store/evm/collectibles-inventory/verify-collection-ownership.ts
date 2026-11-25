@@ -81,11 +81,12 @@ export const verifyCollectionOwnership = async (
   queriedSources: readonly OwnershipSource[],
   /** OpenSea account page: a listed token counts, a missing token does not count against it. */
   partialSources: readonly OwnershipSource[],
+  /** Every stored NFT on these contracts. Only the ones in `reported` are checked; the rest stay as stored. */
   stored: readonly InventoryLoadedNft[],
   collections: readonly InventoryCollectionRef[],
   signal: AbortSignal,
-  /** False when `stored` is only part of the stored NFTs on these contracts. */
-  storedComplete = true
+  /** False when `reported` is not the API listing of these contracts: then only `balanceOf` sets a collection count. */
+  countAttributed = true
 ): Promise<VerifiedCollectionOwnership | null> => {
   const network = await networkForChain(chainId);
   if (!network) return null;
@@ -209,7 +210,9 @@ export const verifyCollectionOwnership = async (
     }
   }
 
-  const storedSlugByIdentity = new Map(stored.map(nft => [identityOfSlug(nft.slug), nft.slug]));
+  const checkedIdentities = new Set(reported.map(report => identityOf(report.contractAddress, report.tokenId)));
+  const storedIdentities = stored.map(nft => [identityOfSlug(nft.slug), nft] as const);
+  const storedByIdentity = new Map(storedIdentities);
   const upsert: InventoryLoadedNft[] = [];
   const metadata: StringRecord<EvmCollectibleMetadata> = {};
   const ownedIdentities = new Set<string>();
@@ -226,7 +229,10 @@ export const verifyCollectionOwnership = async (
     for (const tokenId of owned.tokenIds) {
       const id = identityOf(checksum, tokenId);
       ownedIdentities.add(id);
-      const slug = storedSlugByIdentity.get(id) ?? toTokenSlug(checksum, tokenId);
+      const storedNft = storedByIdentity.get(id);
+      if (storedNft && !checkedIdentities.has(id)) continue;
+
+      const slug = storedNft?.slug ?? toTokenSlug(checksum, tokenId);
       const record = metadataByIdentity.get(id);
       if (record) metadata[slug] = record;
       const reportedSlug = (hintedSlugsByIdentity.get(id) ?? []).find(hint => accountSlugs.includes(hint));
@@ -240,14 +246,17 @@ export const verifyCollectionOwnership = async (
     }
   }
 
-  const removeSlugs = stored.flatMap(nft => {
-    const key = contractKey(nft.contractAddress);
-    const owned = ownedByContract.get(key);
-    if (!owned?.settled) return [];
-    if (ownedIdentities.has(identityOfSlug(nft.slug))) return [];
+  const removeSlugs: string[] = [];
+  const uncheckedStored: InventoryLoadedNft[] = [];
+  for (const [id, nft] of storedIdentities) {
+    if (!checkedIdentities.has(id)) {
+      uncheckedStored.push(nft);
+      continue;
+    }
+    if (!ownedByContract.get(contractKey(nft.contractAddress))?.settled || ownedIdentities.has(id)) continue;
 
-    return [nft.slug];
-  });
+    removeSlugs.push(nft.slug);
+  }
 
   const chainBalances: VerifiedCollectionOwnership['chainBalances'] = [];
 
@@ -264,14 +273,16 @@ export const verifyCollectionOwnership = async (
     const soleOnContract = (address: string) => collectionsForContract(collections, address).length === 1;
     const countedByChain = (address: string) =>
       soleOnContract(address) && ownedByContract.get(address)?.balanceOf != null;
-    if (!storedComplete && !addresses.every(countedByChain)) return [];
+    if (!countAttributed && !addresses.every(countedByChain)) return [];
 
+    const attributedTo = (nft: InventoryLoadedNft, address: string) =>
+      nft.collectionSlug === collection.slug && contractKey(nft.contractAddress) === address;
     const itemCount = addresses.reduce((sum, address) => {
       const owned = ownedByContract.get(address);
       const sole = soleOnContract(address);
-      const attributed = upsert.filter(
-        nft => nft.collectionSlug === collection.slug && contractKey(nft.contractAddress) === address
-      ).length;
+      const attributed =
+        upsert.filter(nft => attributedTo(nft, address)).length +
+        uncheckedStored.filter(nft => attributedTo(nft, address)).length;
 
       return sum + collectionOwnedCount(attributed, owned?.balanceOf ?? null, sole);
     }, 0);

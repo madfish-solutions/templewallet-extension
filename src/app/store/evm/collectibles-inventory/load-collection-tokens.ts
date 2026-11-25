@@ -197,8 +197,15 @@ const verifiedCollectionActions = async (
   openseaQueried: boolean,
   metadataBySlug: StringRecord<EvmCollectibleMetadata>,
   signal: AbortSignal,
-  /** Lowercase slugs of the stored NFTs to check along with `reported`. */
-  shownSlugs: ReadonlySet<string>
+  {
+    shownSlugs,
+    apiListing
+  }: {
+    /** Lowercase slugs of the stored NFTs to check along with `reported`. */
+    shownSlugs: ReadonlySet<string>;
+    /** `reported` is the API listing of these contracts. Without it, stored entries and counts are left as they are. */
+    apiListing: boolean;
+  }
 ): Promise<Action[] | null> => {
   const inventory = state.evmCollectiblesInventory.byAccount[account]?.[chainId];
   const storedOnContracts = storedNftsOnContracts(state, account, chainId, contractAddresses);
@@ -234,21 +241,23 @@ const verifiedCollectionActions = async (
       reported,
       queriedSources,
       partialSources,
-      stored,
+      storedOnContracts,
       inventory?.collections ?? [],
       signal,
-      stored.length === storedOnContracts.length
+      apiListing
     );
     if (!verified) return null;
 
+    const storedSlugs = new Set(storedOnContracts.map(nft => nft.slug));
+    const upsert = apiListing ? verified.upsert : verified.upsert.filter(nft => !storedSlugs.has(nft.slug));
     const records: StringRecord<EvmCollectibleMetadata> = {};
-    for (const nft of verified.upsert) {
+    for (const nft of upsert) {
       const merged = mergeCollectibleMetadata(metadataBySlug[nft.slug], verified.metadata[nft.slug]);
       if (merged) records[nft.slug] = merged;
     }
 
     const actions: Action[] = [];
-    const slugs = verified.upsert.map(nft => nft.slug);
+    const slugs = upsert.map(nft => nft.slug);
     if (Object.keys(records).length) actions.push(putEvmCollectiblesMetadataAction({ chainId, records }));
     if (slugs.length) {
       actions.push(enableEvmCollectiblesAction({ publicKeyHash: account, chainId, slugs }));
@@ -279,7 +288,7 @@ const verifiedCollectionActions = async (
         account,
         chainId,
         removeSlugs: verified.removeSlugs,
-        upsert: verified.upsert,
+        upsert,
         collectionCounts: verified.collectionCounts,
         contractCounts
       })
@@ -422,7 +431,7 @@ export const loadCollectionTokensEpic: Epic<Action, Action, RootState> = (action
             openseaQueried,
             metadataBySlug,
             controller.signal,
-            new Set()
+            { shownSlugs: new Set(), apiListing: true }
           );
 
           return verified ?? actions;
@@ -464,17 +473,10 @@ export const verifyShownCollectionTokensEpic: Epic<Action, Action, RootState> = 
       const controller = new AbortController();
 
       return from(
-        verifiedCollectionActions(
-          state$.value,
-          account,
-          chainId,
-          contractAddresses,
-          [],
-          false,
-          {},
-          controller.signal,
-          toCheck
-        )
+        verifiedCollectionActions(state$.value, account, chainId, contractAddresses, [], false, {}, controller.signal, {
+          shownSlugs: toCheck,
+          apiListing: false
+        })
       ).pipe(
         mergeMap(actions => {
           if (actions) return from(actions);

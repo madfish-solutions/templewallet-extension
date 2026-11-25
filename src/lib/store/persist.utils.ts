@@ -86,7 +86,7 @@ export const storageConfig = {
   getStoredState: getStoredStateToMigrateStorage
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
 export const isPersistedState = (value: unknown): value is NonNullable<PersistedState> =>
