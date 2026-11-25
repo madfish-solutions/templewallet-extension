@@ -14,7 +14,7 @@ import {
 } from 'lib/apis/temple/endpoints/evm';
 import { AlchemyChainID } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
-import { isAbortError, withRateLimitRetry } from 'lib/apis/utils';
+import { isAbortError, readRetryAfterMs, withRateLimitRetry } from 'lib/apis/utils';
 import { delayUnlessAborted } from 'lib/utils/delay-unless-aborted';
 
 import {
@@ -145,7 +145,7 @@ const readOwnerNfts = async (account: HexString, chainId: AlchemyChainID, signal
       if (isAbortError(error)) throw error;
 
       lastError = error;
-      if (attempt < 2) await delayUnlessAborted(1000, signal);
+      if (attempt < 2) await delayUnlessAborted(readRetryAfterMs(error) ?? 1000, signal);
     }
   }
 
