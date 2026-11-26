@@ -4,7 +4,12 @@ import { omit } from 'lodash';
 import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useLoadedItemsCount, useRememberLoadedItemsCount } from 'app/hooks/use-loaded-items-count';
+import {
+  useLoadedItemsCount,
+  useRememberLoadedItemsCount,
+  useRememberValue,
+  useRestoredValue
+} from 'app/hooks/use-loaded-items-count';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import { t } from 'lib/i18n';
 import { CollectiblesListItemElement, makeGetCollectionsElementsIndexesFunction } from 'lib/ui/collectibles-list';
@@ -18,6 +23,7 @@ import { isStorefrontPseudocollection, orderCollections } from './order-collecti
 
 const COLLECTIONS_PER_PAGE = 10;
 const COLLECTION_TILES_PER_PAGE = 40;
+const SHOWN_TILES_BY_SLUG = new Map<string, StringRecord<number>>();
 
 interface CollectionsListViewProps {
   collections: Array<[CollectiblesCollection, string[]]>;
@@ -37,7 +43,9 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   tezDetailsReady
 }) => {
   const accountEvmAddress = useAccountAddressForEvm();
-  const [shownTilesBySlug, setShownTilesBySlug] = useState<StringRecord<number>>({});
+  const restoredShownTiles = useRestoredValue(SHOWN_TILES_BY_SLUG, 'collections');
+  const [shownTilesBySlug, setShownTilesBySlug] = useState<StringRecord<number>>(() => restoredShownTiles ?? {});
+  useRememberValue(SHOWN_TILES_BY_SLUG, 'collections', shownTilesBySlug);
   const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
   const listRef = useRef<InfiniteScroll>(null);
   const collectionsBySlug = new Map(collections.map(entry => [entry[0].collectionSlug, entry]));
