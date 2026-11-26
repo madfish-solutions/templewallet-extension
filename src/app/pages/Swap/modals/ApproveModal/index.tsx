@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import { encodeFunctionData } from 'viem';
+import { isAddress } from 'viem';
 import { toHex } from 'viem/utils';
 
 import { Anchor, IconBase } from 'app/atoms';
@@ -14,28 +14,25 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
+import { buildApprovalTxData } from 'lib/evm/approval';
 import { T } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
-import {
-  EvmTransactionRequestWithSender,
-  SerializedEvmEstimationDataWithFallback,
-  TempleAccountType,
-  TempleEvmDAppTransactionPayload
-} from 'lib/temple/types';
+import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { delay } from 'lib/utils';
+import { serializeBigints } from 'temple/evm/utils';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
 import Route3ImgSrc from '../../form/assets/3route.png';
 import LiFiImgSrc from '../../form/assets/lifi.png';
 import { EvmStepReviewData, getCommonStepProps, isLifiStep } from '../../form/interfaces';
+import { useReportScreenComplete } from '../../preparation/screen-complete';
 import { parseTxRequestToViem } from '../ConfirmSwap/utils';
 
 import { useEstimationData } from './use-estimation-data';
@@ -44,6 +41,7 @@ interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
+  prepareNextStep?: () => Promise<void>;
   submitDisabled?: boolean;
   resetAllowance?: boolean;
 }
@@ -52,6 +50,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
   stepReviewData,
   onClose,
   onStepCompleted,
+  prepareNextStep,
   submitDisabled,
   resetAllowance = false
 }) => {
@@ -73,11 +72,11 @@ const ApproveModal: FC<ApproveModalProps> = ({
     useLedgerApprovalModalState();
 
   const txData = useMemo(() => {
-    return encodeFunctionData({
-      abi: [erc20ApproveAbi],
-      functionName: 'approve',
-      args: [approvalAddress as HexString, approvalAmount]
-    });
+    if (!approvalAddress || !isAddress(approvalAddress, { strict: false })) {
+      throw new Error('Invalid approval address');
+    }
+
+    return buildApprovalTxData(approvalAddress, approvalAmount);
   }, [approvalAmount, approvalAddress]);
 
   const assetSlug = useMemo(() => toTokenSlug(fromToken.address, 0), [fromToken.address]);
@@ -88,31 +87,39 @@ const ApproveModal: FC<ApproveModalProps> = ({
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
+  const currentTxData = finalEvmTransaction?.data ?? txData;
+  const preparedApproval = stepReviewData.prepared?.kind === 'approval' ? stepReviewData.prepared : undefined;
   const { data: estimationData, error: estimationError } = useEstimationData({
     assetSlug,
     accountPkh: accountAddress,
     network: inputNetwork,
-    txData: finalEvmTransaction?.data ?? txData
+    txData: currentTxData,
+    fallbackData: preparedApproval?.txData === currentTxData ? preparedApproval.estimation : undefined
   });
+  useReportScreenComplete(Boolean(estimationData || estimationError));
   useEvmGasOnRamp(inputNetwork.chainId, latestSubmitError || estimationError);
 
-  const request = useMemo(() => {
-    return {
+  const request = useMemo<EvmTransactionRequestWithSender>(() => {
+    const base = {
       to: fromToken.address as HexString,
       from: fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(0n),
-      maxFeePerGas: toOptionalHex(estimationData?.maxFeePerGas),
-      gas: toOptionalHex(estimationData?.gas),
-      gasPrice: toOptionalHex(estimationData?.gasPrice)
+      gas: toOptionalHex(estimationData?.gas)
     };
+
+    if (estimationData?.maxFeePerGas !== undefined) {
+      return { ...base, maxFeePerGas: toHex(estimationData.maxFeePerGas) };
+    }
+
+    return { ...base, gasPrice: toOptionalHex(estimationData?.gasPrice) };
   }, [estimationData, finalEvmTransaction, fromToken.address, fromAddress, txData]);
 
   const payload = useMemo<TempleEvmDAppTransactionPayload>(() => {
     return {
-      type: 'confirm_operations' as const,
-      req: request as EvmTransactionRequestWithSender,
-      estimationData: estimationData as SerializedEvmEstimationDataWithFallback | undefined,
+      type: 'confirm_operations',
+      req: request,
+      estimationData: estimationData && serializeBigints(estimationData),
       chainId: inputNetwork.chainId.toString(),
       chainType: TempleChainKind.EVM,
       origin: appUrl,
@@ -137,6 +144,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
         const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
         await delay(1000);
+        await prepareNextStep?.();
 
         onStepCompleted();
       };
@@ -166,8 +174,10 @@ const ApproveModal: FC<ApproveModalProps> = ({
       inputNetwork,
       getActiveBlockExplorer,
       onStepCompleted,
+      prepareNextStep,
       isLedgerAccount,
       guard,
+      setLoading,
       setLedgerApprovalModalState,
       preconnectIfNeeded
     ]

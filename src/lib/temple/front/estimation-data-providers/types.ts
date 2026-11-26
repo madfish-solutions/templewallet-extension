@@ -15,6 +15,8 @@ export interface TezosEstimationData {
 
 export type FeeOptionLabel = 'slow' | 'mid' | 'fast';
 
+export const DEFAULT_FEE_OPTION: FeeOptionLabel = 'mid';
+
 export interface DisplayedFeeOptions {
   slow: string;
   mid: string;

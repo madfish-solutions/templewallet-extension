@@ -3,12 +3,10 @@ import BigNumber from 'bignumber.js';
 import { toastError } from 'app/toaster';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import { getViemPublicClient } from 'temple/evm';
-import { assertEvmTransactionBalance } from 'temple/evm/assert-transaction-balance';
-import { EvmEstimationData, estimate as genericEstimate } from 'temple/evm/estimate';
+import { EvmEstimationData } from 'temple/evm/estimate';
 import { EvmChain } from 'temple/front';
 
-import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
+import { estimateEvmSend } from '../estimate-evm-send';
 
 interface EvmEstimationInput {
   to: HexString;
@@ -21,6 +19,7 @@ interface EvmEstimationInput {
   amount?: string;
   silent?: boolean;
   paused?: boolean;
+  fallbackData?: EvmEstimationData;
 }
 
 export const useEvmEstimationData = ({
@@ -31,7 +30,8 @@ export const useEvmEstimationData = ({
   toFilled,
   amount,
   silent,
-  paused = false
+  paused = false,
+  fallbackData
 }: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
@@ -41,14 +41,7 @@ export const useEvmEstimationData = ({
         throw new Error('Asset metadata not found');
       }
 
-      const transaction = buildBasicEvmSendParams(accountPkh, to, assetMetadata, amount);
-      const estimation = await genericEstimate(network, {
-        ...transaction,
-        from: accountPkh
-      });
-      await assertEvmTransactionBalance(getViemPublicClient(network), accountPkh, { ...transaction, ...estimation });
-
-      return estimation;
+      return await estimateEvmSend({ network, accountPkh, to, assetMetadata, amount });
     } catch (err: any) {
       console.warn(err);
       if (!silent) {
@@ -66,7 +59,8 @@ export const useEvmEstimationData = ({
       shouldRetryOnError: false,
       isPaused: () => paused,
       focusThrottleInterval: 10_000,
-      dedupingInterval: 10_000
+      dedupingInterval: 10_000,
+      fallbackData
     }
   );
 };

@@ -36,6 +36,8 @@ interface PageModalProps extends TestIDProps {
   suspenseLoader?: ReactNode;
   suspenseErrorMessage?: string;
   shouldChangeBottomShift?: boolean;
+  /** Keeps the modal below the viewport until its content is ready */
+  holdOpening?: boolean;
   children: ReactNode | (() => ReactElement);
 }
 
@@ -52,6 +54,7 @@ export const PageModal: FC<PageModalProps> = ({
   animated = true,
   contentPadding = false,
   shouldChangeBottomShift = true,
+  holdOpening = false,
   suspenseLoader,
   suspenseErrorMessage
 }) => {
@@ -93,7 +96,7 @@ export const PageModal: FC<PageModalProps> = ({
           ModStyles.base,
           animated && 'ease-out duration-300'
         ),
-        afterOpen: ModStyles.opened,
+        afterOpen: holdOpening ? '' : ModStyles.opened,
         beforeClose: ModStyles.closed
       }}
       appElement={document.getElementById('root')!}

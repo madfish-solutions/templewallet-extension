@@ -16,15 +16,20 @@ import { AccountForChain } from 'temple/accounts';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { UserAction } from '../../evm/user-actions';
 import { Route3EvmRoute, getCommonStepProps, isLifiStep } from '../../form/interfaces';
+import { useNextStepPreparation } from '../../preparation/evm/use-next-step-preparation';
+import { PreparedEvmAction } from '../../preparation/types';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 import { EvmContent } from './EvmContent';
-import { InitialInputData, UserAction } from './types';
+import { InitialInputData } from './types';
 
 interface ConfirmEvmUserActionProps {
   account: AccountForChain<TempleChainKind.EVM>;
   userAction: UserAction;
+  preparedAction?: PreparedEvmAction;
+  nextUserAction?: UserAction;
   firstExecuteAction: UserAction;
   onStepCompleted: EmptyFn;
   onRequestClose: EmptyFn;
@@ -39,6 +44,8 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
   ({
     account,
     userAction,
+    preparedAction,
+    nextUserAction,
     firstExecuteAction,
     onStepCompleted,
     onRequestClose,
@@ -63,8 +70,19 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       LiFiStep | Route3EvmRoute | null
     >(null);
 
+    const { prepared, prepareNextStep, completeStep } = useNextStepPreparation({
+      accountPkh: account.address,
+      userAction,
+      preparedAction,
+      nextUserAction,
+      onStepCompleted,
+      cancelledRef
+    });
+    const preparedStep = prepared?.kind === 'execute' ? prepared.step : undefined;
+
     const stepReviewData = useMemo(() => {
       const base = {
+        prepared,
         account,
         inputNetwork,
         outputNetwork,
@@ -78,12 +96,13 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       if (type === 'execute') {
         const safeExecuteStep = userAction.batchSteps
           ? routeStep
-          : (routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined });
+          : (preparedStep ?? routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined });
         return { ...base, routeStep: safeExecuteStep };
       }
 
       return { ...base, routeStep };
     }, [
+      prepared,
       account,
       inputNetwork,
       outputNetwork,
@@ -91,6 +110,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       toAmountMin,
       toToken,
       type,
+      preparedStep,
       routeStepWithTransactionRequest,
       userAction.batchSteps
     ]);
@@ -109,6 +129,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
     useEffect(() => {
       if (type !== 'execute') return;
       if (userAction.batchSteps) return;
+      if (preparedStep) return;
       let cancelled = false;
 
       const run = async () => {
@@ -137,7 +158,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       return () => {
         cancelled = true;
       };
-    }, [cancelledRef, type, routeStep, userAction.batchSteps]);
+    }, [cancelledRef, type, routeStep, userAction.batchSteps, preparedStep]);
 
     return (
       <EvmEstimationDataProvider>
@@ -149,7 +170,8 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
                 stepReviewData={stepReviewData}
                 resetAllowance={type === 'reset-approval'}
                 onClose={onRequestClose}
-                onStepCompleted={onStepCompleted}
+                onStepCompleted={completeStep}
+                prepareNextStep={prepareNextStep}
                 submitDisabled={submitDisabled}
               />
             </AddAssetProvider>
@@ -158,7 +180,8 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
           <EvmContent
             stepReviewData={stepReviewData}
             initialInputData={initialInputData}
-            onStepCompleted={onStepCompleted}
+            onStepCompleted={completeStep}
+            prepareNextStep={prepareNextStep}
             cancelledRef={cancelledRef}
             skipStatusWait={skipStatusWait}
             submitDisabled={submitDisabled}

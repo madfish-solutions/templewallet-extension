@@ -13,6 +13,7 @@ export interface EvmContentProps {
   initialInputData: InitialInputData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
+  prepareNextStep?: () => Promise<void>;
   cancelledRef?: RefObject<boolean | null>;
   skipStatusWait?: boolean;
   submitDisabled?: boolean;

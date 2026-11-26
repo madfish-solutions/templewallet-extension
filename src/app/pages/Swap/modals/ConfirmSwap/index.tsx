@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useEffect, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -7,6 +7,9 @@ import { isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfa
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
 import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
+
+import { HOLD_OPENING_CAP_MS } from '../../preparation/constants';
+import { SwapScreenCompleteContext } from '../../preparation/screen-complete';
 
 import { ConfirmEvmUserAction } from './ConfirmEvmUserAction';
 import { useEvmUserActions } from './hooks/useEvmUserActions';
@@ -37,6 +40,18 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     setBatchBusy
   } = useEvmUserActions(opened, onRequestClose, reviewData);
 
+  const hasPreparedData = Boolean(reviewData?.prepared);
+  const [screenCompleteFor, setScreenCompleteFor] = useState<SwapReviewData>();
+  const reportScreenComplete = () => setScreenCompleteFor(reviewData);
+
+  useEffect(() => {
+    if (!opened || !reviewData) return;
+
+    const timer = setTimeout(() => setScreenCompleteFor(reviewData), HOLD_OPENING_CAP_MS);
+
+    return () => clearTimeout(timer);
+  }, [opened, reviewData]);
+
   const title = useMemo(() => {
     if (!reviewData) return '';
 
@@ -65,31 +80,35 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
         opened={opened}
         onRequestClose={handleRequestClose}
         shouldChangeBottomShift={false}
+        holdOpening={opened && hasPreparedData && screenCompleteFor !== reviewData}
       >
         {reviewData &&
-          (() =>
-            isSwapEvmReviewData(reviewData) ? (
-              isDefined(currentUserAction.value) ? (
-                <ConfirmEvmUserAction
-                  account={reviewData.account}
-                  userAction={currentUserAction.value}
-                  firstExecuteAction={firstExecuteAction.value}
-                  onStepCompleted={onStepCompleted}
-                  onRequestClose={handleRequestClose}
-                  cancelledRef={cancelledRef}
-                  skipStatusWait={skipStatusWait}
-                  submitDisabled={progressionBlocked}
-                  onUseLegacyFlow={useLegacyFlow}
-                  onBatchBusyChange={setBatchBusy}
-                />
+          (() => (
+            <SwapScreenCompleteContext value={reportScreenComplete}>
+              {isSwapEvmReviewData(reviewData) ? (
+                isDefined(currentUserAction.value) ? (
+                  <ConfirmEvmUserAction
+                    account={reviewData.account}
+                    userAction={currentUserAction.value}
+                    preparedAction={currentUserAction.index === 0 ? reviewData.prepared?.firstAction : undefined}
+                    nextUserAction={userActions.at(currentUserAction.index + 1)}
+                    firstExecuteAction={firstExecuteAction.value}
+                    onStepCompleted={onStepCompleted}
+                    onRequestClose={handleRequestClose}
+                    cancelledRef={cancelledRef}
+                    skipStatusWait={skipStatusWait}
+                    submitDisabled={progressionBlocked}
+                    onUseLegacyFlow={useLegacyFlow}
+                    onBatchBusyChange={setBatchBusy}
+                  />
+                ) : null
               ) : (
-                <></>
-              )
-            ) : (
-              <TezosEstimationDataProvider>
-                <TezosContent data={reviewData} onClose={onRequestClose} />
-              </TezosEstimationDataProvider>
-            ))}
+                <TezosEstimationDataProvider>
+                  <TezosContent data={reviewData} onClose={onRequestClose} />
+                </TezosEstimationDataProvider>
+              )}
+            </SwapScreenCompleteContext>
+          ))}
       </PageModal>
       <ConfirmationModal
         isOpen={isCancelConfirmOpen}

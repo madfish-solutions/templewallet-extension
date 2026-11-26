@@ -1,7 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
@@ -12,8 +11,10 @@ import { useSwapFormControl } from 'app/pages/Swap/context';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { ChainAssetInfo, SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
-import { useGetTezosSwapTransferParams } from 'app/pages/Swap/form/use-swap-params';
 import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
+import { buildTezosSwapOperations, TezosSwapBuildInput } from 'app/pages/Swap/preparation/tezos/build-swap-operations';
+import { prepareTezosSwap } from 'app/pages/Swap/preparation/tezos/prepare-tezos-swap';
+import { useSwapPreparation } from 'app/pages/Swap/preparation/use-swap-preparation';
 import { dispatch, useSelector } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
@@ -22,14 +23,12 @@ import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-trans
 import OperationStatus from 'app/templates/OperationStatus';
 import { toastError, toastUniqWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
-import { TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import {
@@ -38,34 +37,16 @@ import {
   useTezosTokensMetadataPresenceCheck
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import {
-  ROUTING_FEE_ADDRESS,
-  ROUTING_FEE_RATIO,
-  ROUTING_FEE_SLIPPAGE_RATIO,
-  SWAP_CASHBACK_RATIO,
-  SWAP_THRESHOLD_TO_GET_CASHBACK,
-  TEMPLE_TOKEN
-} from 'lib/route3/constants';
+import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
 import { isLiquidityBakingParamsResponse } from 'lib/route3/interfaces';
 import { getPercentageRatio } from 'lib/route3/utils/get-percentage-ratio';
 import { getRoute3TokenBySlug } from 'lib/route3/utils/get-route3-token-by-slug';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
-import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
-import {
-  calculateOutputAmounts,
-  calculateSidePaymentsFromInput,
-  getRoutingFeeTransferParams,
-  multiplyAtomicAmount
-} from 'lib/utils/swap.utils';
+import { calculateOutputAmounts, calculateSidePaymentsFromInput } from 'lib/utils/swap.utils';
 import { useAccountForTezos, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 import { getTezosToolkitWithSigner } from 'temple/front/tezos';
-
-// Maximum number of DEXes allowed in a cashback swap route.
-// This is used when performing an additional swap via the 3Route contract
-// to obtain TKEY tokens for user cashback rewards.
-const CASHBACK_SWAP_MAX_DEXES = 3;
 
 interface TezosSwapFormProps {
   slippageTolerance: number;
@@ -88,14 +69,13 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const publicKeyHash = account.address;
   const tezos = getTezosToolkitWithSigner(network, publicKeyHash);
-  const swapFormControl = useSwapFormControl();
+  const swapFormControlRef = useSwapFormControl();
 
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   useTezosTokensMetadataPresenceCheck(network, route3tokensSlugs);
 
   const blockLevel = useTezosBlockLevel(network);
   const prevBlockLevelRef = useRef(blockLevel);
-  const getSwapParams = useGetTezosSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
@@ -255,7 +235,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const isOutputTempleToken = outputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
 
-  const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
+  const { minimumReceivedAtomic } = useMemo(
     () =>
       calculateOutputAmounts(
         atomsInputValue,
@@ -371,33 +351,35 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   );
 
   useEffect(() => {
-    if (!swapFormControl) return;
+    if (!swapFormControlRef) {
+      return;
+    }
     const next = {
-      ...(swapFormControl.current ?? {}),
+      ...(swapFormControlRef.current ?? {}),
       resetForm,
       setTezosOperation,
       handleSelectedAssetChange
     };
-    swapFormControl.current = next;
+    swapFormControlRef.current = next;
 
     return () => {
-      if (swapFormControl.current?.resetForm === resetForm) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.resetForm;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
-      if (swapFormControl.current?.setTezosOperation === setTezosOperation) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.setTezosOperation === setTezosOperation) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.setTezosOperation;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
-      if (swapFormControl.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.handleSelectedAssetChange;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
     };
-  }, [handleSelectedAssetChange, swapFormControl, resetForm, setTezosOperation]);
+  }, [handleSelectedAssetChange, swapFormControlRef, resetForm, setTezosOperation]);
 
   useEffect(() => {
     const currentOutput = swapParams.data.output;
@@ -466,8 +448,58 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
   const otherOperationsPending = pendingTxHashes.length > 0;
+  const tezBalanceTooLow =
+    inputValue.assetSlug === TEZ_TOKEN_SLUG &&
+    Boolean(getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE));
 
-  const onSubmit = useCallback(async () => {
+  const getBuildInput = (): TezosSwapBuildInput | null => {
+    if (!fromRoute3Token || !toRoute3Token) {
+      return null;
+    }
+
+    return {
+      tezos,
+      accountPkh: publicKeyHash,
+      fromRoute3Token,
+      toRoute3Token,
+      swapParams: swapParams.data,
+      inputAtomic: atomsInputValue,
+      slippageRatio,
+      outputDecimals: outputAssetMetadata.decimals,
+      outputSymbol: outputAssetMetadata.symbol,
+      ...getSwapWithFeeParams(inputValue, outputValue)
+    };
+  };
+
+  const draftKey =
+    inputValue.assetSlug &&
+    outputValue.assetSlug &&
+    fromRoute3Token &&
+    toRoute3Token &&
+    atomsInputValue.gt(0) &&
+    atomsInputValue.lte(tokensToAtoms(inputTokenMaxAmount, inputAssetMetadata.decimals)) &&
+    !otherOperationsPending &&
+    !tezBalanceTooLow
+      ? JSON.stringify([
+          publicKeyHash,
+          inputValue.assetSlug,
+          outputValue.assetSlug,
+          atomsInputValue.toFixed(),
+          slippageTolerance
+        ])
+      : null;
+
+  const { takePrepared } = useSwapPreparation({
+    draftKey,
+    ready: !swapParams.isLoading && isDefined(swapParams.data.output) && !hopsAreAbsent,
+    prepare: signal => {
+      const build = getBuildInput();
+
+      return build ? prepareTezosSwap({ build, network, account }, signal) : Promise.reject(new Error('No route'));
+    }
+  });
+
+  const onSubmit = async () => {
     if (isSubmitting) return;
 
     if (otherOperationsPending) {
@@ -476,10 +508,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       return;
     }
 
-    if (
-      inputValue.assetSlug === TEZ_TOKEN_SLUG &&
-      getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
-    ) {
+    if (tezBalanceTooLow) {
       dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
 
       return;
@@ -495,209 +524,49 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
     formAnalytics.trackSubmit(analyticsProperties);
 
-    const {
-      swapInputMinusFeeAtomic,
-      inputFeeAtomic: routingFeeFromInputAtomic,
-      cashbackSwapInputAtomic: cashbackSwapInputFromInAtomic
-    } = calculateSidePaymentsFromInput(atomsInputValue, isOutputTempleToken);
-
-    if (!fromRoute3Token || !toRoute3Token || !swapParams.data.output || !inputValue.assetSlug) {
+    const buildInput = getBuildInput();
+    if (!buildInput || !swapParams.data.output || !inputValue.assetSlug) {
       return;
     }
 
     try {
       setTezosOperation(undefined);
 
-      const allSwapParams: Array<TransferParams> = [];
-      let routingOutputFeeTransferParams: TransferParams[] = await getRoutingFeeTransferParams(
-        toRoute3Token,
-        outputFeeAtomicAmount,
-        publicKeyHash,
-        ROUTING_FEE_ADDRESS,
-        tezos
-      );
-
-      const route3SwapOpParams = await getSwapParams(
-        fromRoute3Token,
-        toRoute3Token,
-        swapInputMinusFeeAtomic,
-        outputAtomicAmountBeforeFee,
-        slippageRatio,
-        swapParams.data
-      );
-
-      if (route3SwapOpParams.length === 0) {
+      const preparation = await takePrepared();
+      if (preparation.kind === 'superseded') {
         return;
       }
 
-      const { isInputTokenTempleToken, isOutputTokenTempleToken, isSwapAmountMoreThreshold } = getSwapWithFeeParams(
-        inputValue,
-        outputValue
-      );
+      const operations =
+        preparation.kind === 'prepared' ? preparation.value : await buildTezosSwapOperations(buildInput);
 
-      let cashback;
-
-      if (isInputTokenTempleToken && isSwapAmountMoreThreshold) {
-        const routingInputFeeOpParams = await getRoutingFeeTransferParams(
-          fromRoute3Token,
-          routingFeeFromInputAtomic.minus(cashbackSwapInputFromInAtomic),
-          publicKeyHash,
-          TEZ_BURN_ADDRESS,
-          tezos
-        );
-        allSwapParams.push(...routingInputFeeOpParams);
-      } else if (isInputTokenTempleToken && !isSwapAmountMoreThreshold) {
-        const routingFeeOpParams = await getRoutingFeeTransferParams(
-          TEMPLE_TOKEN,
-          routingFeeFromInputAtomic,
-          publicKeyHash,
-          ROUTING_FEE_ADDRESS,
-          tezos
-        );
-        allSwapParams.push(...routingFeeOpParams);
-      } else if (
-        !isInputTokenTempleToken &&
-        isSwapAmountMoreThreshold &&
-        routingFeeFromInputAtomic.gt(0) &&
-        !isOutputTokenTempleToken
-      ) {
-        const swapToTempleParams = await fetchRoute3SwapParams({
-          fromSymbol: fromRoute3Token.symbol,
-          toSymbol: TEMPLE_TOKEN.symbol,
-          toTokenDecimals: TEMPLE_TOKEN.decimals,
-          amount: atomsToTokens(routingFeeFromInputAtomic, fromRoute3Token.decimals).toFixed(),
-          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
-          rpcUrl: tezos.rpc.getRpcUrl()
-        });
-
-        const templeExpectedOutputAtomic = tokensToAtoms(
-          new BigNumber(swapToTempleParams.output ?? ZERO),
-          TEMPLE_TOKEN.decimals
-        );
-        const templeMinOutputAtomic = multiplyAtomicAmount(
-          templeExpectedOutputAtomic,
-          ROUTING_FEE_SLIPPAGE_RATIO,
-          BigNumber.ROUND_DOWN
-        );
-
-        const swapToTempleTokenOpParams = await getSwapParams(
-          fromRoute3Token,
-          TEMPLE_TOKEN,
-          routingFeeFromInputAtomic,
-          templeExpectedOutputAtomic,
-          ROUTING_FEE_SLIPPAGE_RATIO,
-          swapToTempleParams
-        );
-
-        const burnAmount = templeMinOutputAtomic
-          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
-          .dividedToIntegerBy(ROUTING_FEE_RATIO);
-
-        cashback = templeExpectedOutputAtomic.minus(burnAmount);
-
-        const routingFeeOpParams = await getRoutingFeeTransferParams(
-          TEMPLE_TOKEN,
-          burnAmount,
-          publicKeyHash,
-          TEZ_BURN_ADDRESS,
-          tezos
-        );
-
-        allSwapParams.push(...swapToTempleTokenOpParams);
-        allSwapParams.push(...routingFeeOpParams);
-      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && isOutputTokenTempleToken) {
-        const burnAmount = outputFeeAtomicAmount
-          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
-          .dividedToIntegerBy(ROUTING_FEE_RATIO);
-
-        const expectedOutputFee = multiplyAtomicAmount(
-          outputAtomicAmountBeforeFee,
-          ROUTING_FEE_RATIO,
-          BigNumber.ROUND_CEIL
-        );
-        cashback = expectedOutputFee.minus(burnAmount);
-
-        routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
-          TEMPLE_TOKEN,
-          burnAmount,
-          publicKeyHash,
-          TEZ_BURN_ADDRESS,
-          tezos
-        );
-      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold) {
-        const swapToTempleParams = await fetchRoute3SwapParams({
-          fromSymbol: toRoute3Token.symbol,
-          toSymbol: TEMPLE_TOKEN.symbol,
-          toTokenDecimals: TEMPLE_TOKEN.decimals,
-          amount: atomsToTokens(outputFeeAtomicAmount, toRoute3Token.decimals).toFixed(),
-          dexesLimit: CASHBACK_SWAP_MAX_DEXES,
-          rpcUrl: tezos.rpc.getRpcUrl()
-        });
-
-        const templeExpectedOutputAtomic = tokensToAtoms(
-          new BigNumber(swapToTempleParams.output ?? ZERO),
-          TEMPLE_TOKEN.decimals
-        );
-        const templeMinOutputAtomic = multiplyAtomicAmount(
-          templeExpectedOutputAtomic,
-          ROUTING_FEE_SLIPPAGE_RATIO,
-          BigNumber.ROUND_DOWN
-        );
-
-        const swapToTempleTokenOpParams = await getSwapParams(
-          toRoute3Token,
-          TEMPLE_TOKEN,
-          outputFeeAtomicAmount,
-          templeExpectedOutputAtomic,
-          ROUTING_FEE_SLIPPAGE_RATIO,
-          swapToTempleParams
-        );
-
-        const burnAmount = templeMinOutputAtomic
-          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
-          .dividedToIntegerBy(ROUTING_FEE_RATIO);
-
-        cashback = templeExpectedOutputAtomic.minus(burnAmount);
-
-        const routingFeeOpParams = await getRoutingFeeTransferParams(
-          TEMPLE_TOKEN,
-          burnAmount,
-          publicKeyHash,
-          TEZ_BURN_ADDRESS,
-          tezos
-        );
-        routingOutputFeeTransferParams = [...swapToTempleTokenOpParams, ...routingFeeOpParams];
-      } else if (!isInputTokenTempleToken && !isSwapAmountMoreThreshold) {
-        const routingInputFeeOpParams = await getRoutingFeeTransferParams(
-          fromRoute3Token,
-          routingFeeFromInputAtomic,
-          publicKeyHash,
-          ROUTING_FEE_ADDRESS,
-          tezos
-        );
-        allSwapParams.push(...routingInputFeeOpParams);
+      if (!operations) {
+        return;
       }
 
-      allSwapParams.push(...route3SwapOpParams, ...routingOutputFeeTransferParams);
-
-      const opParams = allSwapParams.map(param => parseTransferParamsToParamsWithKind(param));
+      const { opParams, cashbackInTkey, minimumReceived } = operations;
 
       onReview({
         account,
         network,
         opParams,
-        cashbackInTkey: cashback ? atomsToTokens(new BigNumber(cashback), TEMPLE_TOKEN.decimals).toString() : undefined,
+        cashbackInTkey,
+        minimumReceived,
+        prepared:
+          preparation.kind === 'prepared'
+            ? {
+                estimationData: preparation.value.estimationData,
+                balancesChanges: preparation.value.balancesChanges,
+                preparedAt: preparation.value.preparedAt
+              }
+            : undefined,
         onConfirm: (operation, startingBlockLevel) => {
           resetForm();
           setTezosOperation(operation, startingBlockLevel);
-        },
-        minimumReceived: {
-          amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
-          symbol: outputAssetMetadata.symbol
         }
       });
 
-      formAnalytics.trackSubmitSuccess({ ...analyticsProperties, cashback: isDefined(cashback) });
+      formAnalytics.trackSubmitSuccess({ ...analyticsProperties, cashback: isDefined(cashbackInTkey) });
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {
@@ -705,35 +574,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
       formAnalytics.trackSubmitFail(analyticsProperties);
     }
-  }, [
-    account,
-    atomsInputValue,
-    formAnalytics,
-    isSubmitting,
-    fromRoute3Token,
-    getSwapParams,
-    getSwapWithFeeParams,
-    getTezosBalance,
-    inputAssetMetadata.symbol,
-    inputValue,
-    isOutputTempleToken,
-    minimumReceivedAtomic,
-    network,
-    onReview,
-    outputAssetMetadata.decimals,
-    outputAssetMetadata.symbol,
-    outputAtomicAmountBeforeFee,
-    outputFeeAtomicAmount,
-    outputValue,
-    publicKeyHash,
-    resetForm,
-    setTezosOperation,
-    slippageRatio,
-    swapParams.data,
-    tezos,
-    toRoute3Token,
-    otherOperationsPending
-  ]);
+  };
 
   return (
     <FormProvider {...form}>

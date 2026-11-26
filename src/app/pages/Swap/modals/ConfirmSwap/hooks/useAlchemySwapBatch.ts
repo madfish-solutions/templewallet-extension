@@ -1,26 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { LiFiStep } from '@lifi/sdk';
-import { formatUnits, numberToHex, type Hex } from 'viem';
+import { formatUnits, type Hex } from 'viem';
 
-import { prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
-import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
+import { prepareAlchemySwapBatch, type PreparedAlchemySwapBatch } from 'lib/evm/alchemy/prepare-batch';
 import type { AlchemyBatchQuote, AlchemyFeeOption } from 'lib/evm/alchemy/types';
-import {
-  ALCHEMY_FEE_MULTIPLIERS,
-  ALCHEMY_QUOTE_LIFETIME,
-  addAlchemyGasParamsOverride,
-  getAlchemyMaxFee,
-  getAlchemyOperation,
-  validateAlchemyPreparedCalls
-} from 'lib/evm/alchemy/validation';
+import { ALCHEMY_FEE_MULTIPLIERS, getAlchemyMaxFee, getAlchemyOperation } from 'lib/evm/alchemy/validation';
 import { useTempleClient } from 'lib/temple/front';
+import { DEFAULT_FEE_OPTION } from 'lib/temple/front/estimation-data-providers';
 import type { EvmChain } from 'temple/front';
 
 interface Params {
   steps: LiFiStep[];
   account: Hex;
   network: EvmChain;
+  prepared?: PreparedAlchemySwapBatch;
 }
 interface BatchPreview {
   quote: AlchemyBatchQuote;
@@ -36,20 +30,35 @@ function getBatchPreview(state: BatchState): BatchPreview | undefined {
   return state.phase === 'preparing' ? state.preview : undefined;
 }
 
+const getInitialState = (prepared?: PreparedAlchemySwapBatch): BatchState =>
+  prepared && prepared.quote.feeOption === DEFAULT_FEE_OPTION && Date.now() < prepared.quote.expiresAt
+    ? { phase: 'ready', quote: prepared.quote, steps: prepared.steps }
+    : { phase: 'preparing' };
+
 const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint => {
   const fromPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[from] * 100));
   const toPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[to] * 100));
   return (value * toPercent + fromPercent - 1n) / fromPercent;
 };
 
-export function useAlchemySwapBatch({ steps, account, network }: Params) {
+const getFeeOptions = (quote: AlchemyBatchQuote, decimals: number): Record<AlchemyFeeOption, string> => {
+  const maxFee = getAlchemyMaxFee(quote.prepared);
+  const formatOption = (option: AlchemyFeeOption) => {
+    return formatUnits(scaleFeeValue(maxFee, quote.feeOption, option), decimals);
+  };
+
+  return { slow: formatOption('slow'), mid: formatOption('mid'), fast: formatOption('fast') };
+};
+
+export function useAlchemySwapBatch({ steps, account, network, prepared }: Params) {
   const { submitAlchemyBatch } = useTempleClient();
-  const [state, setState] = useState<BatchState>({ phase: 'preparing' });
+  const [state, setState] = useState<BatchState>(() => getInitialState(prepared));
+  const skipFirstPrepare = useRef(state.phase === 'ready');
   const [callId, setCallId] = useState<Hex>();
   const callIdRef = useRef<Hex | undefined>(undefined);
   const [executing, setExecuting] = useState(false);
   const [executionError, setExecutionError] = useState<unknown>();
-  const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>('mid');
+  const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>(DEFAULT_FEE_OPTION);
   const [revision, setRevision] = useState(0);
   const lock = useRef(false);
   const mounted = useRef(true);
@@ -71,6 +80,10 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     const previous = previousParams.current;
     const sameRequest = previous?.steps === steps && previous.account === account && previous.network === network;
     previousParams.current = { steps, account, network };
+    if (skipFirstPrepare.current) {
+      skipFirstPrepare.current = false;
+      return;
+    }
     // Preserve the current review during fee updates, but never submit this preview.
     setState(current => ({
       phase: 'preparing',
@@ -78,25 +91,8 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     }));
     setExecutionError(undefined);
     const prepare = async (): Promise<void> => {
-      const result = await buildAlchemySwapCalls(steps, account, network, controller.signal);
-      const request = addAlchemyGasParamsOverride(
-        { from: account, chainId: numberToHex(network.chainId), calls: result.calls },
-        selectedFeeOption
-      );
-      const prepared = await prepareAlchemyCalls(request, controller.signal);
-      validateAlchemyPreparedCalls(prepared, request);
-      if (!controller.signal.aborted)
-        setState({
-          phase: 'ready',
-          steps: result.steps,
-          quote: {
-            request,
-            prepared,
-            minNativeReceivedByCall: result.minNativeReceivedByCall,
-            expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
-            feeOption: selectedFeeOption
-          }
-        });
+      const batch = await prepareAlchemySwapBatch(steps, account, network, selectedFeeOption, controller.signal);
+      if (!controller.signal.aborted) setState({ phase: 'ready', ...batch });
     };
     void prepare().catch(error => {
       if (!controller.signal.aborted) setState({ phase: 'error', error });
@@ -146,17 +142,7 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const selectFeeOption = (option: AlchemyFeeOption): void => {
     if (!submitted && !executing) setSelectedFeeOption(option);
   };
-  const feeOptions = quote
-    ? (Object.fromEntries(
-        (Object.keys(ALCHEMY_FEE_MULTIPLIERS) as AlchemyFeeOption[]).map(option => [
-          option,
-          formatUnits(
-            scaleFeeValue(getAlchemyMaxFee(quote.prepared), quote.feeOption, option),
-            network.currency.decimals
-          )
-        ])
-      ) as Record<AlchemyFeeOption, string>)
-    : undefined;
+  const feeOptions = quote ? getFeeOptions(quote, network.currency.decimals) : undefined;
   const operation = quote ? getAlchemyOperation(quote.prepared) : undefined;
 
   return {

@@ -26,13 +26,14 @@ import { getAssetSymbol } from 'lib/metadata';
 import { ROUTING_FEE_EVM_ADDRESS, ROUTING_FEE_RATIO } from 'lib/route3/constants';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useInterval } from 'lib/ui/hooks';
+import { useInterval, useUpdatableRef } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { useEvmSwapPreparation } from '../../preparation/evm/use-evm-swap-preparation';
 import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../hooks';
 import {
   ChainAssetInfo,
@@ -83,7 +84,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   if (!account) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address as HexString;
-  const swapFormControl = useSwapFormControl();
+  const swapFormControlRef = useSwapFormControl();
 
   const [swapRoute, setSwapRoute] = useState<LiFiRoute | Route3EvmRoute | null>(null);
   const [isRouteLoading, setIsRouteLoading] = useState(false);
@@ -287,23 +288,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   useEffect(() => {
-    if (!swapFormControl) return;
-    const next = { ...(swapFormControl.current ?? {}), resetForm, handleSelectedAssetChange };
-    swapFormControl.current = next;
+    if (!swapFormControlRef) return;
+    const next = { ...(swapFormControlRef.current ?? {}), resetForm, handleSelectedAssetChange };
+    swapFormControlRef.current = next;
 
     return () => {
-      if (swapFormControl.current?.resetForm === resetForm) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.resetForm;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
-      if (swapFormControl.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
-        const updated = { ...(swapFormControl.current ?? {}) };
+      if (swapFormControlRef.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
+        const updated = { ...(swapFormControlRef.current ?? {}) };
         delete updated.handleSelectedAssetChange;
-        swapFormControl.current = updated;
+        swapFormControlRef.current = updated;
       }
     };
-  }, [handleSelectedAssetChange, swapFormControl, resetForm]);
+  }, [handleSelectedAssetChange, swapFormControlRef, resetForm]);
 
   const parseFiatValueToAssetAmount = useCallback(
     (
@@ -368,7 +369,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
         return routesResponse.routes[0];
       } catch (error: unknown) {
-        if ((error as Error)?.name === 'CanceledError') return undefined;
+        if (error instanceof Error && error.name === 'CanceledError') return undefined;
         console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
         throw error;
       }
@@ -446,19 +447,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     void updateSwapRoute(params);
   }, [buildSwapRouteParams, clearSwapRoute, updateSwapRoute]);
 
-  const getAndSetSwapRouteRef = useRef(getAndSetSwapRoute);
-  getAndSetSwapRouteRef.current = getAndSetSwapRoute;
+  const getAndSetSwapRouteRef = useUpdatableRef(getAndSetSwapRoute);
 
   useEffect(() => {
-    if (!debouncedInputAmount || new BigNumber(debouncedInputAmount).isLessThanOrEqualTo(0)) {
-      clearSwapRoute();
-      return;
-    }
-    if (sourceAssetInfo?.assetSlug && targetAssetInfo?.assetSlug) {
-      void getAndSetSwapRouteRef.current();
-    } else {
-      clearSwapRoute();
-    }
+    void getAndSetSwapRouteRef.current();
   }, [
     debouncedInputAmount,
     sourceAssetInfo?.assetSlug,
@@ -466,7 +458,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     targetAssetInfo?.assetSlug,
     targetAssetInfo?.chainId,
     slippageTolerance,
-    clearSwapRoute
+    getAndSetSwapRouteRef
   ]);
 
   useInterval(
@@ -500,8 +492,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       ? atomicAmount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
       : atomicAmount;
 
-    handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
-  }, [getValues, handleOutputChange, outputAssetPrice, swapRoute]);
+    setValue('output', { assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
+    clearErrors('output');
+    if (formSubmitted) trigger();
+  }, [clearErrors, formSubmitted, getValues, outputAssetPrice, setValue, swapRoute, trigger]);
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;
@@ -524,6 +518,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     },
     [slippageTolerance]
   );
+
+  const draftRouteParams = buildSwapRouteParams();
+  const draftKey =
+    draftRouteParams && atomsInputValue.lte(tokensToAtoms(inputTokenMaxAmount, inputAssetMetadata?.decimals ?? 0))
+      ? getRouteParamsKey(draftRouteParams)
+      : null;
+
+  const { takePrepared } = useEvmSwapPreparation({
+    account,
+    accountPkh: publicKeyHash,
+    draftKey,
+    route: swapRoute,
+    routeLoading: isRouteLoading
+  });
 
   const onSubmit = useCallback(async () => {
     if (isSubmitting) return;
@@ -550,11 +558,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     try {
       formAnalytics.trackSubmit(analyticsProperties);
 
+      const preparation = await takePrepared();
+      if (preparation.kind === 'superseded') return;
+
       onReview({
         account,
         network: inputNetwork,
         handleResetForm: resetForm,
-        swapRoute
+        swapRoute,
+        prepared: preparation.kind === 'prepared' ? preparation.value : undefined
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -579,6 +591,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     resetForm,
     sourceAssetInfo?.chainId,
     swapRoute,
+    takePrepared,
     targetAssetInfo?.chainId
   ]);
 
@@ -588,21 +601,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, [isAlertVisible]);
 
-  const estimatedTokensFromAmount = useMemo(
-    () =>
-      isDefined(swapRoute?.fromAmount)
-        ? atomsToTokens(new BigNumber(swapRoute.fromAmount), inputAssetMetadata?.decimals ?? 0)
-        : undefined,
-    [inputAssetMetadata?.decimals, swapRoute?.fromAmount]
-  );
+  const routeFromAmount = swapRoute?.fromAmount;
+  const estimatedTokensFromAmount = useMemo(() => {
+    if (!isDefined(routeFromAmount)) {
+      return undefined;
+    }
 
-  const estimatedTokensToAmount = useMemo(
-    () =>
-      isDefined(swapRoute?.toAmount)
-        ? atomsToTokens(new BigNumber(swapRoute.toAmount), outputAssetMetadata?.decimals ?? 0)
-        : undefined,
-    [outputAssetMetadata?.decimals, swapRoute?.toAmount]
-  );
+    return atomsToTokens(new BigNumber(routeFromAmount), inputAssetMetadata?.decimals ?? 0);
+  }, [inputAssetMetadata?.decimals, routeFromAmount]);
+
+  const routeToAmount = swapRoute?.toAmount;
+  const estimatedTokensToAmount = useMemo(() => {
+    if (!isDefined(routeToAmount)) {
+      return undefined;
+    }
+
+    return atomsToTokens(new BigNumber(routeToAmount), outputAssetMetadata?.decimals ?? 0);
+  }, [outputAssetMetadata?.decimals, routeToAmount]);
 
   const priceImpact = useMemo(() => {
     const fromAmountUSD = swapRoute?.fromAmountUSD;

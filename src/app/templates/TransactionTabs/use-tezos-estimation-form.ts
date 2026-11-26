@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ForgeParams, localForger } from '@taquito/local-forging';
+import { ForgeParams } from '@taquito/local-forging';
 import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { useForm, useWatch } from 'react-hook-form';
-import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, catchError, from, map, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
 import {
+  DEFAULT_FEE_OPTION,
   DisplayedFeeOptions,
   FeeOptionLabel,
   TezosEstimationData,
   useTezosEstimationDataState
 } from 'lib/temple/front/estimation-data-providers';
-import { buildFinalTezosOpParams, mutezToTz, tzToMutez } from 'lib/temple/helpers';
-import { ReadOnlySigner } from 'lib/temple/read-only-signer';
+import { mutezToTz } from 'lib/temple/helpers';
 import { SerializedEstimate, StoredAccount } from 'lib/temple/types';
 import { getBalancesChanges } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
@@ -22,12 +22,16 @@ import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, takeOperationStartingBlockLevel } from 'temple/front';
-import { provePossession } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
+import {
+  forgeTezosOperation,
+  getTezosFinalOpParams,
+  getTotalStorageLimit,
+  simulateTezosBalancesChanges
+} from './tezos-operation';
 import { Tab, TezosTxParamsFormData } from './types';
 import { getTezosFeeOption } from './utils';
 
@@ -41,6 +45,7 @@ interface TezosEstimationFormHookParams {
   simulateOperation?: boolean;
   sourcePkIsRevealed?: boolean;
   estimationDataLoading?: boolean;
+  initialBalancesChanges?: AssetsAmounts;
 }
 
 export const useTezosEstimationForm = ({
@@ -50,7 +55,8 @@ export const useTezosEstimationForm = ({
   network,
   simulateOperation,
   sourcePkIsRevealed = true,
-  estimationDataLoading = false
+  estimationDataLoading = false,
+  initialBalancesChanges
 }: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -66,7 +72,7 @@ export const useTezosEstimationForm = ({
   const tezos = getTezosToolkitWithSigner(network, sender, true);
   const estimates = estimationData?.estimates;
   const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
-  const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>({});
+  const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>(initialBalancesChanges ?? {});
   const [balancesChangesLoading, setBalancesChangesLoading] = useSafeState(false);
   const [simulationError, setSimulationError] = useSafeState<unknown>(null);
 
@@ -82,53 +88,12 @@ export const useTezosEstimationForm = ({
           return EMPTY;
         }
 
-        return from(tezos.rpc.simulateOperation({ operation, chain_id: network.chainId })).pipe(
-          catchError(e => {
-            console.error(e);
-
-            return from(
-              tezos.rpc
-                .simulateOperation({
-                  operation: { branch: operation.branch, contents: operation.contents },
-                  chain_id: network.chainId
-                })
-                .catch(() => {
-                  throw e;
-                })
-            );
-          }),
-          switchMap(response => {
-            const errors = response.contents.flatMap(entry => {
-              if (!('metadata' in entry)) return [];
-
-              const { metadata } = entry;
-              const resultErrors = 'operation_result' in metadata ? (metadata.operation_result.errors ?? []) : [];
-              const internalErrors =
-                'internal_operation_results' in metadata
-                  ? (metadata.internal_operation_results ?? []).flatMap(operation => operation.result.errors ?? [])
-                  : [];
-
-              return [...resultErrors, ...internalErrors];
-            });
-            if (errors.length) {
-              throw new TezosOperationError(errors, 'Simulation failed', response.contents);
-            }
-
-            if (
-              response.contents.some(
-                entry =>
-                  'metadata' in entry &&
-                  'operation_result' in entry.metadata &&
-                  entry.metadata.operation_result.status !== 'applied'
-              )
-            ) {
-              throw new Error('Failed get results by simulation.');
-            }
-
+        return from(simulateTezosBalancesChanges(tezos.rpc, network.chainId, operation, accountPkh)).pipe(
+          map(balancesChanges => {
             setSimulationError(null);
             setBalancesChangesLoading(false);
 
-            return of(getBalancesChanges(response.contents, accountPkh));
+            return balancesChanges;
           }),
           catchError(e => {
             setSimulationError(e);
@@ -193,8 +158,11 @@ export const useTezosEstimationForm = ({
 
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>(
-    defaultValues.gasFee ? null : 'mid'
+    defaultValues.gasFee ? null : DEFAULT_FEE_OPTION
   );
+  if (gasFeeValue && selectedFeeOption) {
+    setSelectedFeeOption(null);
+  }
 
   const { setData } = useTezosEstimationDataState();
 
@@ -225,13 +193,10 @@ export const useTezosEstimationForm = ({
     // Typed value has not settled yet. Don't show a different fee than submit will use.
     if (gasFeeValue || !displayedFeeOptions) return;
 
-    return displayedFeeOptions[selectedFeeOption ?? 'mid'];
+    return displayedFeeOptions[selectedFeeOption ?? DEFAULT_FEE_OPTION];
   }, [debouncedGasFee, displayedFeeOptions, gasFeeValue, selectedFeeOption]);
 
-  const totalDefaultStorageLimit = useMemo(
-    () => (estimates ?? []).reduce((acc, { storageLimit }) => acc.plus(storageLimit), new BigNumber(0)),
-    [estimates]
-  );
+  const totalDefaultStorageLimit = useMemo(() => getTotalStorageLimit(estimates), [estimates]);
   const displayedStorageFee = useMemo(() => {
     if (!basicParams) return;
 
@@ -245,37 +210,18 @@ export const useTezosEstimationForm = ({
     return mutezToTz(new BigNumber(storageLimit).times(minimalFeePerStorageByteMutez)).toString();
   }, [basicParams, estimates, debouncedStorageLimit, totalDefaultStorageLimit]);
 
-  useEffect(() => {
-    if (gasFeeValue && selectedFeeOption) setSelectedFeeOption(null);
-  }, [gasFeeValue, selectedFeeOption]);
-
   const makeFinalOpParams = useCallback(
     (gasFee: string, storageLimit: string, revealFee: BigNumber, displayedFeeOptions?: DisplayedFeeOptions) => {
       if (!displayedFeeOptions || !basicParams) return;
 
-      let paramsWithEstimates = null;
-      const hasReveal = revealFee.gt(0) && estimates && estimates.length > basicParams.length;
-
-      if (!estimationDataLoading && estimates) {
-        const estimateOffset = hasReveal ? 1 : 0;
-        paramsWithEstimates = basicParams.map((param, index) => ({
-          ...param,
-          gasLimit: param.gasLimit || estimates[index + estimateOffset].gasLimit,
-          storageLimit: param.storageLimit || estimates[index + estimateOffset].storageLimit
-        }));
-      }
-
-      const finalParams = paramsWithEstimates || basicParams;
-
-      const result = buildFinalTezosOpParams(
-        finalParams,
-        tzToMutez(gasFee || displayedFeeOptions[selectedFeeOption || 'mid'])
-          .minus(tzToMutez(revealFee))
-          .toNumber(),
-        storageLimit ? Number(storageLimit) : totalDefaultStorageLimit.toNumber()
-      );
-
-      return result;
+      return getTezosFinalOpParams({
+        basicParams,
+        estimates: estimationDataLoading ? undefined : estimates,
+        revealFee,
+        totalFeeTz: gasFee || displayedFeeOptions[selectedFeeOption || DEFAULT_FEE_OPTION],
+        storageLimit,
+        totalDefaultStorageLimit
+      });
     },
     [basicParams, estimates, estimationDataLoading, selectedFeeOption, totalDefaultStorageLimit]
   );
@@ -302,33 +248,6 @@ export const useTezosEstimationForm = ({
     [makeFinalOpParams]
   );
 
-  const trySignOperation = useCallback(
-    async (
-      tezos: TezosToolkit,
-      gasFee: string,
-      storageLimit: string,
-      revealFee: BigNumber,
-      displayedFeeOptions?: DisplayedFeeOptions
-    ) => {
-      const opParams = makeFinalOpParams(gasFee, storageLimit, revealFee, displayedFeeOptions);
-
-      if (!opParams) {
-        return;
-      }
-
-      const forgeParams = tezos.prepare.toForge(await tezos.prepare.batch(opParams));
-
-      try {
-        await tezos.signer.sign(await localForger.forge(forgeParams), new Uint8Array([3]));
-      } catch {
-        // Do nothing
-      }
-
-      return forgeParams;
-    },
-    [makeFinalOpParams]
-  );
-
   const setRawTransaction = useCallback(async () => {
     try {
       if (simulateOperation) {
@@ -336,34 +255,15 @@ export const useTezosEstimationForm = ({
       }
       const sourcePublicKey = await tezos.wallet.pk();
 
-      let bytesToSign: string | undefined;
-      const signer = new ReadOnlySigner(
-        accountPkh,
-        sourcePublicKey,
-        digest => {
-          bytesToSign = digest;
-        },
-        () => provePossession(accountPkh)
-      );
+      const opParams = makeFinalOpParams(debouncedGasFee, debouncedStorageLimit, revealFee, displayedFeeOptions);
+      const forged = opParams ? await forgeTezosOperation(network, accountPkh, sourcePublicKey, opParams) : undefined;
 
-      const readOnlyTezos = new TezosToolkit(getTezosRpcClient(network));
-      readOnlyTezos.setSignerProvider(signer);
-      readOnlyTezos.setPackerProvider(michelEncoder);
-
-      const forgeParams = await trySignOperation(
-        readOnlyTezos,
-        debouncedGasFee,
-        debouncedStorageLimit,
-        revealFee,
-        displayedFeeOptions
-      );
-
-      if (bytesToSign && forgeParams) {
+      if (forged?.bytesToSign) {
         if (simulateOperation) {
-          params$.next(forgeParams);
+          params$.next(forged.forgeParams);
         }
-        setValue('raw', forgeParams);
-        setValue('bytes', bytesToSign);
+        setValue('raw', forged.forgeParams);
+        setValue('bytes', forged.bytesToSign);
       } else if (simulateOperation) {
         setBalancesChangesLoading(false);
       }
@@ -379,7 +279,7 @@ export const useTezosEstimationForm = ({
     network,
     setValue,
     debouncedStorageLimit,
-    trySignOperation,
+    makeFinalOpParams,
     tezos,
     revealFee,
     simulateOperation,
@@ -402,7 +302,7 @@ export const useTezosEstimationForm = ({
     (customGasFee: string, customStorageLimit: string) => {
       const parsedCustomGasFee = new BigNumber(customGasFee);
       const parsedCustomStorageLimit = new BigNumber(customStorageLimit);
-      const currentGasFeePreset = displayedFeeOptions?.[selectedFeeOption || 'mid'];
+      const currentGasFeePreset = displayedFeeOptions?.[selectedFeeOption || DEFAULT_FEE_OPTION];
 
       return {
         gasFee: parsedCustomGasFee.isPositive()

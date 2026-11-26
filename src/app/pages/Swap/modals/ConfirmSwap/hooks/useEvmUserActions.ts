@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
 import { isLifiStep, isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
-import { canBatchLifiSteps, getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
+import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
 import type { AlchemyWalletConfig } from 'lib/evm/alchemy/types';
-import { needsApprovalReset } from 'lib/evm/approval';
-import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 
+import { isAlchemyBatchEligible, needsAlchemyWalletConfig } from '../../../evm/batch-eligibility';
+import { buildEvmUserActions, UserAction } from '../../../evm/user-actions';
 import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
-import { UserAction } from '../types';
 
 import { usePrefetchEvmStepTransactions } from './usePrefetchEvmStepTransactions';
 
@@ -32,29 +29,31 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     batchBusyRef.current = busy;
     setBatchBusyState(busy);
   }, []);
-  const eligible =
-    !legacy &&
-    isDefined(batchConfig) &&
-    evmSteps.every(isLifiStep) &&
-    canBatchLifiSteps(evmSteps) &&
-    (batchConfig === 'unavailable' || batchConfig.chains.includes(evmSteps[0].action.fromChainId));
-  const {
-    allowanceSufficient,
-    onChainAllowances,
-    loading: allowancesLoading
-  } = useEvmAllowances(opened && batchConfig !== undefined && !eligible ? evmSteps : []);
+  const prepared = reviewData && isSwapEvmReviewData(reviewData) ? reviewData.prepared : undefined;
+  const preparedAllowances = prepared?.path === 'steps' ? prepared.allowances : undefined;
+  const eligible = !legacy && isAlchemyBatchEligible(evmSteps, batchConfig);
+  const fetchedAllowances = useEvmAllowances(
+    opened && batchConfig !== undefined && !eligible && !preparedAllowances ? evmSteps : []
+  );
+  const allowanceSufficient =
+    preparedAllowances?.map(({ sufficient }) => sufficient) ?? fetchedAllowances.allowanceSufficient;
+  const onChainAllowances = preparedAllowances?.map(({ onChain }) => onChain) ?? fetchedAllowances.onChainAllowances;
+  const allowancesLoading = preparedAllowances ? false : fetchedAllowances.loading;
 
   useEffect(() => {
-    if (!opened || !reviewData || !isSwapEvmReviewData(reviewData)) return;
+    if (!opened) {
+      setBatchConfig(undefined);
+      return;
+    }
+    if (!reviewData || !isSwapEvmReviewData(reviewData)) return;
     const controller = new AbortController();
     setBatchConfig(undefined);
     setLegacy(false);
-    const { type } = reviewData.account;
-    if (type !== TempleAccountType.HD && type !== TempleAccountType.Imported) {
-      setBatchConfig(null);
+    if (reviewData.prepared) {
+      setBatchConfig(reviewData.prepared.walletConfig);
       return;
     }
-    if (!evmSteps.every(isLifiStep) || !canBatchLifiSteps(evmSteps)) {
+    if (!needsAlchemyWalletConfig(reviewData.account.type, evmSteps)) {
       setBatchConfig(null);
       return;
     }
@@ -88,20 +87,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     if (allowanceSufficient.length !== evmSteps.length) return;
     if (onChainAllowances.length !== evmSteps.length) return;
 
-    const actions = evmSteps.flatMap<UserAction>((step, stepIndex) => {
-      const stepActions: UserAction[] = [];
-      if (!allowanceSufficient[stepIndex]) {
-        if (
-          isLifiStep(step) &&
-          needsApprovalReset(step.estimate, onChainAllowances[stepIndex], BigInt(step.action.fromAmount))
-        ) {
-          stepActions.push({ type: 'reset-approval', stepIndex, routeStep: step });
-        }
-        stepActions.push({ type: 'approve', stepIndex, routeStep: step });
-      }
-      stepActions.push({ type: 'execute', stepIndex, routeStep: step });
-      return stepActions;
-    });
+    const actions = buildEvmUserActions(evmSteps, allowanceSufficient, onChainAllowances);
 
     setUserActions(actions);
     setActionsInitialized(true);

@@ -1,8 +1,11 @@
 import { useCallback } from 'react';
 
+import { isAddress } from 'viem';
+
+import { estimateApprovalTx } from 'lib/evm/approval';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
-import { estimate as genericEstimate } from 'temple/evm/estimate';
+import { EvmEstimationData } from 'temple/evm/estimate';
 import { EvmChain } from 'temple/front';
 
 interface EvmEstimationInput {
@@ -10,9 +13,10 @@ interface EvmEstimationInput {
   accountPkh: HexString;
   network: EvmChain;
   txData: HexString;
+  fallbackData?: EvmEstimationData;
 }
 
-export const useEstimationData = ({ assetSlug, accountPkh, network, txData }: EvmEstimationInput) => {
+export const useEstimationData = ({ assetSlug, accountPkh, network, txData, fallbackData }: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
   const estimate = useCallback(async () => {
@@ -21,12 +25,11 @@ export const useEstimationData = ({ assetSlug, accountPkh, network, txData }: Ev
         throw new Error('Asset metadata not found');
       }
 
-      return await genericEstimate(network, {
-        from: accountPkh,
-        to: assetMetadata.address as HexString,
-        value: BigInt(0),
-        data: txData
-      });
+      if (!isAddress(assetMetadata.address, { strict: false })) {
+        throw new Error('Invalid token address');
+      }
+
+      return await estimateApprovalTx(network, accountPkh, assetMetadata.address, txData);
     } catch (err) {
       console.warn(err);
 
@@ -37,6 +40,7 @@ export const useEstimationData = ({ assetSlug, accountPkh, network, txData }: Ev
   return useTypedSWR(['evm-approve-estimation-data', assetSlug, accountPkh, network.chainId, txData], estimate, {
     shouldRetryOnError: false,
     focusThrottleInterval: 10_000,
-    dedupingInterval: 10_000
+    dedupingInterval: 10_000,
+    fallbackData
   });
 };
