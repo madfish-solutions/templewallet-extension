@@ -92,13 +92,9 @@ const CollectionPreviewPlaceholder: FC<{ count: number; isVisible: boolean }> = 
             isVisible && 'border-2 border-transparent'
           )}
         >
-          {isVisible ? (
-            <Loader size="L" trackVariant="dark" className="text-secondary" />
-          ) : (
-            <div className="w-full h-full bg-grey-3" />
-          )}
+          {isVisible && <Loader size="L" trackVariant="dark" className="text-secondary" />}
         </div>
-        <div className="pt-1 w-full h-5">{!isVisible && <div className="w-full h-4 bg-grey-3 rounded" />}</div>
+        <div className="pt-1 w-full h-5">{!isVisible && <div className="w-full h-4 bg-grey-4 rounded" />}</div>
       </div>
     ))}
   </div>
@@ -112,7 +108,6 @@ const commonNetworkLogoProps = {
   withTooltip: true,
   tooltipPlacement: 'bottom' as const
 };
-const networkLogoSkeletonStyle = { width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE };
 
 export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   collection,
@@ -219,15 +214,12 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
               )}
             </>
           ) : (
-            <>
-              <div className="w-full h-full z-1 bg-grey-3 rounded-8" />
-              <div className="absolute bottom-0 right-0 z-10 rounded-full bg-grey-2" style={networkLogoSkeletonStyle} />
-            </>
+            <div className="w-full h-full bg-grey-4 rounded-8" />
           )}
         </div>
 
         <div className="flex-1 flex flex-col gap-0.5 overflow-x-hidden">
-          {!isVisible && <div className="w-20 h-5 bg-grey-3 rounded" />}
+          {!isVisible && <div className="w-20 h-5 bg-grey-4 rounded" />}
           {isVisible && chainId === TempleTezosChainId.Mainnet && (
             <Anchor
               className="flex items-center group hover:text-secondary text-font-medium-bold"

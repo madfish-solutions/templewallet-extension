@@ -99,10 +99,8 @@ const ManageCollectibleListItemLayoutHOC = <
               style={manageImgStyle}
               className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
             >
-              {isVisible ? (
+              {isVisible && (
                 <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
-              ) : (
-                <div className="w-full h-full z-1 bg-grey-3" />
               )}
 
               {network && isVisible && (
@@ -112,12 +110,6 @@ const ManageCollectibleListItemLayoutHOC = <
                   className="absolute bottom-0.5 right-0.5 z-30"
                   withTooltip
                   tooltipPlacement="bottom"
-                />
-              )}
-              {network && !isVisible && (
-                <div
-                  className="absolute bottom-0.5 right-0.5 z-30 rounded-full bg-grey-2"
-                  style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
                 />
               )}
             </div>
@@ -135,8 +127,8 @@ const ManageCollectibleListItemLayoutHOC = <
                 </>
               ) : (
                 <>
-                  <div className="w-20 h-5 mb-1 bg-grey-3 rounded" />
-                  <div className="w-20 h-4 bg-grey-3 rounded" />
+                  <div className="w-20 h-5 mb-1 bg-grey-4 rounded" />
+                  <div className="w-20 h-4 bg-grey-4 rounded" />
                 </>
               )}
             </div>
@@ -150,8 +142,8 @@ const ManageCollectibleListItemLayoutHOC = <
               </>
             ) : (
               <>
-                <div className="size-6 bg-grey-3 rounded" />
-                <div className="w-12 h-6 bg-grey-3 rounded" />
+                <div className="size-6 bg-grey-4 rounded" />
+                <div className="w-12 h-6 bg-grey-4 rounded" />
               </>
             )}
           </div>
