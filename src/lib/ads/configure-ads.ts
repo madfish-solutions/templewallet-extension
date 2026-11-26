@@ -33,7 +33,6 @@ import { importExtensionAdsModule } from './import-extension-ads-module';
 // #region These interfaces below are copied from '@temple-wallet/extension-ads' or based on this module to avoid
 // importing it to ensure that a core build runs without errors.
 interface AdSource {
-  shouldNotUseStrictContainerLimits?: boolean;
   providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
   native?: boolean;
   slug: string;
@@ -176,6 +175,20 @@ export const buildNativeAdsMeta = (containerWidth: number, containerHeight: numb
   ].filter(isTruthy);
 };
 
+const createBanner = (
+  providerName: AdSource['providerName'],
+  slug: string,
+  width: number,
+  height: number,
+  maxContainerWidth: number,
+  maxContainerHeight: number
+): AdMetadata => ({
+  source: { providerName, native: false, slug },
+  dimensions: { width, height, maxContainerWidth, maxContainerHeight }
+});
+
+const hypelabBanner = createBanner.bind(null, 'HypeLab');
+
 const bitmediaBanner = (
   slug: string | undefined,
   width: number,
@@ -183,199 +196,20 @@ const bitmediaBanner = (
   maxContainerWidth: number,
   maxContainerHeight: number
 ): AdMetadata | false =>
-  isTruthy(slug) && {
-    source: { providerName: 'Bitmedia', native: false, slug },
-    dimensions: { width, height, maxContainerWidth, maxContainerHeight }
-  };
+  isTruthy(slug) && createBanner('Bitmedia', slug, width, height, maxContainerWidth, maxContainerHeight);
 
+// List order sets banner priority. Try Bitmedia first, then HypeLab at the same size if Bitmedia fails.
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
-  isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_970_90_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 970,
-      height: 90,
-      maxContainerWidth: 1400,
-      maxContainerHeight: 200
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      maxContainerWidth: 1200,
-      maxContainerHeight: 200
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_728_90_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      maxContainerWidth: 1200,
-      maxContainerHeight: 200
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_600_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 600,
-      maxContainerWidth: 500,
-      maxContainerHeight: 800
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_160_600_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_160_600_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 160,
-      height: 600,
-      maxContainerWidth: 360,
-      maxContainerHeight: 800
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_336_280_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 336,
-      height: 280,
-      maxContainerWidth: 728,
-      maxContainerHeight: 480
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      maxContainerWidth: 500,
-      maxContainerHeight: 450
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_250_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      maxContainerWidth: 500,
-      maxContainerHeight: 450
-    }
-  },
-  EnvVars.BITMEDIA_250_250_PLACEMENT_ID !== EnvVars.BITMEDIA_300_250_PLACEMENT_ID &&
-    bitmediaBanner(EnvVars.BITMEDIA_250_250_PLACEMENT_ID, 250, 250, 450, 450),
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 320,
-      height: 100,
-      maxContainerWidth: 420,
-      maxContainerHeight: 200
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_320_100_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 320,
-      height: 100,
-      maxContainerWidth: 420,
-      maxContainerHeight: 200
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_300_100_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_100_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 100,
-      maxContainerWidth: 400,
-      maxContainerHeight: 200
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG,
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_320_50_PLACEMENT_ID,
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
-  EnvVars.USE_ADS_STUBS && {
-    source: {
-      providerName: 'Temple' as const,
-      slug: '',
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
-  // Permanent placements pick the first eligible banner per provider.
+  bitmediaBanner(EnvVars.BITMEDIA_970_90_PLACEMENT_ID, 970, 90, 1400, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_728_90_PLACEMENT_ID, 728, 90, 1200, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_300_600_PLACEMENT_ID, 300, 600, 500, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_160_600_PLACEMENT_ID, 160, 600, 360, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_336_280_PLACEMENT_ID, 336, 280, 446, 380),
+  bitmediaBanner(EnvVars.BITMEDIA_300_250_PLACEMENT_ID, 300, 250, 400, 350),
+  bitmediaBanner(EnvVars.BITMEDIA_250_250_PLACEMENT_ID, 250, 250, 450, 450),
+  bitmediaBanner(EnvVars.BITMEDIA_320_100_PLACEMENT_ID, 320, 100, 420, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_300_100_PLACEMENT_ID, 300, 100, 400, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_320_50_PLACEMENT_ID, 320, 50, 420, 130),
   bitmediaBanner(EnvVars.BITMEDIA_468_60_PLACEMENT_ID, 468, 60, 600, 89),
   bitmediaBanner(EnvVars.BITMEDIA_468_90_PLACEMENT_ID, 468, 90, 600, 150),
   bitmediaBanner(EnvVars.BITMEDIA_125_125_PLACEMENT_ID, 125, 125, 179, 149),
@@ -384,7 +218,25 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
   bitmediaBanner(EnvVars.BITMEDIA_250_100_PLACEMENT_ID, 250, 100, 299, 200),
   bitmediaBanner(EnvVars.BITMEDIA_120_240_PLACEMENT_ID, 120, 240, 159, 360),
   bitmediaBanner(EnvVars.BITMEDIA_120_600_PLACEMENT_ID, 120, 600, 159, 800),
-  bitmediaBanner(EnvVars.BITMEDIA_320_1200_PLACEMENT_ID, 320, 1200, 420, 1400)
+  bitmediaBanner(EnvVars.BITMEDIA_320_1200_PLACEMENT_ID, 320, 1200, 420, 1400),
+
+  hypelabBanner(EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG, 728, 90, 1200, 200),
+  hypelabBanner(EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG, 300, 250, 500, 450),
+  hypelabBanner(EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG, 320, 100, 420, 200),
+  hypelabBanner(EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG, 320, 50, 420, 130),
+
+  EnvVars.USE_ADS_STUBS && {
+    source: {
+      providerName: 'Temple' as const,
+      slug: ''
+    },
+    dimensions: {
+      width: 320,
+      height: 50,
+      maxContainerWidth: 420,
+      maxContainerHeight: 130
+    }
+  }
 ];
 
 const bannerAdsMeta = bannerAdsMetaBase.filter(isTruthy);
