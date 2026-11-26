@@ -43,8 +43,6 @@ interface AdSource {
 interface AdDimensions {
   width: number;
   height: number;
-  minContainerWidth: number;
-  minContainerHeight: number;
   maxContainerWidth: number;
   maxContainerHeight: number;
 }
@@ -127,7 +125,12 @@ const isYouTubePage = (locationHref: string) => {
   return youtubeHostnames.has(hostname);
 };
 
-const NATIVE_AD_MIN_WIDTH = 200;
+const NATIVE_AD_DIMENSIONS = {
+  width: 200,
+  height: 16,
+  maxContainerWidth: 1400,
+  maxContainerHeight: 400
+};
 
 export const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
   const hypelabPlacementSlug = isYouTubePage(locationHref)
@@ -142,12 +145,9 @@ export const buildNativeAdsMeta = (containerWidth: number, containerHeight: numb
         slug: hypelabPlacementSlug
       },
       dimensions: {
-        width: Math.max(NATIVE_AD_MIN_WIDTH, containerWidth),
-        height: Math.max(16, containerHeight),
-        minContainerWidth: NATIVE_AD_MIN_WIDTH,
-        minContainerHeight: 2,
-        maxContainerWidth: Infinity,
-        maxContainerHeight: Infinity
+        ...NATIVE_AD_DIMENSIONS,
+        width: Math.max(NATIVE_AD_DIMENSIONS.width, containerWidth),
+        height: Math.max(NATIVE_AD_DIMENSIONS.height, containerHeight)
       }
     },
     EnvVars.USE_ADS_STUBS && {
@@ -157,12 +157,9 @@ export const buildNativeAdsMeta = (containerWidth: number, containerHeight: numb
         native: true as const
       },
       dimensions: {
-        width: Math.max(NATIVE_AD_MIN_WIDTH, containerWidth),
-        height: Math.max(16, containerHeight),
-        minContainerWidth: NATIVE_AD_MIN_WIDTH,
-        minContainerHeight: 2,
-        maxContainerWidth: Infinity,
-        maxContainerHeight: Infinity
+        ...NATIVE_AD_DIMENSIONS,
+        width: Math.max(NATIVE_AD_DIMENSIONS.width, containerWidth),
+        height: Math.max(NATIVE_AD_DIMENSIONS.height, containerHeight)
       }
     }
   ].filter(isTruthy);
@@ -178,10 +175,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 970,
       height: 90,
-      minContainerWidth: 969,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
+      maxContainerWidth: 1400,
+      maxContainerHeight: 200
     }
   },
   {
@@ -193,10 +188,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
+      maxContainerWidth: 1200,
+      maxContainerHeight: 200
     }
   },
   {
@@ -208,10 +201,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 728,
       height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
+      maxContainerWidth: 1200,
+      maxContainerHeight: 200
     }
   },
   isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
@@ -223,10 +214,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 300,
       height: 600,
-      minContainerWidth: 299,
-      minContainerHeight: 599,
-      maxContainerWidth: 600,
-      maxContainerHeight: Infinity
+      maxContainerWidth: 500,
+      maxContainerHeight: 800
     }
   },
   isTruthy(EnvVars.BITMEDIA_160_600_PLACEMENT_ID) && {
@@ -238,10 +227,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 160,
       height: 600,
-      minContainerWidth: 159,
-      minContainerHeight: 599,
       maxContainerWidth: 360,
-      maxContainerHeight: Infinity
+      maxContainerHeight: 800
     }
   },
   isTruthy(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
@@ -253,8 +240,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 336,
       height: 280,
-      minContainerWidth: 335,
-      minContainerHeight: 279,
       maxContainerWidth: 728,
       maxContainerHeight: 480
     }
@@ -268,10 +253,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
+      maxContainerWidth: 500,
+      maxContainerHeight: 450
     }
   },
   {
@@ -283,10 +266,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 300,
       height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
+      maxContainerWidth: 500,
+      maxContainerHeight: 450
     }
   },
   isTruthy(EnvVars.BITMEDIA_250_250_PLACEMENT_ID) && {
@@ -298,10 +279,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 250,
       height: 250,
-      minContainerWidth: 249,
-      minContainerHeight: 249,
-      maxContainerWidth: 650,
-      maxContainerHeight: Infinity
+      maxContainerWidth: 450,
+      maxContainerHeight: 450
     }
   },
   {
@@ -313,8 +292,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 320,
       height: 100,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
       maxContainerWidth: 420,
       maxContainerHeight: 200
     }
@@ -328,8 +305,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 320,
       height: 100,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
       maxContainerWidth: 420,
       maxContainerHeight: 200
     }
@@ -343,8 +318,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 300,
       height: 100,
-      minContainerWidth: 299,
-      minContainerHeight: 99,
       maxContainerWidth: 400,
       maxContainerHeight: 200
     }
@@ -359,8 +332,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -375,8 +346,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -390,8 +359,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
