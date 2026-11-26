@@ -129,7 +129,18 @@ const NATIVE_AD_DIMENSIONS = {
   width: 200,
   height: 16,
   maxContainerWidth: 1400,
-  maxContainerHeight: 400
+  maxContainerHeight: 300
+};
+
+// Keep wide native slots from leaving large blank areas.
+const nativeAdFitsSlot = (width: number, height: number): boolean => {
+  const { width: minWidth, height: minHeight, maxContainerWidth: maxWidth, maxContainerHeight } = NATIVE_AD_DIMENSIONS;
+  if (!(width >= minWidth && width <= maxWidth && height >= minHeight)) return false;
+
+  const widthBeyondSquare = Math.max(width - maxContainerHeight, 0);
+  const heightDrop = (widthBeyondSquare * (maxContainerHeight - minHeight)) / (maxWidth - maxContainerHeight);
+
+  return height <= maxContainerHeight - heightDrop;
 };
 
 export const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
@@ -393,7 +404,7 @@ export const configureAds = async () => {
   const dAppSession =
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
-  originalConfigureAds({
+  const configuration = {
     debugAds: IS_DEV_ENV,
     hypelabPropertySlug: (locationHref: string) =>
       isYouTubePage(locationHref) ? EnvVars.HYPELAB_PROPERTY_SLUG : EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
@@ -404,6 +415,7 @@ export const configureAds = async () => {
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
     getAdsStackIframeURL,
     buildNativeAdsMeta,
+    nativeAdFitsSlot,
     bannerAdsMeta,
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
@@ -423,5 +435,6 @@ export const configureAds = async () => {
       getIntercom()
         .request({ type: TempleMessageType.AnalyzeYoutubeWatchPageRequest, data })
         .then(res => res.data)
-  });
+  };
+  originalConfigureAds(configuration);
 };
