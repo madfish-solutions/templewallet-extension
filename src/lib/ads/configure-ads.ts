@@ -127,7 +127,7 @@ const isYouTubePage = (locationHref: string) => {
 const NATIVE_AD_DIMENSIONS = {
   width: 200,
   height: 16,
-  maxContainerWidth: 1400,
+  maxContainerWidth: 1200,
   maxContainerHeight: 300
 };
 
@@ -221,7 +221,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
   bitmediaBanner(EnvVars.BITMEDIA_320_1200_PLACEMENT_ID, 320, 1200, 420, 1400),
 
   hypelabBanner(EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG, 728, 90, 1200, 200),
-  hypelabBanner(EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG, 300, 250, 500, 450),
+  hypelabBanner(EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG, 300, 250, 400, 350),
   hypelabBanner(EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG, 320, 100, 420, 200),
   hypelabBanner(EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG, 320, 50, 420, 130),
 
