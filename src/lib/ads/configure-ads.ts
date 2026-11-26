@@ -176,6 +176,18 @@ export const buildNativeAdsMeta = (containerWidth: number, containerHeight: numb
   ].filter(isTruthy);
 };
 
+const bitmediaBanner = (
+  slug: string | undefined,
+  width: number,
+  height: number,
+  maxContainerWidth: number,
+  maxContainerHeight: number
+): AdMetadata | false =>
+  isTruthy(slug) && {
+    source: { providerName: 'Bitmedia', native: false, slug },
+    dimensions: { width, height, maxContainerWidth, maxContainerHeight }
+  };
+
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
   isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
     source: {
@@ -281,19 +293,8 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 450
     }
   },
-  isTruthy(EnvVars.BITMEDIA_250_250_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_250_250_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 250,
-      height: 250,
-      maxContainerWidth: 450,
-      maxContainerHeight: 450
-    }
-  },
+  EnvVars.BITMEDIA_250_250_PLACEMENT_ID !== EnvVars.BITMEDIA_300_250_PLACEMENT_ID &&
+    bitmediaBanner(EnvVars.BITMEDIA_250_250_PLACEMENT_ID, 250, 250, 450, 450),
   {
     source: {
       providerName: 'HypeLab' as const,
@@ -373,7 +374,17 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
-  }
+  },
+  // Permanent placements pick the first eligible banner per provider.
+  bitmediaBanner(EnvVars.BITMEDIA_468_60_PLACEMENT_ID, 468, 60, 600, 89),
+  bitmediaBanner(EnvVars.BITMEDIA_468_90_PLACEMENT_ID, 468, 90, 600, 150),
+  bitmediaBanner(EnvVars.BITMEDIA_125_125_PLACEMENT_ID, 125, 125, 179, 149),
+  bitmediaBanner(EnvVars.BITMEDIA_180_150_PLACEMENT_ID, 180, 150, 220, 199),
+  bitmediaBanner(EnvVars.BITMEDIA_200_200_PLACEMENT_ID, 200, 200, 249, 280),
+  bitmediaBanner(EnvVars.BITMEDIA_250_100_PLACEMENT_ID, 250, 100, 299, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_120_240_PLACEMENT_ID, 120, 240, 159, 360),
+  bitmediaBanner(EnvVars.BITMEDIA_120_600_PLACEMENT_ID, 120, 600, 159, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_320_1200_PLACEMENT_ID, 320, 1200, 420, 1400)
 ];
 
 const bannerAdsMeta = bannerAdsMetaBase.filter(isTruthy);
