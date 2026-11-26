@@ -5,10 +5,11 @@ import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
 import {
+  useBackNavigationValue,
+  useForgetBackNavigationValueOnInPlaceUnmount,
   useLoadedItemsCount,
-  useRememberLoadedItemsCount,
-  useRememberValue,
-  useRestoredValue
+  useRememberBackNavigationValue,
+  useRememberLoadedItemsCount
 } from 'app/hooks/use-loaded-items-count';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import { t } from 'lib/i18n';
@@ -43,9 +44,10 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   tezDetailsReady
 }) => {
   const accountEvmAddress = useAccountAddressForEvm();
-  const restoredShownTiles = useRestoredValue(SHOWN_TILES_BY_SLUG, 'collections');
+  const restoredShownTiles = useBackNavigationValue(SHOWN_TILES_BY_SLUG, 'collections');
   const [shownTilesBySlug, setShownTilesBySlug] = useState<StringRecord<number>>(() => restoredShownTiles ?? {});
-  useRememberValue(SHOWN_TILES_BY_SLUG, 'collections', shownTilesBySlug);
+  useRememberBackNavigationValue(SHOWN_TILES_BY_SLUG, 'collections', shownTilesBySlug);
+  useForgetBackNavigationValueOnInPlaceUnmount(SHOWN_TILES_BY_SLUG, 'collections');
   const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
   const listRef = useRef<InfiniteScroll>(null);
   const collectionsBySlug = new Map(collections.map(entry => [entry[0].collectionSlug, entry]));
