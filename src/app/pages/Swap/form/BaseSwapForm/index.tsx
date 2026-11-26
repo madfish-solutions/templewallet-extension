@@ -363,7 +363,7 @@ export const BaseSwapForm: FC<Props> = ({
           color="primary"
           className="relative z-1"
           loading={swapParamsAreLoading || isSubmitting}
-          disabled={shouldDisableSubmitButton({ errors, formState })}
+          disabled={shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false })}
           testID={SwapFormSelectors.swapButton}
         >
           <T id="review" />
