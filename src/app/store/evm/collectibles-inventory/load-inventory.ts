@@ -231,7 +231,12 @@ const resolveSingleSource = async (
   return { decision, answers: next };
 };
 
-const readChainInventory = async (account: HexString, chainId: number, signal: AbortSignal): Promise<Action[]> => {
+const readChainInventory = async (
+  account: HexString,
+  chainId: number,
+  signal: AbortSignal,
+  previous: EvmChainCollectiblesInventory | undefined
+): Promise<Action[]> => {
   if (!isAlchemyChainId(chainId)) return [];
 
   const goldrushResponse = isGoldrushChainId(chainId)
@@ -244,7 +249,7 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
       })
     : Promise.resolve(undefined);
   const [contractsResult, nftsResult, collectionsResult, goldrushResult] = await Promise.allSettled([
-    getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM),
+    withRateLimitRetry(() => getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM), signal),
     readOwnerNfts(account, chainId, signal),
     readAccountCollections(chainId, account, signal),
     goldrushResponse
@@ -254,7 +259,8 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
   settledOrThrow(collectionsResult);
   settledOrThrow(goldrushResult);
 
-  const contracts = contractsResult.status === 'fulfilled' ? contractsFromResponse(contractsResult.value) : [];
+  const contracts =
+    contractsResult.status === 'fulfilled' ? contractsFromResponse(contractsResult.value) : (previous?.contracts ?? []);
   const nfts = nftsResult.status === 'fulfilled' ? nftsResult.value : undefined;
   const collections = collectionsResult.status === 'fulfilled' ? collectionsFromResponse(collectionsResult.value) : [];
   const goldrushData = goldrushResult.status === 'fulfilled' ? goldrushResult.value : undefined;
@@ -438,7 +444,14 @@ export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, stat
         of(setEvmCollectiblesInventoryLoadingAction(true)),
         from(chainIds).pipe(
           mergeMap(chainId =>
-            from(readChainInventory(payload.account, chainId, controller.signal)).pipe(
+            from(
+              readChainInventory(
+                payload.account,
+                chainId,
+                controller.signal,
+                state$.value.evmCollectiblesInventory.byAccount[payload.account]?.[chainId]
+              )
+            ).pipe(
               mergeMap(actions => from(actions.map(action => withPreservedLoadedPut(state$.value, action)))),
               catchError(emptyAfterAbort)
             )
