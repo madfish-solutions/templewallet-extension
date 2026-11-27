@@ -17,3 +17,11 @@ export const stripEmptyProps = <T extends object>(record: T): T => {
 
   return record;
 };
+
+const isMissingValue = (value: unknown) => value == null || value === '';
+
+export const filledFields = (record: object) =>
+  Object.fromEntries(Object.entries(record).filter(([, value]) => !isMissingValue(value)));
+
+export const countFilledFields = (record: object) =>
+  Object.values(record).filter(value => !isMissingValue(value)).length;

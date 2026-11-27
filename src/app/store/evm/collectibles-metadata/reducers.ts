@@ -1,5 +1,4 @@
 import { createReducer, isDraft, original } from '@reduxjs/toolkit';
-import { isNil } from 'lodash';
 import { createMigrate, persistReducer, type PersistedState } from 'redux-persist';
 import { getAddress } from 'viem';
 
@@ -7,6 +6,7 @@ import { fromAssetSlug, toTokenSlug } from 'lib/assets';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { stringStorageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
+import { countFilledFields, filledFields } from 'lib/utils/strip-props';
 
 import {
   loadEvmCollectiblesMetadataAction,
@@ -19,13 +19,6 @@ import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } fro
 import { assignSingleContractCollectionNames, buildEvmCollectibleMetadataFromFetched } from './utils';
 
 // TODO: figure out how to get rid of unused metadata
-
-const isMissingValue = (value: unknown) => isNil(value) || value === '';
-
-const filledFields = (metadata: object) =>
-  Object.fromEntries(Object.entries(metadata).filter(([, value]) => !isMissingValue(value)));
-
-const countFilledFields = (metadata: object) => Object.values(metadata).filter(value => !isMissingValue(value)).length;
 
 /** The record to store for a slug: the incoming one, a merge that fills more fields, or nothing. */
 const nextStoredMetadata = (incoming: EvmCollectibleMetadata, stored: EvmCollectibleMetadata | undefined) => {
