@@ -10,4 +10,11 @@ export {
   toLatestValue
 } from './epics.utils';
 
-export { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from './persist.utils';
+export {
+  storageConfig,
+  stringStorageConfig,
+  isPersistedState,
+  isRecord,
+  createTransformsBeforePersist,
+  createTransformsBeforeHydrate
+} from './persist.utils';

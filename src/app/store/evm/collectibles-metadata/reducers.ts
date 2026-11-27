@@ -1,12 +1,12 @@
-import { createReducer } from '@reduxjs/toolkit';
-import { isNil, omitBy } from 'lodash';
+import { createReducer, isDraft, original } from '@reduxjs/toolkit';
 import { createMigrate, persistReducer, type PersistedState } from 'redux-persist';
 import { getAddress } from 'viem';
 
-import { toTokenSlug } from 'lib/assets';
+import { fromAssetSlug, toTokenSlug } from 'lib/assets';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
+import { countFilledFields, filledFields } from 'lib/utils/strip-props';
 
 import {
   loadEvmCollectiblesMetadataAction,
@@ -20,9 +20,28 @@ import { assignSingleContractCollectionNames, buildEvmCollectibleMetadataFromFet
 
 // TODO: figure out how to get rid of unused metadata
 
-const isMissingValue = (value: unknown) => isNil(value) || value === '';
+/** The record to store for a slug: the incoming one, a merge that fills more fields, or nothing. */
+const nextStoredMetadata = (incoming: EvmCollectibleMetadata, stored: EvmCollectibleMetadata | undefined) => {
+  if (!stored) return incoming;
 
-const countFilledFields = (metadata: object) => Object.keys(omitBy(metadata, isMissingValue)).length;
+  const merged = { ...incoming, ...filledFields(stored) };
+
+  return countFilledFields(merged) > countFilledFields(stored) ? merged : undefined;
+};
+
+/** Stored records are read from the state before this update, so a read does not create an immer draft. */
+const chainMetadataWriter = (chain: StringRecord<EvmCollectibleMetadata>) => {
+  const before = isDraft(chain) ? original(chain) : chain;
+  const written = new Set<string>();
+
+  return (slug: string, incoming: EvmCollectibleMetadata) => {
+    const next = nextStoredMetadata(incoming, written.has(slug) ? chain[slug] : before?.[slug]);
+    if (!next) return;
+
+    chain[slug] = next;
+    written.add(slug);
+  };
+};
 
 const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataState>(
   evmCollectiblesMetadataInitialState,
@@ -34,29 +53,26 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
       const chainTokensMetadata = metadataRecord[chainId];
 
       const contracts = data.items;
+      const write = chainMetadataWriter(chainTokensMetadata);
 
       for (const contract of contracts) {
-        const collectibles = contract.nft_data;
+        let address: string | undefined;
 
-        for (const collectible of collectibles) {
+        for (const collectible of contract.nft_data) {
           if (!isProperCollectibleMetadata(collectible)) continue;
 
-          const slug = toTokenSlug(getAddress(contract.contract_address), collectible.token_id);
-
-          const stored = chainTokensMetadata[slug];
-          const fetched = buildEvmCollectibleMetadataFromFetched(collectible, contract);
-
-          if (!stored) {
-            chainTokensMetadata[slug] = fetched;
-            continue;
-          }
-
-          const merged = { ...fetched, ...omitBy(stored, isMissingValue) };
-          if (countFilledFields(merged) > countFilledFields(stored)) chainTokensMetadata[slug] = merged;
+          address ??= getAddress(contract.contract_address);
+          write(
+            toTokenSlug(address, collectible.token_id),
+            buildEvmCollectibleMetadataFromFetched(collectible, contract)
+          );
         }
       }
 
-      assignSingleContractCollectionNames(chainTokensMetadata);
+      assignSingleContractCollectionNames(
+        chainTokensMetadata,
+        new Set(contracts.map(contract => contract.contract_address.toLowerCase()))
+      );
     });
 
     builder.addCase(putEvmCollectiblesMetadataAction, ({ metadataRecord }, { payload }) => {
@@ -64,23 +80,17 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
 
       if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
       const chainCollectiblesMetadata = metadataRecord[chainId];
+      const write = chainMetadataWriter(chainCollectiblesMetadata);
 
       for (const slug of Object.keys(records)) {
         const metadata = records[slug];
-        if (!metadata) continue;
-
-        const stored = chainCollectiblesMetadata[slug];
-
-        if (!stored) {
-          chainCollectiblesMetadata[slug] = metadata;
-          continue;
-        }
-
-        const merged = { ...metadata, ...omitBy(stored, isMissingValue) };
-        if (countFilledFields(merged) > countFilledFields(stored)) chainCollectiblesMetadata[slug] = merged;
+        if (metadata) write(slug, metadata);
       }
 
-      assignSingleContractCollectionNames(chainCollectiblesMetadata);
+      assignSingleContractCollectionNames(
+        chainCollectiblesMetadata,
+        new Set(Object.keys(records).map(slug => fromAssetSlug(slug)[0].toLowerCase()))
+      );
     });
 
     builder.addCase(loadEvmCollectiblesMetadataAction, (state, { payload: { publicKeyHash } }) => {
@@ -117,9 +127,9 @@ export const evmCollectiblesMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesMetadata',
     version: 1,
-    ...storageConfig,
+    ...stringStorageConfig,
     blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST,
-    throttle: 5_000,
+    throttle: 10_000,
     migrate: createMigrate({
       1: persistedState => addStoredCollectibleImageVariants(persistedState)
     })

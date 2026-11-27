@@ -12,7 +12,10 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
 import { getAppScrollRoot } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
-import { loadEvmCollectionTokensAction } from 'app/store/evm/collectibles-inventory/actions';
+import {
+  loadEvmCollectionTokensAction,
+  verifyEvmCollectionTokensAction
+} from 'app/store/evm/collectibles-inventory/actions';
 import { openseaCollectionSlugFromCard } from 'app/store/evm/collectibles-inventory/collection-load';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { setTestID } from 'lib/analytics';
@@ -21,6 +24,7 @@ import { t } from 'lib/i18n';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { ImageStacked } from 'lib/ui/ImageStacked';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { useAccountAddressForEvm } from 'temple/front';
 
@@ -31,8 +35,10 @@ interface CollectionsListItemProps {
   collection: CollectiblesCollection;
   chainSlugs: string[];
   index: number;
-  opened: boolean;
+  /** Tiles shown while the card is open. Undefined while it is collapsed. */
+  shownTilesCount?: number;
   onToggleOpened: (collectionSlug: string) => void;
+  onShowMoreTiles: (collectionSlug: string) => void;
   firstItemRef?: Ref<CollectiblesListItemElement>;
 }
 
@@ -55,6 +61,24 @@ export const requestEvmCollectionTokens = (
   );
 };
 
+export const verifyShownEvmCollectionTokens = (
+  account: HexString,
+  chainId: number,
+  contractAddresses: readonly string[],
+  shownChainSlugs: readonly string[]
+) => {
+  if (!contractAddresses.length || !shownChainSlugs.length) return;
+
+  dispatch(
+    verifyEvmCollectionTokensAction({
+      account,
+      chainId,
+      contractAddresses: contractAddresses.slice(),
+      shownSlugs: shownChainSlugs.map(chainSlug => parseChainAssetSlug(chainSlug)[2])
+    })
+  );
+};
+
 /** Collapsed cards show one row of this many tokens. */
 const COLLAPSED_COLLECTION_PREVIEW_COUNT = 4 as const;
 
@@ -68,13 +92,9 @@ const CollectionPreviewPlaceholder: FC<{ count: number; isVisible: boolean }> = 
             isVisible && 'border-2 border-transparent'
           )}
         >
-          {isVisible ? (
-            <Loader size="L" trackVariant="dark" className="text-secondary" />
-          ) : (
-            <div className="w-full h-full bg-grey-3" />
-          )}
+          {isVisible && <Loader size="L" trackVariant="dark" className="text-secondary" />}
         </div>
-        <div className="pt-1 w-full h-5">{!isVisible && <div className="w-full h-4 bg-grey-3 rounded" />}</div>
+        <div className="pt-1 w-full h-5">{!isVisible && <div className="w-full h-4 bg-grey-4 rounded" />}</div>
       </div>
     ))}
   </div>
@@ -88,15 +108,15 @@ const commonNetworkLogoProps = {
   withTooltip: true,
   tooltipPlacement: 'bottom' as const
 };
-const networkLogoSkeletonStyle = { width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE };
 
 export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   collection,
   chainSlugs,
   index,
-  opened,
+  shownTilesCount,
   firstItemRef,
-  onToggleOpened
+  onToggleOpened,
+  onShowMoreTiles
 }) => {
   const { collectionSlug, title = t('unknownCollection'), logoSources = EMPTY_FROZEN_ARRAY, chainId } = collection;
   const itemsCount = collection.ownedCount ?? chainSlugs.length;
@@ -109,6 +129,20 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const { searchValue } = useCollectiblesSearchState();
   const previewCount = Math.min(COLLAPSED_COLLECTION_PREVIEW_COUNT, itemsCount);
+  const opened = shownTilesCount !== undefined;
+  const hasMoreTiles = shownTilesCount !== undefined && chainSlugs.length > shownTilesCount;
+  const gridChainSlugs = hasMoreTiles ? chainSlugs.slice(0, shownTilesCount) : chainSlugs;
+  const moreTilesRef = useRef<HTMLDivElement>(null);
+  useIntersectionObserver(
+    moreTilesRef,
+    entry => {
+      if (entry.isIntersecting) onShowMoreTiles(collectionSlug);
+    },
+    () => ({ root: getAppScrollRoot() }),
+    hasMoreTiles,
+    '400px 0px',
+    shownTilesCount
+  );
 
   useEffect(() => {
     const element = cardRef.current;
@@ -180,15 +214,12 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
               )}
             </>
           ) : (
-            <>
-              <div className="w-full h-full z-1 bg-grey-3 rounded-8" />
-              <div className="absolute bottom-0 right-0 z-10 rounded-full bg-grey-2" style={networkLogoSkeletonStyle} />
-            </>
+            <div className="w-full h-full bg-grey-4 rounded-8" />
           )}
         </div>
 
         <div className="flex-1 flex flex-col gap-0.5 overflow-x-hidden">
-          {!isVisible && <div className="w-20 h-5 bg-grey-3 rounded" />}
+          {!isVisible && <div className="w-20 h-5 bg-grey-4 rounded" />}
           {isVisible && chainId === TempleTezosChainId.Mainnet && (
             <Anchor
               className="flex items-center group hover:text-secondary text-font-medium-bold"
@@ -221,7 +252,7 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
       {chainSlugs.length > 0 ? (
         <CollectiblesGroupGrid
           isCollapsed={!opened}
-          chainSlugs={chainSlugs}
+          chainSlugs={gridChainSlugs}
           colsCount={COLLAPSED_COLLECTION_PREVIEW_COUNT}
           isVisible={isVisible}
           areDetailsShown
@@ -232,6 +263,7 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
       ) : (
         previewCount > 0 && <CollectionPreviewPlaceholder count={previewCount} isVisible={isVisible} />
       )}
+      {hasMoreTiles && <div ref={moreTilesRef} />}
     </div>
   );
 };

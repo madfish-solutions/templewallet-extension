@@ -6,6 +6,7 @@ import { parseTezosOperationsGroup } from 'lib/activity/tezos';
 import { fetchOperGroupsForOperations, fetchOperations } from 'lib/activity/tezos/fetch';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 import { EtherlinkChainId } from 'lib/apis/etherlink';
+import { withRateLimitRetry } from 'lib/apis/utils';
 import { fromAssetSlug } from 'lib/assets';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import {
@@ -191,7 +192,8 @@ export const fetchEvmActivitiesWithCache = async ({
         contractAddress,
         maxItems: 50
       }),
-    fetchActivities: currentOlderThan => getEvmActivities(chainId, accountAddress, assetSlug, currentOlderThan, signal),
+    fetchActivities: currentOlderThan =>
+      withRateLimitRetry(() => getEvmActivities(chainId, accountAddress, assetSlug, currentOlderThan, signal), signal),
     getNewContractMatchItems: response => response,
     isGenesisBlockPointer: pointer => Number(pointer) === 0,
     getActivities: interval => interval.activities,

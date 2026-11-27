@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 
 import {
   putLifiConnectedEvmTokensMetadataAction,
@@ -65,7 +65,7 @@ export const lifiEvmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.lifiEvmTokensMetadata',
     blacklist: ['isLoading', 'error', 'connectedTokensMetadataRecord'],
-    ...storageConfig
+    ...stringStorageConfig
   },
   lifiEvmTokensMetadataReducer
 );

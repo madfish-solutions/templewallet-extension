@@ -3,7 +3,7 @@ import { persistReducer } from 'redux-persist';
 import { getAddress } from 'viem';
 
 import { toTokenSlug } from 'lib/assets';
-import { storageConfig } from 'lib/store';
+import { stringStorageConfig } from 'lib/store';
 import { isPositiveTokenBalance } from 'lib/utils/evm.utils';
 
 import { processLoadedEvmTokensMetadataAction, putEvmTokensMetadataAction } from './actions';
@@ -50,7 +50,7 @@ const evmTokensMetadataReducer = createReducer<EvmTokensMetadataState>(evmTokens
 export const evmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmTokensMetadata',
-    ...storageConfig
+    ...stringStorageConfig
   },
   evmTokensMetadataReducer
 );

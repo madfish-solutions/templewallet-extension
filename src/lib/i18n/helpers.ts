@@ -89,3 +89,18 @@ const processTemplate = (str: string, mix: any) =>
     }
     return y != null ? y : '';
   });
+
+// Native messages are fixed for the browser's lifetime, and each lookup is a native extension API call
+const nativeMessages = new Map<string, string>();
+
+export function getNativeMessage(messageName: string, substitutions?: Substitutions) {
+  if (substitutions !== undefined) return browser.i18n.getMessage(messageName, substitutions);
+
+  let message = nativeMessages.get(messageName);
+  if (message === undefined) {
+    message = browser.i18n.getMessage(messageName);
+    nativeMessages.set(messageName, message);
+  }
+
+  return message;
+}

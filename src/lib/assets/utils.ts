@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { getAddress } from 'viem';
-import browser from 'webextension-polyfill';
 
 import { CollectibleDetails } from 'app/store/tezos/collectibles/state';
+import { getNativeMessage } from 'lib/i18n/helpers';
 import type { AssetMetadataBase } from 'lib/metadata';
 import type { ChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -96,7 +96,7 @@ const NAME_FROM_GALLERY_FIRST_ADDRESSES = new Set([
 
 export const getTezCollectionName = (assetSlug: string, details: CollectibleDetails | nullish) => {
   const [contractAddress] = fromAssetSlug(assetSlug);
-  const fallbackName = browser.i18n.getMessage('unknownCollection');
+  const fallbackName = getNativeMessage('unknownCollection');
 
   if (!details) {
     return fallbackName;

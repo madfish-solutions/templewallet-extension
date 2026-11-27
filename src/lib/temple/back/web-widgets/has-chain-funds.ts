@@ -3,8 +3,14 @@ import { TempleChainKind } from 'temple/types';
 
 const PERSIST_ROOT_KEY = 'persist:temple-root';
 
+type EvmBalancesAtomic = Record<string, Record<string, StringRecord>>;
+
 interface EvmBalancesSlice {
-  balancesAtomic?: Record<string, Record<string, StringRecord>>;
+  balancesAtomic?: EvmBalancesAtomic;
+}
+
+interface StoredEvmBalances {
+  balancesAtomic?: string;
 }
 
 interface TezosBalancesSlice {
@@ -28,18 +34,27 @@ const parseSlice = <T>(slice: T | string | undefined): T | undefined => {
 const hasPositiveEntry = (record: StringRecord | undefined) =>
   Boolean(record && Object.values(record).some(value => value && value !== '0'));
 
+const readEvmBalancesAtomic = async () => {
+  const stored = await fetchFromStorage<string>('persist:root.evmBalances').catch(() => null);
+  if (stored) return parseSlice<EvmBalancesAtomic>(parseSlice<StoredEvmBalances>(stored)?.balancesAtomic);
+
+  const root = await fetchFromStorage<PersistedRoot>(PERSIST_ROOT_KEY).catch(() => null);
+
+  return parseSlice(root?.evmBalances)?.balancesAtomic;
+};
+
 export const hasChainFunds = async (
   chainKind: TempleChainKind,
   chainId: string,
   addresses: string[]
 ): Promise<boolean> => {
-  const root = await fetchFromStorage<PersistedRoot>(PERSIST_ROOT_KEY).catch(() => null);
-  if (!root) return false;
-
   if (chainKind === TempleChainKind.EVM) {
-    const atomic = parseSlice(root.evmBalances)?.balancesAtomic ?? {};
+    const atomic = (await readEvmBalancesAtomic()) ?? {};
     return addresses.some(address => hasPositiveEntry(atomic[address]?.[chainId]));
   }
+
+  const root = await fetchFromStorage<PersistedRoot>(PERSIST_ROOT_KEY).catch(() => null);
+  if (!root) return false;
 
   const atomic = parseSlice(root.balances)?.balancesAtomic ?? {};
   return addresses.some(address => hasPositiveEntry(atomic[`${address}_${chainId}`]?.data));

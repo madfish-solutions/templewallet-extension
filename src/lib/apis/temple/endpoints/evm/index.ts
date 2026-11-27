@@ -341,9 +341,6 @@ const buildEvmRequest = <T>({
     signal,
     ...(body instanceof Uint8Array ? { headers: { 'Content-Type': 'application/octet-stream' } } : {})
   };
-  if (path.includes('by-refs')) {
-    console.log('oy vey 1', { path, walletAddress, chainId, params, method, body });
-  }
   const request =
     method === 'post'
       ? templeWalletApi.post<T>(`evm${path}`, body, config)

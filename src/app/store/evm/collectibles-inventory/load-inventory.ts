@@ -1,3 +1,4 @@
+import { countBy, keyBy, uniqBy } from 'lodash';
 import { Action } from 'redux';
 import { Epic } from 'redux-observable';
 import { EMPTY, concat, from, of } from 'rxjs';
@@ -14,7 +15,7 @@ import {
 } from 'lib/apis/temple/endpoints/evm';
 import { AlchemyChainID } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { isGoldrushChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
-import { isAbortError, withRateLimitRetry } from 'lib/apis/utils';
+import { isAbortError, readRetryAfterMs, withRateLimitRetry } from 'lib/apis/utils';
 import { delayUnlessAborted } from 'lib/utils/delay-unless-aborted';
 
 import {
@@ -145,7 +146,7 @@ const readOwnerNfts = async (account: HexString, chainId: AlchemyChainID, signal
       if (isAbortError(error)) throw error;
 
       lastError = error;
-      if (attempt < 2) await delayUnlessAborted(1000, signal);
+      if (attempt < 2) await delayUnlessAborted(readRetryAfterMs(error) ?? 1000, signal);
     }
   }
 
@@ -169,6 +170,12 @@ const includeSingleSourceTokens = (
   const present = new Set(nextCollected.loaded.map(nft => nft.slug.toLowerCase()));
   const contractsByAddress = new Set(nextContracts.map(contract => contract.address.toLowerCase()));
   const keep = new Set(decision.keepSlugs.map(slug => slug.toLowerCase()));
+  const addressKey = (contract: InventoryContractRef) => contract.address.toLowerCase();
+  const goldrushContracts = keyBy(uniqBy(goldrush.contracts, addressKey), addressKey);
+  const keptByContract = countBy(
+    goldrush.collected.loaded.filter(item => keep.has(item.slug.toLowerCase())),
+    item => item.contractAddress.toLowerCase()
+  );
   let added = 0;
 
   for (const nft of goldrush.collected.loaded) {
@@ -185,14 +192,11 @@ const includeSingleSourceTokens = (
     const contractKey = nft.contractAddress.toLowerCase();
     if (contractsByAddress.has(contractKey)) continue;
 
-    const contract = goldrush.contracts.find(item => item.address.toLowerCase() === contractKey);
+    const contract: InventoryContractRef | undefined = goldrushContracts[contractKey];
     if (!contract) continue;
 
-    const ownedHere = goldrush.collected.loaded.filter(
-      item => keep.has(item.slug.toLowerCase()) && item.contractAddress.toLowerCase() === contractKey
-    ).length;
     contractsByAddress.add(contractKey);
-    nextContracts.push({ ...contract, distinctTokensOwned: ownedHere });
+    nextContracts.push({ ...contract, distinctTokensOwned: keptByContract[contractKey] ?? 0 });
   }
 
   return { collected: nextCollected, contracts: nextContracts, added };
@@ -227,7 +231,12 @@ const resolveSingleSource = async (
   return { decision, answers: next };
 };
 
-const readChainInventory = async (account: HexString, chainId: number, signal: AbortSignal): Promise<Action[]> => {
+const readChainInventory = async (
+  account: HexString,
+  chainId: number,
+  signal: AbortSignal,
+  previous: EvmChainCollectiblesInventory | undefined
+): Promise<Action[]> => {
   if (!isAlchemyChainId(chainId)) return [];
 
   const goldrushResponse = isGoldrushChainId(chainId)
@@ -240,7 +249,7 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
       })
     : Promise.resolve(undefined);
   const [contractsResult, nftsResult, collectionsResult, goldrushResult] = await Promise.allSettled([
-    getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM),
+    withRateLimitRetry(() => getNftAlchemyContractsByOwner(chainId, account, signal, ALCHEMY_NFT_EXCLUDE_SPAM), signal),
     readOwnerNfts(account, chainId, signal),
     readAccountCollections(chainId, account, signal),
     goldrushResponse
@@ -250,7 +259,8 @@ const readChainInventory = async (account: HexString, chainId: number, signal: A
   settledOrThrow(collectionsResult);
   settledOrThrow(goldrushResult);
 
-  const contracts = contractsResult.status === 'fulfilled' ? contractsFromResponse(contractsResult.value) : [];
+  const contracts =
+    contractsResult.status === 'fulfilled' ? contractsFromResponse(contractsResult.value) : (previous?.contracts ?? []);
   const nfts = nftsResult.status === 'fulfilled' ? nftsResult.value : undefined;
   const collections = collectionsResult.status === 'fulfilled' ? collectionsFromResponse(collectionsResult.value) : [];
   const goldrushData = goldrushResult.status === 'fulfilled' ? goldrushResult.value : undefined;
@@ -409,6 +419,19 @@ const cancelNftPageLoads = (account: string) => {
   }
 };
 
+const withPreservedLoadedPut = (state: RootState, action: Action) => {
+  if (!putEvmChainCollectiblesInventoryAction.match(action)) return action;
+
+  const { account, chainId, inventory } = action.payload;
+  const previous = state.evmCollectiblesInventory.byAccount[account]?.[chainId];
+
+  return putEvmChainCollectiblesInventoryAction({
+    account,
+    chainId,
+    inventory: withPreservedLoadedNfts(account, chainId, inventory, previous)
+  });
+};
+
 export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     filter(loadEvmCollectiblesInventoryAction.match),
@@ -419,26 +442,20 @@ export const loadInventoryEpic: Epic<Action, Action, RootState> = (action$, stat
 
       return concat(
         of(setEvmCollectiblesInventoryLoadingAction(true)),
-        from(
-          Promise.all(chainIds.map(chainId => readChainInventory(payload.account, chainId, controller.signal)))
-        ).pipe(
-          mergeMap(actionLists =>
+        from(chainIds).pipe(
+          mergeMap(chainId =>
             from(
-              actionLists.flat().map(action => {
-                if (!putEvmChainCollectiblesInventoryAction.match(action)) return action;
-
-                const { account, chainId, inventory } = action.payload;
-                const previous = state$.value.evmCollectiblesInventory.byAccount[account]?.[chainId];
-
-                return putEvmChainCollectiblesInventoryAction({
-                  account,
-                  chainId,
-                  inventory: withPreservedLoadedNfts(account, chainId, inventory, previous)
-                });
-              })
+              readChainInventory(
+                payload.account,
+                chainId,
+                controller.signal,
+                state$.value.evmCollectiblesInventory.byAccount[payload.account]?.[chainId]
+              )
+            ).pipe(
+              mergeMap(actions => from(actions.map(action => withPreservedLoadedPut(state$.value, action)))),
+              catchError(emptyAfterAbort)
             )
-          ),
-          catchError(emptyAfterAbort)
+          )
         ),
         of(setEvmCollectiblesInventoryLoadingAction(false))
       ).pipe(finalize(() => controller.abort()));

@@ -93,6 +93,21 @@ export const placeInventoryCollections = (
     }
   }
 
+  const indexesByCollectionSlug = new Map<string, number[]>();
+  const unnamedIndexesByAddress = new Map<string, number[]>();
+  const indexesByAddress = new Map<string, number[]>();
+  const push = (map: Map<string, number[]>, key: string, index: number) => {
+    const group = map.get(key);
+    if (group) group.push(index);
+    else map.set(key, [index]);
+  };
+  loaded.forEach((nft, index) => {
+    const address = normalizeAddress(nft.contractAddress);
+    push(indexesByAddress, address, index);
+    if (nft.collectionSlug) push(indexesByCollectionSlug, nft.collectionSlug, index);
+    else push(unnamedIndexesByAddress, address, index);
+  });
+
   const placedSlugs = new Set<string>();
   const cards: PlacedInventoryCollection[] = [];
   const seenCollectionSlugs = new Set<string>();
@@ -102,14 +117,14 @@ export const placeInventoryCollections = (
     seenCollectionSlugs.add(collection.slug);
 
     const addresses = collection.contractAddresses.map(normalizeAddress);
-    const slugs = loaded.flatMap(nft => {
-      if (nft.collectionSlug === collection.slug) return [nft.slug];
-      if (nft.collectionSlug || !addresses.includes(normalizeAddress(nft.contractAddress))) return [];
-
-      const collectionsForContract = collectionsByAddress.get(normalizeAddress(nft.contractAddress)) ?? [];
-
-      return collectionsForContract.length === 1 ? [nft.slug] : [];
-    });
+    const indexes = new Set(indexesByCollectionSlug.get(collection.slug));
+    for (const address of new Set(addresses)) {
+      if ((collectionsByAddress.get(address) ?? []).length !== 1) continue;
+      for (const index of unnamedIndexesByAddress.get(address) ?? []) indexes.add(index);
+    }
+    const slugs = Array.from(indexes)
+      .sort((a, b) => a - b)
+      .map(index => loaded[index].slug);
 
     for (const slug of slugs) placedSlugs.add(slug);
 
@@ -128,8 +143,8 @@ export const placeInventoryCollections = (
     const address = normalizeAddress(contract.address);
     if ((collectionsByAddress.get(address) ?? []).length > 0) continue;
 
-    const slugs = loaded.flatMap(nft =>
-      !placedSlugs.has(nft.slug) && normalizeAddress(nft.contractAddress) === address ? [nft.slug] : []
+    const slugs = (indexesByAddress.get(address) ?? []).flatMap(index =>
+      placedSlugs.has(loaded[index].slug) ? [] : [loaded[index].slug]
     );
 
     cards.push({

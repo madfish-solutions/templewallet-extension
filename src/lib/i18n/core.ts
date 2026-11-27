@@ -2,10 +2,16 @@ import { isDefined } from '@rnw-community/shared';
 import formatDateFns from 'date-fns/format';
 import formatDurationFns from 'date-fns/formatDuration';
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
-import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
-import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
+import {
+  getNativeLocale,
+  getDefaultLocale,
+  areLocalesEqual,
+  fetchLocaleMessages,
+  applySubstitutions,
+  getNativeMessage
+} from './helpers';
 import { getSavedLocale } from './saving';
 import { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
 
@@ -65,7 +71,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
   if (targetVal) return applySubstitutions(targetVal, substitutions);
 
   if (!target) {
-    const nativeVal = browser.i18n.getMessage(messageName, substitutions);
+    const nativeVal = getNativeMessage(messageName, substitutions);
 
     if (nativeVal) return nativeVal;
   }
@@ -74,7 +80,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
   return fallbackVal
     ? applySubstitutions(fallbackVal, substitutions)
-    : (browser.i18n.getMessage(messageName, substitutions) ?? '');
+    : (getNativeMessage(messageName, substitutions) ?? '');
 }
 
 function getDateFnsLocale() {

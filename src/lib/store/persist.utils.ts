@@ -85,3 +85,31 @@ export const storageConfig = {
   deserialize: false,
   getStoredState: getStoredStateToMigrateStorage
 };
+
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+export const isPersistedState = (value: unknown): value is NonNullable<PersistedState> =>
+  isRecord(value) &&
+  isRecord(value[PERSIST_STATE_KEY]) &&
+  typeof value[PERSIST_STATE_KEY].version === 'number' &&
+  typeof value[PERSIST_STATE_KEY].rehydrated === 'boolean';
+
+// Before their first save with `stringStorageConfig`, keys hold the object `storageConfig` saved
+const getStoredStringOrObjectState = async <S>(config: PersistConfig<S>): Promise<PersistedState> => {
+  const state = await getStoredState(config).catch(() =>
+    getStoredState({
+      ...config,
+      // @ts-expect-error // For absent definition
+      deserialize: false
+    })
+  );
+
+  return isPersistedState(state) ? state : undefined;
+};
+
+// chrome.storage converts a big object on the main thread for the save and for every change listener; a string is cheap
+export const stringStorageConfig = {
+  storage: ReduxPersistStorage,
+  getStoredState: getStoredStringOrObjectState
+};

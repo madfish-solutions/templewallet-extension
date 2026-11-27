@@ -84,15 +84,6 @@ const DefaultCollectibleListItemLayoutHOC = <
               <ScamTag />
             </div>
           )}
-          {!isVisible && (
-            <>
-              <div className="w-full h-full z-1 bg-grey-3" />
-              <div
-                className="absolute bottom-1 right-1 z-10 rounded-full bg-grey-2"
-                style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
-              />
-            </>
-          )}
           {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
           {(!metadatasLoading || metadata) && isVisible && (
             <>
@@ -122,7 +113,7 @@ const DefaultCollectibleListItemLayoutHOC = <
         )}
         {showDetails && !isVisible && (
           <div className="pt-1 w-full h-5">
-            <div className="w-full h-4 bg-grey-3 rounded" />
+            <div className="w-full h-4 bg-grey-4 rounded" />
           </div>
         )}
       </Link>

@@ -23,6 +23,13 @@ export const loadEvmCollectionTokensAction = createAction<{
   collectionName?: string;
 }>('evm/collectibles-inventory/LOAD_COLLECTION_TOKENS');
 
+export const verifyEvmCollectionTokensAction = createAction<{
+  account: HexString;
+  chainId: number;
+  contractAddresses: string[];
+  shownSlugs: string[];
+}>('evm/collectibles-inventory/VERIFY_COLLECTION_TOKENS');
+
 export const searchEvmCollectiblesAction = createAction<{
   account: HexString;
   chainIds: number[];

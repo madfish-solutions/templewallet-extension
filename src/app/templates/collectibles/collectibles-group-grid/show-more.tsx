@@ -111,7 +111,6 @@ const ShowMoreLayoutHOC = <
             'group-hover:border-secondary'
           )}
         >
-          {!isVisible && <div className="w-full h-full z-1 bg-grey-3" />}
           {(!metadatasLoading || metadata) && isVisible && (
             <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
           )}
