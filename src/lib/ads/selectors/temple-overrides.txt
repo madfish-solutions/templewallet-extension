@@ -10,7 +10,6 @@
 
 dextools.io##.ad-banner
 dextools.io##.banner-content
-dextools.io##.coinzilla-banner
 
 etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io,dextools.io##.sevioads
 etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io###ad-container
@@ -27,6 +26,7 @@ theblock.co##[class*='sponsor-banner' i]
 
 coinmarketcap.com##[data-role*='banner-ad' i]
 coinmarketcap.com##.cmc-sponsor-wrapper
+coinmarketcap.com###homepage-highlight-banner-desktop
 
 coingecko.com##tr[data-ads-target="banner"]:not(tr[data-ads-target="banner"] ~ tr) > td[colspan] > div
 coingecko.com###sponsored-search-desktop
