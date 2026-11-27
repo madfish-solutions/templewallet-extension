@@ -128,7 +128,7 @@ const NATIVE_AD_DIMENSIONS = {
   width: 200,
   height: 16,
   maxContainerWidth: 1200,
-  maxContainerHeight: 300
+  maxContainerHeight: 200
 };
 
 // Keep wide native slots from leaving large blank areas.
