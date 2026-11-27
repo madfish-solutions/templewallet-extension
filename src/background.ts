@@ -137,7 +137,7 @@ const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
 
 importUpdateRulesStorageModule()
-  .then(module => module.updateRulesStorage())
+  .then(module => module.refreshAdSelectors())
   .catch(() => {});
 
 async function linkAdsImpressionsIfNeeded() {

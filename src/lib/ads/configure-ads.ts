@@ -15,7 +15,7 @@ import {
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/ads-constants/ads-constants';
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
-import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { APP_VERSION, EnvVars, IS_DEV_ENV, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import {
   TempleAnalyzeYoutubeSearchPageData,
@@ -33,7 +33,6 @@ import { importExtensionAdsModule } from './import-extension-ads-module';
 // #region These interfaces below are copied from '@temple-wallet/extension-ads' or based on this module to avoid
 // importing it to ensure that a core build runs without errors.
 interface AdSource {
-  shouldNotUseStrictContainerLimits?: boolean;
   providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
   native?: boolean;
   slug: string;
@@ -43,8 +42,6 @@ interface AdSource {
 interface AdDimensions {
   width: number;
   height: number;
-  minContainerWidth: number;
-  minContainerHeight: number;
   maxContainerWidth: number;
   maxContainerHeight: number;
 }
@@ -55,6 +52,7 @@ interface AdMetadata {
 }
 
 interface AdsStackIframeURLParams {
+  placementKind?: 'selector';
   id: string;
   adsMetadataIds: any[];
   origin: string;
@@ -85,6 +83,7 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPageP
 )}`;
 
 const searchParamsNames = {
+  placementKind: 'placementKind',
   id: 'id',
   themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
   backgroundColor: BACKGROUND_COLOR_SEARCH_PARAM_NAME,
@@ -125,7 +124,25 @@ const isYouTubePage = (locationHref: string) => {
   return youtubeHostnames.has(hostname);
 };
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
+const NATIVE_AD_DIMENSIONS = {
+  width: 200,
+  height: 16,
+  maxContainerWidth: 1200,
+  maxContainerHeight: 200
+};
+
+// Keep wide native slots from leaving large blank areas.
+const nativeAdFitsSlot = (width: number, height: number): boolean => {
+  const { width: minWidth, height: minHeight, maxContainerWidth: maxWidth, maxContainerHeight } = NATIVE_AD_DIMENSIONS;
+  if (!(width >= minWidth && width <= maxWidth && height >= minHeight)) return false;
+
+  const widthBeyondSquare = Math.max(width - maxContainerHeight, 0);
+  const heightDrop = (widthBeyondSquare * (maxContainerHeight - minHeight)) / (maxWidth - maxContainerHeight);
+
+  return height <= maxContainerHeight - heightDrop;
+};
+
+export const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
   const hypelabPlacementSlug = isYouTubePage(locationHref)
     ? EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG
     : EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG;
@@ -138,12 +155,9 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, loc
         slug: hypelabPlacementSlug
       },
       dimensions: {
-        width: Math.max(160, containerWidth),
-        height: Math.max(16, containerHeight),
-        minContainerWidth: 2,
-        minContainerHeight: 2,
-        maxContainerWidth: Infinity,
-        maxContainerHeight: Infinity
+        ...NATIVE_AD_DIMENSIONS,
+        width: Math.max(NATIVE_AD_DIMENSIONS.width, containerWidth),
+        height: Math.max(NATIVE_AD_DIMENSIONS.height, containerHeight)
       }
     },
     EnvVars.USE_ADS_STUBS && {
@@ -153,241 +167,72 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, loc
         native: true as const
       },
       dimensions: {
-        width: Math.max(160, containerWidth),
-        height: Math.max(16, containerHeight),
-        minContainerWidth: 2,
-        minContainerHeight: 2,
-        maxContainerWidth: Infinity,
-        maxContainerHeight: Infinity
+        ...NATIVE_AD_DIMENSIONS,
+        width: Math.max(NATIVE_AD_DIMENSIONS.width, containerWidth),
+        height: Math.max(NATIVE_AD_DIMENSIONS.height, containerHeight)
       }
     }
   ].filter(isTruthy);
 };
 
+const createBanner = (
+  providerName: AdSource['providerName'],
+  slug: string,
+  width: number,
+  height: number,
+  maxContainerWidth: number,
+  maxContainerHeight: number
+): AdMetadata => ({
+  source: { providerName, native: false, slug },
+  dimensions: { width, height, maxContainerWidth, maxContainerHeight }
+});
+
+const hypelabBanner = createBanner.bind(null, 'HypeLab');
+
+const bitmediaBanner = (
+  slug: string | undefined,
+  width: number,
+  height: number,
+  maxContainerWidth: number,
+  maxContainerHeight: number
+): AdMetadata | false =>
+  isTruthy(slug) && createBanner('Bitmedia', slug, width, height, maxContainerWidth, maxContainerHeight);
+
+// List order sets banner priority. Try Bitmedia first, then HypeLab at the same size if Bitmedia fails.
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
-  isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_970_90_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 970,
-      height: 90,
-      minContainerWidth: 969,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_728_90_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_600_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 600,
-      minContainerWidth: 299,
-      minContainerHeight: 599,
-      maxContainerWidth: 600,
-      maxContainerHeight: Infinity
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_160_600_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_160_600_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 160,
-      height: 600,
-      minContainerWidth: 159,
-      minContainerHeight: 599,
-      maxContainerWidth: 360,
-      maxContainerHeight: Infinity
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_336_280_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 336,
-      height: 280,
-      minContainerWidth: 335,
-      minContainerHeight: 279,
-      maxContainerWidth: 728,
-      maxContainerHeight: 480
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_250_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_250_250_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_250_250_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 250,
-      height: 250,
-      minContainerWidth: 249,
-      minContainerHeight: 249,
-      maxContainerWidth: 650,
-      maxContainerHeight: Infinity
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG
-    },
-    dimensions: {
-      width: 320,
-      height: 100,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
-      maxContainerWidth: 420,
-      maxContainerHeight: 200
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_320_100_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 320,
-      height: 100,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
-      maxContainerWidth: 420,
-      maxContainerHeight: 200
-    }
-  },
-  isTruthy(EnvVars.BITMEDIA_300_100_PLACEMENT_ID) && {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_300_100_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 100,
-      minContainerWidth: 299,
-      minContainerHeight: 99,
-      maxContainerWidth: 400,
-      maxContainerHeight: 200
-    }
-  },
-  {
-    source: {
-      providerName: 'HypeLab' as const,
-      native: false,
-      slug: EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG,
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
-  {
-    source: {
-      providerName: 'Bitmedia' as const,
-      native: false,
-      slug: EnvVars.BITMEDIA_320_50_PLACEMENT_ID,
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
+  bitmediaBanner(EnvVars.BITMEDIA_970_90_PLACEMENT_ID, 970, 90, 1400, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_728_90_PLACEMENT_ID, 728, 90, 1200, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_300_600_PLACEMENT_ID, 300, 600, 500, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_160_600_PLACEMENT_ID, 160, 600, 360, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_336_280_PLACEMENT_ID, 336, 280, 446, 380),
+  bitmediaBanner(EnvVars.BITMEDIA_300_250_PLACEMENT_ID, 300, 250, 400, 350),
+  bitmediaBanner(EnvVars.BITMEDIA_250_250_PLACEMENT_ID, 250, 250, 450, 450),
+  bitmediaBanner(EnvVars.BITMEDIA_320_100_PLACEMENT_ID, 320, 100, 420, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_300_100_PLACEMENT_ID, 300, 100, 400, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_320_50_PLACEMENT_ID, 320, 50, 420, 130),
+  bitmediaBanner(EnvVars.BITMEDIA_468_60_PLACEMENT_ID, 468, 60, 900, 89),
+  bitmediaBanner(EnvVars.BITMEDIA_468_90_PLACEMENT_ID, 468, 90, 900, 150),
+  bitmediaBanner(EnvVars.BITMEDIA_125_125_PLACEMENT_ID, 125, 125, 179, 149),
+  bitmediaBanner(EnvVars.BITMEDIA_180_150_PLACEMENT_ID, 180, 150, 220, 199),
+  bitmediaBanner(EnvVars.BITMEDIA_200_200_PLACEMENT_ID, 200, 200, 249, 280),
+  bitmediaBanner(EnvVars.BITMEDIA_250_100_PLACEMENT_ID, 250, 100, 299, 200),
+  bitmediaBanner(EnvVars.BITMEDIA_120_240_PLACEMENT_ID, 120, 240, 159, 360),
+  bitmediaBanner(EnvVars.BITMEDIA_120_600_PLACEMENT_ID, 120, 600, 159, 800),
+  bitmediaBanner(EnvVars.BITMEDIA_320_1200_PLACEMENT_ID, 320, 1200, 420, 1400),
+
+  hypelabBanner(EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG, 728, 90, 1200, 200),
+  hypelabBanner(EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG, 300, 250, 400, 350),
+  hypelabBanner(EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG, 320, 100, 420, 200),
+  hypelabBanner(EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG, 320, 50, 420, 130),
+
   EnvVars.USE_ADS_STUBS && {
     source: {
       providerName: 'Temple' as const,
-      slug: '',
-      shouldNotUseStrictContainerLimits: true
+      slug: ''
     },
     dimensions: {
       width: 320,
       height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
       maxContainerWidth: 420,
       maxContainerHeight: 130
     }
@@ -422,7 +267,8 @@ export const configureAds = async () => {
   const dAppSession =
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
-  originalConfigureAds({
+  const configuration = {
+    debugAds: IS_DEV_ENV,
     hypelabPropertySlug: (locationHref: string) =>
       isYouTubePage(locationHref) ? EnvVars.HYPELAB_PROPERTY_SLUG : EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
@@ -432,6 +278,7 @@ export const configureAds = async () => {
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
     getAdsStackIframeURL,
     buildNativeAdsMeta,
+    nativeAdFitsSlot,
     bannerAdsMeta,
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
@@ -451,5 +298,6 @@ export const configureAds = async () => {
       getIntercom()
         .request({ type: TempleMessageType.AnalyzeYoutubeWatchPageRequest, data })
         .then(res => res.data)
-  });
+  };
+  originalConfigureAds(configuration);
 };

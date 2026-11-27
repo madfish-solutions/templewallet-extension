@@ -8,18 +8,33 @@ import {
 import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
+import type { SelectorRefreshResult } from 'lib/ads/selector-feeds';
 import {
   ContentScriptType,
-  ADS_RULES_UPDATE_INTERVAL,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
   AI_CHATBOT_ADS_ENABLED,
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  AD_RULES_REFRESH_INTERVAL,
+  AD_SELECTORS_STORAGE_KEY,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
-import { IS_MISES_BROWSER } from 'lib/env';
+import { IS_DEV_ENV, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { throttleAsyncCalls } from 'lib/utils/functions';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
+import {
+  AdsScanRequest,
+  AdsScanScheduler,
+  createAdsScanScheduler,
+  getPublisherMutationRoots,
+  publisherMutationDelay
+} from './content-scripts/replace-ads/scan-scheduler';
+import { isXAdsHost, replaceXAds, restoreXAds, X_ADS_DOMAINS } from './content-scripts/replace-ads/x-ads';
+
+const DEDICATED_AD_DOMAINS = ['youtube.com', CHATGPT_DOMAIN, ...X_ADS_DOMAINS];
+const hasDedicatedAds = (hostname: string): boolean =>
+  DEDICATED_AD_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
 
 const INJECTED_PIXEL_ID = 'twa-injected-pixel';
 const INJECTED_PIXEL_STYLE =
@@ -55,44 +70,211 @@ const startPixelTag = () =>
     }
   }, 1000);
 
-let adsActionTriggers: { documentObserver?: MutationObserver; interval?: NodeJS.Timeout } | undefined;
+let scheduler: AdsScanScheduler | undefined;
+let documentObserver: MutationObserver | undefined;
+let routeInterval: ReturnType<typeof setInterval> | undefined;
+let websiteAdsEnabled = false;
+let chatbotAdsEnabled = false;
+let generation = 0;
+let updateQueue = Promise.resolve();
+let routeKey = window.location.href;
+let observedRouteKey = routeKey;
+let pageIsActive = true;
+let nextRulesRefreshAt = 0;
+let activeAdsModule: Awaited<ReturnType<typeof importExtensionAdsModule>> | undefined;
 
-const updateAdsActionTriggers = async () => {
-  const [inBrowserAdsEnabled, aiChatAdsEnabled] = await Promise.all([
-    checkIfShouldReplaceInBrowserAds(),
-    checkIfShouldReplaceAiChatAds()
-  ]);
+const stopAdsActionTriggers = () => {
+  scheduler?.dispose();
+  scheduler = undefined;
+  documentObserver?.disconnect();
+  documentObserver = undefined;
+  if (routeInterval) clearInterval(routeInterval);
+  routeInterval = undefined;
+  restoreXAds();
+};
 
-  if (inBrowserAdsEnabled && !adsActionTriggers?.interval) {
-    await configureAds();
-    const interval = setInterval(() => replaceAdsByInterval(), 1000);
-    adsActionTriggers = { ...adsActionTriggers, interval };
-  } else if (!inBrowserAdsEnabled && adsActionTriggers?.interval) {
-    clearInterval(adsActionTriggers.interval);
-    adsActionTriggers = { ...adsActionTriggers, interval: undefined };
+const requestRouteScan = () => {
+  if (window.location.href !== observedRouteKey) {
+    observedRouteKey = window.location.href;
+    activeAdsModule?.restoreWebsiteAds();
+    restoreXAds();
+    clearRulesCache();
   }
+  if (window.location.href !== routeKey) scheduler?.request(undefined, 0);
+};
 
-  if (aiChatAdsEnabled && !adsActionTriggers?.documentObserver) {
-    await configureAds();
-    const documentObserver = new MutationObserver(() => insertAiChatbotAds());
-    documentObserver.observe(document, { attributes: true, attributeFilter: ['d'], childList: true, subtree: true });
-    adsActionTriggers = { ...adsActionTriggers, documentObserver };
-  } else if (!aiChatAdsEnabled && adsActionTriggers?.documentObserver) {
-    adsActionTriggers.documentObserver.disconnect();
-    adsActionTriggers = { ...adsActionTriggers, documentObserver: undefined };
-  }
+const updateAdsActionTriggers = () => {
+  const currentGeneration = ++generation;
+  stopAdsActionTriggers();
+  websiteAdsEnabled = false;
+  chatbotAdsEnabled = false;
+  activeAdsModule?.restoreWebsiteAds();
+  updateQueue = updateQueue
+    .then(async () => {
+      if (!pageIsActive || currentGeneration !== generation) return;
+      const [inBrowserAdsEnabled, aiChatAdsEnabled, adsModule] = await Promise.all([
+        checkIfShouldReplaceInBrowserAds(),
+        checkIfShouldReplaceAiChatAds(),
+        importExtensionAdsModule()
+      ]);
+      if (!pageIsActive || currentGeneration !== generation) return;
+      activeAdsModule = adsModule;
+      if (IS_DEV_ENV) {
+        console.info('[Temple Ads] ads-enabled', {
+          websiteAdsEnabled: inBrowserAdsEnabled,
+          chatbotAdsEnabled: aiChatAdsEnabled,
+          generation: currentGeneration
+        });
+      }
+      // Restore first so an older configuration cannot retain website placements.
+      adsModule.restoreWebsiteAds();
+      if (!inBrowserAdsEnabled && !aiChatAdsEnabled) return;
+      await configureAds();
+      if (!pageIsActive || currentGeneration !== generation) return;
+      websiteAdsEnabled = inBrowserAdsEnabled;
+      chatbotAdsEnabled = aiChatAdsEnabled;
+      scheduler = createAdsScanScheduler(
+        request => scanAds(request, currentGeneration),
+        error => console.error('Replacing Ads error:', error)
+      );
+      if (inBrowserAdsEnabled) {
+        adsModule.configureWebsiteAdsLifecycle(root => scheduler?.request(root));
+      }
+      documentObserver = new MutationObserver(mutations => {
+        const roots = getPublisherMutationRoots(mutations);
+        if (roots.length === 0) return;
+        const delay = document.visibilityState === 'hidden' ? 700 : publisherMutationDelay(roots);
+        for (const root of roots) scheduler?.request(root, delay);
+      });
+      documentObserver.observe(document, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: [
+          'class',
+          'id',
+          'style',
+          'src',
+          'width',
+          'height',
+          'hidden',
+          'data-vignette-loaded',
+          'data-google-query-id',
+          'data-module-name',
+          'data-ads-target',
+          ...(isXAdsHost(window.location.hostname) ? ['data-testid'] : [])
+        ]
+      });
+      // Content scripts use an isolated world; a history wrapper cannot observe page-world calls.
+      routeInterval = setInterval(requestRouteScan, 1000);
+    })
+    .catch(error => console.error('Ads configuration error:', error));
+};
+
+const getSelectorRevision = (value: unknown): unknown => {
+  if (!value || typeof value !== 'object' || !('snapshot' in value)) return undefined;
+
+  const { snapshot } = value;
+  return snapshot && typeof snapshot === 'object' && 'revision' in snapshot ? snapshot.revision : undefined;
 };
 
 const startAdsReplacement = () => {
+  if (IS_DEV_ENV) {
+    console.info('[Temple Ads] content-script-start', {
+      hostname: window.location.hostname,
+      visibility: document.visibilityState
+    });
+  }
   updateAdsActionTriggers();
   browser.storage.local.onChanged.addListener(changes => {
-    if (WEBSITES_ADS_ENABLED in changes || AI_CHATBOT_ADS_ENABLED in changes) {
+    if (
+      WEBSITES_ADS_ENABLED in changes ||
+      AI_CHATBOT_ADS_ENABLED in changes ||
+      AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY in changes ||
+      ADS_VIEWER_DATA_STORAGE_KEY in changes
+    ) {
       updateAdsActionTriggers();
+    } else if (AD_SELECTORS_STORAGE_KEY in changes) {
+      if (hasDedicatedAds(window.location.hostname)) return;
+      const { oldValue, newValue } = changes[AD_SELECTORS_STORAGE_KEY];
+      if (getSelectorRevision(oldValue) === getSelectorRevision(newValue)) return;
+      ++selectorGeneration;
+      activeAdsModule?.setWebsiteSelectorRules({ revision: '', selectors: [], disabled: true, genericDisabled: false });
+      clearRulesCache();
+      void getRulesFromContentScript(window.location)
+        .then(() => {
+          activeAdsModule?.reconcileWebsiteAds();
+          scheduler?.request(undefined, 0);
+        })
+        .catch(console.error);
     }
+  });
+  window.addEventListener('popstate', requestRouteScan);
+  window.addEventListener('hashchange', requestRouteScan);
+  document.addEventListener('yt-navigate-finish', requestRouteScan);
+  window.addEventListener('pagehide', () => {
+    pageIsActive = false;
+    ++generation;
+    stopAdsActionTriggers();
+    websiteAdsEnabled = false;
+    chatbotAdsEnabled = false;
+    activeAdsModule?.restoreWebsiteAds();
+  });
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    pageIsActive = true;
+    updateAdsActionTriggers();
   });
 };
 
-let lastAttemptTs = 0;
+const scanIsCurrent = (scanGeneration: number, href: string) =>
+  pageIsActive &&
+  generation === scanGeneration &&
+  window.location.href === href &&
+  document.visibilityState !== 'hidden';
+
+const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
+  const href = window.location.href;
+  if (!scanIsCurrent(scanGeneration, href)) return;
+  const now = Date.now();
+  if (now >= nextRulesRefreshAt) {
+    nextRulesRefreshAt = now + AD_RULES_REFRESH_INTERVAL;
+    void browser.runtime
+      .sendMessage<{ type: ContentScriptType.RefreshAdSelectors }, SelectorRefreshResult>({
+        type: ContentScriptType.RefreshAdSelectors
+      })
+      .then(result => {
+        if (IS_DEV_ENV) {
+          if (result.status === 'partial' || result.status === 'failure') {
+            console.warn('[Temple Ads] selector-refresh', result);
+          } else {
+            console.info('[Temple Ads] selector-refresh', result);
+          }
+        }
+      })
+      .catch(error => console.error('[Temple Ads] selector-refresh-message-error', error));
+  }
+  const adsModule = await importExtensionAdsModule();
+  if (!scanIsCurrent(scanGeneration, href)) return;
+  if (routeKey !== href) {
+    routeKey = href;
+    observedRouteKey = href;
+    clearRulesCache();
+    adsModule.restoreWebsiteAds();
+    restoreXAds();
+    if (websiteAdsEnabled) adsModule.configureWebsiteAdsLifecycle(root => scheduler?.request(root));
+    request = {};
+  }
+  if (websiteAdsEnabled) {
+    adsModule.reconcileWebsiteAds();
+    await replaceWebsiteAds(request, scanGeneration, href);
+  }
+  if (chatbotAdsEnabled && scanIsCurrent(scanGeneration, href)) {
+    await insertAiChatbotAds(scanGeneration, href);
+  }
+};
+
+let selectorGeneration = 0;
 
 const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
@@ -107,12 +289,16 @@ const disableAdsTemporarily = async (subkey: string) =>
     [subkey]: Date.now()
   });
 
-const insertAiChatbotAds = async () => {
+const insertAiChatbotAds = async (scanGeneration: number, href: string) => {
   try {
     const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (isChatgptChatPage() && (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
+    if (
+      isChatgptChatPage() &&
+      (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000)) &&
+      scanIsCurrent(scanGeneration, href)
+    ) {
       adsActionsResult = await startChatgptChatAdsFlow(() => disableAdsTemporarily(CHATGPT_DOMAIN));
     }
 
@@ -125,8 +311,9 @@ const insertAiChatbotAds = async () => {
   }
 };
 
-const replaceAdsByInterval = throttleAsyncCalls(async () => {
+const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number, href: string) => {
   try {
+    const adsModule = await importExtensionAdsModule();
     const {
       getAdsActions,
       executeAdsActions,
@@ -137,35 +324,41 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
       isChatgptChatPage,
       startYoutubeSearchAdsFlow,
       startYoutubeWatchAdsFlow
-    } = await importExtensionAdsModule();
+    } = adsModule;
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (isChatgptChatPage()) {
+    if (!scanIsCurrent(scanGeneration, href) || !websiteAdsEnabled || isChatgptChatPage()) {
       return;
     }
 
-    if (isYoutubeHomePage()) {
+    const { hostname } = window.location;
+    if (isXAdsHost(hostname)) {
+      adsActionsResult = await replaceXAds(adsModule, href);
+    } else if (isYoutubeHomePage()) {
       adsActionsResult = await startYoutubeHomeAdsFlow();
     } else if (isYoutubeSearchPage()) {
       adsActionsResult = await startYoutubeSearchAdsFlow();
     } else if (isYoutubeWatchPage()) {
       adsActionsResult = await startYoutubeWatchAdsFlow();
-    } else {
+    } else if (!hasDedicatedAds(hostname)) {
       const adsRules = await getRulesFromContentScript(window.location);
 
-      if (
-        adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL &&
-        lastAttemptTs < Date.now() - ADS_RULES_UPDATE_INTERVAL
-      ) {
-        lastAttemptTs = Date.now();
-        clearRulesCache();
-        browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => {
-          console.error(e);
-        });
+      if (!scanIsCurrent(scanGeneration, href)) return;
+      const revisionGeneration = selectorGeneration;
+      activeAdsModule?.reconcileWebsiteAds();
+      const adsActions = await getAdsActions(adsRules, request);
+      if (!scanIsCurrent(scanGeneration, href) || revisionGeneration !== selectorGeneration) {
+        if (IS_DEV_ENV) {
+          console.info('[Temple Ads] scan-discarded', {
+            scanGeneration,
+            generation,
+            revisionGeneration,
+            selectorGeneration,
+            visibility: document.visibilityState
+          });
+        }
+        return;
       }
-
-      const adsActions = await getAdsActions(adsRules);
-
       adsActionsResult = await executeAdsActions(adsActions);
     }
     adsActionsResult.forEach(
@@ -175,7 +368,7 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
-});
+};
 
 runWhenDocumentIsActive(() => {
   startPixelTag();

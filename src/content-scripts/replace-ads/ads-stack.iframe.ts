@@ -9,10 +9,9 @@ import {
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/ads-constants/ads-constants';
+import { getCampaignPolicy } from 'lib/ads/campaign-policy';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-
-import { getRulesFromStorage } from './ads-rules';
 
 const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
@@ -28,15 +27,15 @@ const backgroundColor = usp.get(BACKGROUND_COLOR_SEARCH_PARAM_NAME) ?? undefined
 
 configureAds()
   .then(() => importExtensionAdsModule())
-  .then(async ({ renderAdsStack }) => ({ renderAdsStack, rules: await getRulesFromStorage(origin) }))
-  .then(({ renderAdsStack, rules }) => {
-    const { blacklistedHypelabCampaignsSlugs, permanentAdPlacesRules, adPlacesRules } = rules;
+  .then(async ({ renderAdsStack }) => ({ renderAdsStack, policy: await getCampaignPolicy() }))
+  .then(({ renderAdsStack, policy }) => {
+    const { blacklistedHypelabCampaignsSlugs } = policy;
 
     renderAdsStack({
       id: id ?? '',
       initialAdsMetadata: adsMetadataIds,
       origin,
-      pageHasPlacesRules: permanentAdPlacesRules.length > 0 || adPlacesRules.length > 0,
+      pageHasPlacesRules: usp.get('placementKind') === 'selector',
       adCategories,
       hypelabBlacklistedCampaignsSlugs: blacklistedHypelabCampaignsSlugs,
       themeColor,

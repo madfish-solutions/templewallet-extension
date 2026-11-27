@@ -11,11 +11,14 @@ const config = {
   testEnvironment: 'jsdom',
   // `multiformats` is ESM-only (no `require` export). Map subpaths to files and transpile them.
   moduleNameMapper: {
+    '^nanoid$': '<rootDir>/node_modules/nanoid/index.cjs',
+    '^(.*\\.txt)\\?raw$': '$1',
     '^multiformats$': '<rootDir>/node_modules/multiformats/dist/src/index.js',
     '^multiformats/(.*)$': '<rootDir>/node_modules/multiformats/dist/src/$1.js'
   },
   transformIgnorePatterns: ['/node_modules/(?!multiformats/)'],
   transform: {
+    '.+\\.txt$': './jest-text-transformer.js',
     '.+\\.ts$': 'ts-jest',
     '.+\\.tsx$': 'ts-jest',
     'node_modules/multiformats/.+\\.js$': './jest-esm-to-cjs-transformer.js'
