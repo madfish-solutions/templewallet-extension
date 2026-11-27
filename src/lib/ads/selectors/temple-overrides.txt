@@ -18,6 +18,7 @@ etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,s
 
 tzkt.io##.app-searchbar + div
 tzkt.io##.v-banner__content
+tzkt.io##.v-navigation-drawer__content iframe[src^='https://ads.tzkt.io']
 
 cointelegraph.com,theblock.co,coinmarketcap.com,coingecko.com,dexscreener.com##a[rel~='sponsored'] img
 cointelegraph.com##[class*='promo-banner' i]
